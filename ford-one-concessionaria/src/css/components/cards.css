@@ -1,0 +1,26 @@
+/* ============================================================
+   cards.css — KPI cards: .kpi-grid, .kpi-card, .kpi-ic,
+   variações de ícone (.ic-blue, .ic-green, ...), .kpi-delta
+============================================================ */
+/* ── KPI GRID ── */
+.kpi-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.kpi-card{background:var(--c-card);border-radius:var(--r);padding:14px;box-shadow:var(--sh0);display:flex;align-items:flex-start;gap:10px;border:1px solid var(--c-border);transition:var(--tr);cursor:pointer;flex:1 1 150px}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--sh1)}
+.kpi-ic{width:36px;height:36px;border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kpi-ic i{font-size:16px}
+.ic-blue{background:var(--ford-light)}.ic-blue i{color:var(--ford-vivid)}
+.ic-teal{background:var(--teal-bg)}.ic-teal i{color:var(--teal)}
+.ic-green{background:var(--green-bg)}.ic-green i{color:var(--green)}
+.ic-orange{background:var(--orange-bg)}.ic-orange i{color:var(--orange)}
+.ic-purple{background:var(--purple-bg)}.ic-purple i{color:var(--purple)}
+.ic-gold{background:var(--gold-bg)}.ic-gold i{color:var(--gold)}
+.ic-navy{background:var(--navy-bg)}.ic-navy i{color:var(--navy)}
+.kpi-body{flex:1;min-width:0}
+.kpi-lbl{display:block;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--c-dim);margin-bottom:5px;line-height:1.2;white-space:nowrap}
+.kpi-val{display:block;font-size:18px;font-weight:700;color:var(--c-text);line-height:1.1;margin-bottom:4px;white-space:nowrap}
+.kpi-val.sm{font-size:18px}
+.kpi-delta{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.kpi-delta.pos{background:var(--green-bg);color:var(--green)}
+.kpi-delta.neg{background:var(--red-bg);color:var(--red)}
+.kpi-delta.neu{background:var(--c-bg);color:var(--c-mid)}
+

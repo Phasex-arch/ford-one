@@ -1,0 +1,17 @@
+    <!-- ESTOQUE -->
+    <section class="module" id="mod-estoque">
+      <div class="mod-header">
+        <div><h1>Estoque</h1><p class="mod-sub" id="estoqueSubtitle">142 veiculos disponiveis</p></div>
+        <div class="mod-actions">
+          <button class="btn-sec" onclick="showToast('Importando planilha...','info')"><i class="ph-bold ph-arrow-square-in"></i> Importar planilha</button>
+          <button class="btn-prim" onclick="showToast('Funcionalidade em breve','info')"><i class="ph-bold ph-plus"></i> Adicionar veiculo</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <div class="srch-field"><i class="ph-bold ph-magnifying-glass"></i><input type="text" placeholder="Buscar modelo, versao..." id="estSearch" oninput="filterEstoque()"/></div>
+        <select id="estCond" onchange="filterEstoque()"><option value="">Todos</option><option value="novo">Novo</option><option value="seminovo">Seminovo</option></select>
+        <select id="estSeg" onchange="filterEstoque()"><option value="">Todos os segmentos</option><option value="suv">SUV</option><option value="picape">Picape</option><option value="sedan">Sedan</option></select>
+      </div>
+      <div class="estoque-grid" id="estoqueGrid"></div>
+    </section>
+

@@ -1,0 +1,79 @@
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="header-left">
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="brand" onclick="navigate('dashboard',document.querySelector('[data-module=dashboard]'))" style="cursor:pointer">
+      <div class="ford-logo-wrap">
+        <img src="../../../assets/images/logo/logo-ford.png" alt="Ford" class="ford-logo-img"/>
+      </div>
+      <div class="brand-divider"></div>
+      <div class="brand-text">
+        <span class="brand-name">Ford One</span>
+        <span class="brand-sub">Portal da Concessionária</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-search">
+    <div class="search-wrap">
+      <i class="ph-bold ph-magnifying-glass srch-icon"></i>
+      <input type="text" id="globalSearch" placeholder="Pesquisar cliente, veículo, serviço ou lead..." autocomplete="off"/>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="sys-status" title="Sistema operacional">
+      <span class="sys-dot"></span>
+      <span class="sys-label">Online</span>
+    </div>
+    <div class="header-dealership">
+      <i class="ph-bold ph-buildings"></i>
+      <span class="dealer-label">Ford SP Centro</span>
+    </div>
+    <button class="hdr-icon-btn" id="notifBtn" aria-label="Notificacoes">
+      <i class="ph-bold ph-bell"></i>
+      <span class="notif-badge" id="notifBadge">4</span>
+    </button>
+    <button class="hdr-user-btn" id="userMenuBtn" aria-label="Perfil">
+      <div class="user-av">RC</div>
+      <div class="user-info-hdr">
+        <span class="user-nm">Ricardo Costa</span>
+        <span class="user-rl">Gerente Comercial</span>
+      </div>
+      <i class="ph-bold ph-caret-down user-chev"></i>
+    </button>
+  </div>
+
+  <!-- NOTIF DROPDOWN -->
+  <div class="hdr-dropdown notif-dropdown" id="notifDropdown">
+    <div class="hdr-dd-head">
+      <span>Notificacoes</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="notif-mark-all" onclick="markAllNotifsRead()">Marcar todas</button>
+        <button onclick="closeDD('notifDropdown')"><i class="ph-bold ph-x"></i></button>
+      </div>
+    </div>
+    <div id="notifList">
+      <div class="notif-row unread" style="cursor:pointer" onclick="closeDD('notifDropdown');navigate('leads',document.querySelector('[data-module=leads]'))"><div class="ndot"></div><div class="ncnt"><strong>Lead urgente</strong><p>Carlos Silva – interesse em Ranger Storm</p><span>há 5 min</span></div></div>
+      <div class="notif-row unread" style="cursor:pointer" onclick="closeDD('notifDropdown');navigate('agenda',document.querySelector('[data-module=agenda]'))"><div class="ndot"></div><div class="ncnt"><strong>Agendamento confirmado</strong><p>Ana Rodrigues – revisão 50.000 km</p><span>há 22 min</span></div></div>
+      <div class="notif-row unread" style="cursor:pointer" onclick="closeDD('notifDropdown');navigate('servicos',document.querySelector('[data-module=servicos]'))"><div class="ndot"></div><div class="ncnt"><strong>SLA em risco</strong><p>OS #4821 – prazo em 2h</p><span>há 1h</span></div></div>
+      <div class="notif-row" style="cursor:pointer" onclick="closeDD('notifDropdown');navigate('metas',document.querySelector('[data-module=metas]'))"><div class="ndot read"></div><div class="ncnt"><strong>Meta atingida</strong><p>Receita de abril superou 105%</p><span>há 3h</span></div></div>
+    </div>
+  </div>
+
+  <!-- USER DROPDOWN -->
+  <div class="hdr-dropdown user-dd" id="userDropdown">
+    <div class="ud-top">
+      <div class="ud-av">RC</div>
+      <div><div class="ud-name">Ricardo Costa</div><div class="ud-role">Gerente Comercial · Ford SP Centro</div></div>
+    </div>
+    <button class="ud-row" onclick="udAction('perfil')"><i class="ph-bold ph-user"></i>Meu Perfil</button>
+    <button class="ud-row" onclick="udAction('senha')"><i class="ph-bold ph-lock"></i>Alterar Senha</button>
+    <button class="ud-row" onclick="navigate('config',document.querySelector('[data-module=config]'));closeDD('userDropdown')"><i class="ph-bold ph-gear"></i>Configurações</button>
+    <button class="ud-row ud-danger" onclick="udAction('sair')"><i class="ph-bold ph-sign-out"></i>Sair</button>
+  </div>
+</header>
+

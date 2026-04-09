@@ -1,0 +1,33 @@
+/* ============================================================
+   header-dropdowns.css — dropdowns de notificações e usuário
+   ancorados ao header (.hdr-dropdown, .notif-*, .ud-*).
+============================================================ */
+/* ── DROPDOWNS ── */
+.hdr-dropdown{position:fixed;top:calc(var(--hh) + 8px);right:14px;background:var(--c-card);border-radius:var(--rlg);box-shadow:var(--sh2);border:1px solid var(--c-border);z-index:950;overflow:hidden;opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:var(--tr)}
+.hdr-dropdown.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.notif-dropdown{width:340px}
+.user-dd{width:255px}
+.hdr-dd-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--c-border);font-weight:700;font-size:var(--fs2);color:var(--c-text)}
+.hdr-dd-head button{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--c-mid);transition:var(--tr)}
+.hdr-dd-head button:hover{background:var(--c-bg)}
+.notif-mark-all{font-size:var(--fs0)!important;font-weight:600!important;color:var(--ford-vivid)!important;padding:3px 8px!important;border-radius:var(--rsm)!important;background:var(--ford-light)!important;width:auto!important;height:auto!important;transition:var(--tr)!important}
+.notif-mark-all:hover{background:var(--ford-vivid)!important;color:#fff!important}
+.notif-row{display:flex;gap:10px;padding:11px 16px;border-bottom:1px solid var(--c-border);cursor:pointer;transition:var(--tr);align-items:flex-start}
+.notif-row:last-child{border-bottom:none}
+.notif-row:hover,.notif-row.unread{background:color-mix(in srgb,var(--ford-light) 40%,var(--c-card))}
+.ndot{width:7px;height:7px;border-radius:50%;background:var(--ford-vivid);margin-top:5px;flex-shrink:0}
+.ndot.read{background:var(--c-border)}
+.ncnt strong{display:block;font-size:var(--fs1);color:var(--c-text);margin-bottom:1px}
+.ncnt p{font-size:var(--fs0);color:var(--c-mid);margin-bottom:1px}
+.ncnt span{font-size:var(--fs0);color:var(--c-dim)}
+.ud-top{display:flex;align-items:center;gap:11px;padding:14px 16px;border-bottom:1px solid var(--c-border);background:var(--c-bg)}
+.ud-av{width:38px;height:38px;border-radius:50%;background:var(--ford-vivid);color:#fff;font-size:var(--fs3);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ud-name{font-weight:700;font-size:var(--fs2);color:var(--c-text)}
+.ud-role{font-size:var(--fs0);color:var(--c-mid)}
+.ud-row{width:100%;display:flex;align-items:center;gap:9px;padding:10px 16px;font-size:var(--fs1);color:var(--c-text);cursor:pointer;transition:var(--tr);border-bottom:1px solid var(--c-border);text-align:left}
+.ud-row:last-child{border-bottom:none}
+.ud-row:hover{background:var(--ford-light);color:var(--ford-blue)}
+.ud-row i{width:16px;text-align:center;color:var(--c-mid);font-size:14px}
+.ud-row:hover i{color:var(--ford-vivid)}
+.ud-danger{color:var(--red)}.ud-danger i{color:var(--red)}.ud-danger:hover{background:var(--red-bg)!important;color:var(--red)!important}
+

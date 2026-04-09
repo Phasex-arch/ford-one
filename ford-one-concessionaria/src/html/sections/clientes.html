@@ -1,0 +1,17 @@
+    <!-- CLIENTES -->
+    <section class="module" id="mod-clientes">
+      <div class="mod-header">
+        <div><h1>Clientes</h1><p class="mod-sub">Gestao completa da base de clientes</p></div>
+        <div class="mod-actions">
+          <button class="btn-sec" onclick="exportarRelatorio('clientes')"><i class="ph-bold ph-arrow-square-out"></i> Exportar</button>
+          <button class="btn-prim" onclick="openNovoClienteModal()"><i class="ph-bold ph-plus"></i> Novo Cliente</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <div class="srch-field"><i class="ph-bold ph-magnifying-glass"></i><input type="text" placeholder="Buscar cliente..." id="clientSearch" oninput="filterClients()"/></div>
+        <select id="clientStatus" onchange="filterClients()"><option value="">Todos os status</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="potencial">Potencial</option></select>
+        <select id="clientOrder" onchange="filterClients()"><option value="nome">Nome A–Z</option><option value="ltv">Maior LTV</option><option value="ult">Ultimo atendimento</option></select>
+      </div>
+      <div class="tbl-wrap"><table class="data-tbl"><thead><tr><th>Cliente</th><th>Telefone</th><th>E-mail</th><th>Ultimo Atendimento</th><th>Status</th><th>Veiculos</th><th>LTV</th><th></th></tr></thead><tbody id="clientTbody"></tbody></table></div>
+    </section>
+

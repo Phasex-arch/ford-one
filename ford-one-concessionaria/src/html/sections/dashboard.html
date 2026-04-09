@@ -1,0 +1,55 @@
+    <!-- DASHBOARD -->
+    <section class="module active" id="mod-dashboard">
+      <div class="mod-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="mod-sub">Visao geral operacional · <span id="currentDate"></span></p>
+        </div>
+        <div class="mod-actions">
+          <select class="sel-ctrl" id="dashPeriod" onchange="filterDashPeriod()">
+            <option value="hoje">Hoje</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes" selected>Este mes</option>
+            <option value="trimestre">Este trimestre</option>
+          </select>
+          <button class="btn-prim" onclick="exportarRelatorio('dashboard')">
+            <i class="ph-bold ph-arrow-square-out"></i> Exportar
+          </button>
+        </div>
+      </div>
+      <div class="kpi-grid" id="dashKpis"></div>
+      <div class="dash-row">
+        <div class="chart-card">
+          <div class="chart-head"><h3>Receita Mensal</h3><div class="chart-legend"><span class="leg"><i class="dot blue"></i>Realizado</span><span class="leg"><i class="dot dashed"></i>Meta</span></div></div>
+          <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><h3>Conversao de Leads</h3></div>
+          <canvas id="conversionChart"></canvas>
+        </div>
+      </div>
+      <h3 class="sec-title">Alertas Operacionais</h3>
+      <div class="alerts-grid">
+        <div class="alert-card ac-red" onclick="navigate('servicos',document.querySelector('[data-module=servicos]'))">
+          <i class="ph-bold ph-warning-circle"></i>
+          <div class="al-body"><strong>SLA em risco</strong><p>3 ordens ultrapassando prazo nas proximas 2h</p></div>
+          <span class="al-link">Ver</span>
+        </div>
+        <div class="alert-card ac-orange" onclick="navigate('estoque',document.querySelector('[data-module=estoque]'))">
+          <i class="ph-bold ph-warning"></i>
+          <div class="al-body"><strong>Estoque baixo</strong><p>Maverick Hybrid com apenas 2 unidades</p></div>
+          <span class="al-link">Ver</span>
+        </div>
+        <div class="alert-card ac-blue" onclick="navigate('leads',document.querySelector('[data-module=leads]'))">
+          <i class="ph-bold ph-lightning"></i>
+          <div class="al-body"><strong>Lead prioritario</strong><p>Carlos Silva – Ranger Storm – R$ 245.000</p></div>
+          <span class="al-link">Atender</span>
+        </div>
+        <div class="alert-card ac-green" onclick="openKpi('receita')">
+          <i class="ph-bold ph-check-circle"></i>
+          <div class="al-body"><strong>Meta atingida</strong><p>Receita de abril superou 105% da meta</p></div>
+          <span class="al-link">Detalhar</span>
+        </div>
+      </div>
+    </section>
+

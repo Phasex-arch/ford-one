@@ -1,0 +1,42 @@
+/* ============================================================
+   agenda.css — layout de agenda, slots, appointments e técnicos.
+   .agenda-layout, .agenda-side, .slot-t, .apt, .sched-slot, etc.
+============================================================ */
+/* ── AGENDA ── */
+.agenda-layout{display:grid;grid-template-columns:230px 1fr;gap:14px}
+.agenda-side{background:var(--c-card);border-radius:var(--r);padding:15px;border:1px solid var(--c-border);box-shadow:var(--sh0)}
+.panel-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--c-mid);margin-bottom:10px}
+.tec-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--c-border)}
+.tec-row:last-child{border-bottom:none}
+.tec-av{width:30px;height:30px;border-radius:50%;background:var(--ford-light);color:var(--ford-blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tec-name{font-size:var(--fs1);font-weight:600;color:var(--c-text);white-space:nowrap}
+.tec-esp{font-size:var(--fs0);color:var(--c-dim)}
+.tec-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-left:auto}
+.tec-dot.livre{background:var(--green)}.tec-dot.ocupado{background:var(--orange)}.tec-dot.pausa{background:var(--c-dim)}
+.cap-wrap{margin-top:5px}
+.cap-row{display:flex;justify-content:space-between;font-size:var(--fs0);font-weight:600;color:var(--c-mid);margin-bottom:5px}
+.cap-bar{height:7px;background:var(--c-bg);border-radius:4px;overflow:hidden;cursor:pointer}
+.cap-fill{height:100%;background:linear-gradient(90deg,var(--ford-blue),var(--ford-vivid));border-radius:4px;transition:width .6s ease}
+.cap-info{font-size:var(--fs0);font-weight:600;margin-top:4px}
+.agenda-main{background:var(--c-card);border-radius:var(--r);border:1px solid var(--c-border);box-shadow:var(--sh0);overflow:hidden}
+.agenda-day-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--c-border);background:var(--c-bg)}
+.agenda-day-row h3{font-size:var(--fs3);font-weight:600;color:var(--c-text)}
+.agenda-slot{display:flex;align-items:stretch;border-bottom:1px solid var(--c-border);min-height:50px}
+.agenda-slot:last-child{border-bottom:none}
+.slot-t{width:58px;padding:8px 12px;font-size:var(--fs0);font-weight:700;color:var(--c-dim);border-right:1px solid var(--c-border);display:flex;align-items:center;background:var(--c-bg);flex-shrink:0}
+.slot-c{flex:1;display:flex;gap:5px;padding:5px;flex-wrap:wrap;align-items:center}
+.slot-empty{padding:5px 10px;color:var(--c-dim);font-size:var(--fs0);font-style:italic}
+.apt{flex:1;min-width:130px;background:var(--ford-light);border-radius:var(--rsm);padding:6px 9px;border-left:3px solid var(--ford-vivid);cursor:pointer;transition:var(--tr);position:relative}
+.apt:hover{filter:brightness(.97)}
+.apt.service{border-left-color:var(--green);background:var(--green-bg)}
+.apt.urgent{border-left-color:var(--red);background:var(--red-bg)}
+.apt.cancelled{border-left-color:var(--c-dim);background:var(--c-bg);opacity:.55}
+.apt-cli{font-size:var(--fs1);font-weight:700;color:var(--c-text)}
+.apt-type{font-size:var(--fs0);color:var(--c-mid)}
+.apt-tech{font-size:var(--fs0);color:var(--c-dim);margin-top:1px}
+.apt-x{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--c-mid);opacity:0;transition:var(--tr)}
+.apt:hover .apt-x{opacity:1}
+.apt-x:hover{background:var(--red);color:#fff}
+.slot-add-btn{height:26px;padding:0 10px;border-radius:var(--rsm);font-size:var(--fs0);font-weight:700;color:var(--ford-vivid);border:1px solid var(--ford-vivid);background:var(--ford-light);transition:var(--tr);align-self:center}
+.slot-add-btn:hover{background:var(--ford-vivid);color:#fff}
+

@@ -1,0 +1,39 @@
+/* ============================================================
+   config.css — formulários de configuração, toggles e tema.
+   .config-grid, .config-card, .toggle-item, .theme-btn, etc.
+============================================================ */
+/* ── CONFIG ── */
+.config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(276px,1fr));gap:15px}
+.config-card{background:var(--c-card);border-radius:var(--r);padding:18px;border:1px solid var(--c-border);box-shadow:var(--sh0)}
+.config-card h3{font-size:var(--fs4);font-weight:700;margin-bottom:13px;padding-bottom:10px;border-bottom:1px solid var(--c-border);color:var(--c-text)}
+.cfg-desc{font-size:var(--fs1);color:var(--c-mid);margin-bottom:13px;line-height:1.55}
+.cfg-form{display:flex;flex-direction:column;gap:11px;margin-bottom:14px}
+.cfg-form label{display:flex;flex-direction:column;gap:4px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--c-mid)}
+.cfg-form input{height:34px;padding:0 10px;border:1px solid var(--c-border);border-radius:var(--rsm);font-size:var(--fs1);color:var(--c-text);background:var(--c-input);transition:var(--tr)}
+.cfg-form input:focus{border-color:var(--ford-vivid);box-shadow:0 0 0 3px rgba(23,0,244,.08)}
+.toggle-list{display:flex;flex-direction:column;gap:11px}
+.toggle-item{display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:var(--fs1);color:var(--c-text)}
+.toggle-item input{display:none}
+.tog-slider{width:36px;height:20px;background:var(--c-border);border-radius:10px;position:relative;transition:var(--tr);flex-shrink:0}
+.tog-slider::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:var(--tr);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-item input:checked + .tog-slider{background:var(--ford-vivid)}
+.toggle-item input:checked + .tog-slider::after{transform:translateX(16px)}
+.int-list{display:flex;flex-direction:column;gap:8px}
+.int-row{display:flex;align-items:center;gap:8px;font-size:var(--fs1);padding:6px 0;border-bottom:1px solid var(--c-border)}
+.int-row:last-child{border-bottom:none}
+.int-row i{font-size:14px;flex-shrink:0}
+.int-row.ok i{color:var(--green)}.int-row.warn i{color:var(--orange)}.int-row.warn{color:var(--gold)}
+.theme-opts{display:flex;gap:10px;margin-top:5px}
+.theme-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 7px;border-radius:var(--r);border:2px solid var(--c-border);cursor:pointer;transition:var(--tr);background:var(--c-bg);font-size:var(--fs1);font-weight:600;color:var(--c-mid)}
+.theme-btn:hover{border-color:var(--ford-vivid);color:var(--ford-blue)}
+.theme-btn.active{border-color:var(--ford-vivid);background:var(--ford-light);color:var(--ford-blue)}
+.theme-preview{width:100%;height:50px;border-radius:var(--rsm);overflow:hidden;border:1px solid var(--c-border)}
+.lp{background:#f3f4f8}.dp{background:#0b0d18}
+.tp-bar{height:11px;background:#00095b;width:100%}
+.tp-row{display:flex;height:39px}
+.tp-side{width:27%;background:#fff;border-right:1px solid #e2e5ef}
+.dp .tp-side{background:#13172a;border-right-color:#1f2440}
+.tp-main{flex:1;padding:4px;display:flex;gap:3px}
+.tp-c{flex:1;border-radius:3px;background:#e2e5ef}
+.dp .tp-c{background:#1a1f38}
+

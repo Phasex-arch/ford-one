@@ -1,0 +1,49 @@
+/* ============================================================
+   os-cards.css — tabs, cards de OS e ações inline.
+   .tabs-row, .tab-btn, .os-card, .os-actions, .os-act-btn
+============================================================ */
+/* ── SERVIÇOS ── */
+.tabs-row{display:flex;gap:3px;margin-bottom:14px;background:var(--c-card);padding:4px;border-radius:var(--r);border:1px solid var(--c-border);width:fit-content;flex-wrap:wrap}
+.tab-btn{height:30px;padding:0 14px;border-radius:var(--rsm);font-size:var(--fs1);font-weight:500;color:var(--c-mid);transition:var(--tr);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tab-btn:hover{background:var(--c-bg)}
+.tab-btn.active{background:var(--ford-blue);color:#fff;font-weight:600}
+.tab-ct{font-size:var(--fs0);padding:1px 6px;border-radius:20px;background:rgba(255,255,255,.25)}
+.tab-btn:not(.active) .tab-ct{background:var(--c-bg);color:var(--c-mid)}
+.os-list{display:flex;flex-direction:column;gap:7px}
+.os-card{background:var(--c-card);border-radius:var(--r);border:1px solid var(--c-border);padding:12px 15px;display:grid;grid-template-columns:68px minmax(120px,1fr) minmax(160px,1.4fr) auto auto auto auto;align-items:center;gap:10px;box-shadow:var(--sh0);transition:var(--tr);cursor:pointer}
+.os-card:hover{box-shadow:var(--sh1);transform:translateX(2px)}
+.os-num{font-size:var(--fs1);font-weight:700;color:var(--ford-blue);min-width:0;}
+.os-cname{font-weight:600;font-size:var(--fs1);color:var(--c-text)}
+.os-cveh{font-size:var(--fs0);color:var(--c-mid);margin-top:1px}
+.os-card{
+  display:grid;
+  grid-template-columns:
+    88px      /* OS */
+    220px     /* cliente */
+    1fr       /* serviço */
+    150px     /* técnico */
+    140px     /* data */
+    110px;    /* valor */
+  gap:12px;
+  align-items:center;
+}
+.os-tech{font-size:var(--fs0);color:var(--c-mid)}
+.os-prazo{font-size:var(--fs0);font-weight:600;white-space:nowrap}
+.os-prazo.ok{color:var(--green)}.os-prazo.risco{color:var(--orange)}.os-prazo.atrasado{color:var(--red)}
+.os-val{font-weight:700;color:var(--c-text);text-align:right;font-size:var(--fs1);white-space:nowrap}
+
+/* ── OS CARD AÇÕES ── */
+.os-actions{display:flex;gap:5px;align-items:center;flex-shrink:0;opacity:0;transition:opacity .15s}
+.os-card:hover .os-actions{opacity:1}
+.os-act-btn{width:28px;height:28px;border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;font-size:13px;transition:var(--tr);flex-shrink:0;border:1px solid var(--c-border);background:var(--c-bg);color:var(--c-mid)}
+.os-act-btn:hover{background:var(--ford-light);color:var(--ford-vivid);border-color:var(--ford-vivid)}
+.os-act-btn.danger:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+/* Modal OS */
+.os-modal-header{display:flex;align-items:center;gap:14px;padding:18px 22px;background:linear-gradient(135deg,var(--ford-blue),var(--ford-mid));border-radius:var(--rlg) var(--rlg) 0 0}
+.os-modal-num{font-size:var(--fs0);font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6);text-transform:uppercase;margin-bottom:2px}
+.os-modal-title{font-size:var(--fs4);font-weight:700;color:#fff}
+.os-badge-status{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;margin-top:4px}
+.os-badge-previstos{background:rgba(255,255,255,.15);color:#fff}
+.os-badge-andamento{background:rgba(245,158,11,.25);color:#fbbf24}
+.os-badge-concluidos{background:rgba(16,185,129,.25);color:#34d399}
+

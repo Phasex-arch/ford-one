@@ -1,0 +1,71 @@
+    <!-- CONFIGURACOES -->
+    <section class="module" id="mod-config">
+      <div class="mod-header"><div><h1>Configuracoes</h1><p class="mod-sub">Preferencias do sistema e da concessionaria</p></div></div>
+      <div class="config-grid">
+        <div class="config-card">
+          <h3>Dados da Concessionaria</h3>
+          <div class="cfg-form">
+            <label>Nome fantasia<input type="text" id="cfgNome" value="Ford Sao Paulo Centro"/></label>
+            <label>CNPJ<input type="text" id="cfgCnpj" value="12.345.678/0001-90"/></label>
+            <label>Codigo Ford<input type="text" id="cfgCod" value="SP-0142"/></label>
+            <label>Responsavel<input type="text" id="cfgResp" value="Ricardo Costa"/></label>
+          </div>
+          <button class="btn-prim" onclick="saveCfg()">Salvar alteracoes</button>
+        </div>
+        <div class="config-card">
+          <h3>Notificacoes</h3>
+          <div class="toggle-list" id="notifToggles">
+            <label class="toggle-item" data-key="sla"><span>Alertas de SLA</span><input type="checkbox" checked/><span class="tog-slider"></span></label>
+            <label class="toggle-item" data-key="leads"><span>Novos leads</span><input type="checkbox" checked/><span class="tog-slider"></span></label>
+            <label class="toggle-item" data-key="relatorio"><span>Relatorio diario</span><input type="checkbox" checked/><span class="tog-slider"></span></label>
+            <label class="toggle-item" data-key="metas"><span>Metas atingidas</span><input type="checkbox"/><span class="tog-slider"></span></label>
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>Aparencia</h3>
+          <p class="cfg-desc">Modo padrao: Claro. Alterne para Escuro para reduzir o cansaco visual.</p>
+          <div class="theme-opts">
+            <button class="theme-btn active" id="themeLight" onclick="setTheme('light')">
+              <div class="theme-preview lp"><div class="tp-bar"></div><div class="tp-row"><div class="tp-side"></div><div class="tp-main"><div class="tp-c"></div><div class="tp-c"></div></div></div></div>
+              <span>Claro</span>
+            </button>
+            <button class="theme-btn" id="themeDark" onclick="setTheme('dark')">
+              <div class="theme-preview dp"><div class="tp-bar"></div><div class="tp-row"><div class="tp-side"></div><div class="tp-main"><div class="tp-c"></div><div class="tp-c"></div></div></div></div>
+              <span>Escuro</span>
+            </button>
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>Integracao Ford Smart Ecosystem</h3>
+          <div class="int-list">
+            <div class="int-row ok"><i class="ph-bold ph-check-circle"></i>Ford CRM Central</div>
+            <div class="int-row ok"><i class="ph-bold ph-check-circle"></i>Ford Financeira</div>
+            <div class="int-row ok"><i class="ph-bold ph-check-circle"></i>Ford Parts Online</div>
+            <div class="int-row warn"><i class="ph-bold ph-warning"></i>Ford Analytics (sync pendente)</div>
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>Seguranca</h3>
+          <div class="toggle-list">
+            <label class="toggle-item"><span>Autenticacao em 2 fatores</span><input type="checkbox" checked/><span class="tog-slider"></span></label>
+            <label class="toggle-item"><span>Log de auditoria</span><input type="checkbox" checked/><span class="tog-slider"></span></label>
+            <label class="toggle-item"><span>Timeout de sessao (30 min)</span><input type="checkbox" checked/><span class="tog-slider"></span></label>
+            <label class="toggle-item"><span>Alertas de acesso suspeito</span><input type="checkbox"/><span class="tog-slider"></span></label>
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>Metas Padrao</h3>
+          <div class="cfg-form">
+            <label>Meta mensal de vendas (unid.)<input type="number" value="28" id="cfgMetaVendas"/></label>
+            <label>Meta de receita (R$)<input type="number" value="1200000" id="cfgMetaReceita"/></label>
+            <label>SLA maximo (horas)<input type="number" value="4" id="cfgMetaSla"/></label>
+            <label>NPS minimo<input type="number" value="70" id="cfgMetaNps"/></label>
+          </div>
+          <button class="btn-prim" onclick="saveMetas()">Salvar metas</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+

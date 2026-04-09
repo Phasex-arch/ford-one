@@ -1,0 +1,33 @@
+<!-- MODAL: Exportar Relatorio -->
+<div class="modal-ov" id="exportModal" onclick="if(event.target===this)closeModal('exportModal')">
+  <div class="modal-box modal-sm">
+    <button class="modal-x" onclick="closeModal('exportModal')"><i class="ph-bold ph-x"></i></button>
+    <div style="padding:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--c-border)">
+        <div class="kpi-ic ic-blue" style="width:40px;height:40px;flex-shrink:0"><i class="ph-bold ph-file-text" style="font-size:18px"></i></div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--c-text)" id="exportModalTitle">Exportar Relatorio</div>
+          <div style="font-size:var(--fs0);color:var(--c-mid)" id="exportModalSubtitle">Selecione o formato de exportacao</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="export-opt-btn" onclick="abrirPDF()">
+          <div class="export-opt-icon" style="background:var(--red-bg)"><i class="ph-bold ph-file-pdf" style="color:var(--red)"></i></div>
+          <div><div style="font-weight:600;font-size:var(--fs2)">PDF</div><div style="font-size:var(--fs0);color:var(--c-mid)">Documento formatado para impressao</div></div>
+          <i class="ph-bold ph-arrow-right" style="margin-left:auto;color:var(--c-dim)"></i>
+        </button>
+        <button class="export-opt-btn" onclick="abrirPDF()">
+          <div class="export-opt-icon" style="background:var(--green-bg)"><i class="ph-bold ph-microsoft-excel-logo" style="color:var(--green)"></i></div>
+          <div><div style="font-weight:600;font-size:var(--fs2)">Excel / CSV</div><div style="font-size:var(--fs0);color:var(--c-mid)">Dados em planilha editavel</div></div>
+          <i class="ph-bold ph-arrow-right" style="margin-left:auto;color:var(--c-dim)"></i>
+        </button>
+        <button class="export-opt-btn" onclick="abrirPDF()">
+          <div class="export-opt-icon" style="background:var(--ford-light)"><i class="ph-bold ph-eye" style="color:var(--ford-vivid)"></i></div>
+          <div><div style="font-weight:600;font-size:var(--fs2)">Visualizar online</div><div style="font-size:var(--fs0);color:var(--c-mid)">Abrir no navegador</div></div>
+          <i class="ph-bold ph-arrow-right" style="margin-left:auto;color:var(--c-dim)"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

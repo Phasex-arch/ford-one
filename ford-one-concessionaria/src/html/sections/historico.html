@@ -1,0 +1,27 @@
+    <!-- HISTORICO -->
+    <section class="module" id="mod-historico">
+      <div class="mod-header">
+        <div><h1>Historico</h1><p class="mod-sub">Acessos do dia e historico completo de veiculos</p></div>
+        <div class="mod-actions">
+          <button class="btn-danger-out" onclick="openModal('confirmModal')"><i class="ph-bold ph-trash"></i> Apagar Historico</button>
+        </div>
+      </div>
+      <div class="hist-block">
+        <div class="hist-block-head"><div class="hist-icon"><i class="ph-bold ph-users"></i></div><div><h3>Clientes Acessados Hoje</h3><p>Perfis consultados durante o dia</p></div></div>
+        <div class="chips-row" id="histClientChips"></div>
+      </div>
+      <div class="hist-block">
+        <div class="hist-block-head"><div class="hist-icon"><i class="ph-bold ph-car"></i></div><div><h3>Veiculos Acessados Hoje</h3><p>Fichas de veiculos consultadas durante o dia</p></div></div>
+        <div class="chips-row" id="histVehicleChips"></div>
+      </div>
+      <div id="histClientDetail" style="display:none">
+        <div id="histBackBar" style="margin-bottom:16px">
+          <button class="btn-sec" onclick="fecharHistoricoCliente()" style="gap:6px">
+            <i class="ph-bold ph-arrow-left"></i> Voltar para Clientes
+          </button>
+        </div>
+        <div class="client-summary" id="clientSummary"></div>
+        <div class="vehicles-grid" id="vehiclesGrid"></div>
+      </div>
+    </section>
+

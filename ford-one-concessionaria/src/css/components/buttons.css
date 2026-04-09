@@ -1,0 +1,22 @@
+/* ============================================================
+   buttons.css — todos os botões do sistema:
+   .btn-prim, .btn-sec, .btn-danger, .btn-tbl, .icon-btn, .sel-ctrl
+============================================================ */
+/* ── BUTTONS ── */
+.btn-prim{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;background:var(--ford-blue);color:#fff;font-size:var(--fs1);font-weight:600;border-radius:var(--rsm);transition:var(--tr);white-space:nowrap}
+.btn-prim:hover{background:var(--ford-vivid);transform:translateY(-1px);box-shadow:0 4px 12px rgba(23,0,244,.3)}
+.btn-prim i{font-size:13px}
+.btn-sec{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;background:var(--c-card);color:var(--c-text);font-size:var(--fs1);font-weight:500;border-radius:var(--rsm);border:1px solid var(--c-border);transition:var(--tr);white-space:nowrap}
+.btn-sec:hover{border-color:var(--ford-vivid);color:var(--ford-vivid);background:var(--ford-light)}
+.btn-sec i{font-size:13px}
+.btn-danger{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 18px;background:var(--red);color:#fff;font-size:var(--fs1);font-weight:600;border-radius:var(--rsm);transition:var(--tr)}
+.btn-danger:hover{background:#dc2626}
+.btn-danger-out{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;background:transparent;color:var(--red);font-size:var(--fs1);font-weight:600;border-radius:var(--rsm);border:1px solid var(--red);transition:var(--tr)}
+.btn-danger-out:hover{background:var(--red-bg)}
+.btn-danger-out i,.btn-danger i{font-size:13px}
+.sel-ctrl{height:34px;padding:0 12px;background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--rsm);font-size:var(--fs1);color:var(--c-text);font-family:inherit;cursor:pointer;transition:var(--tr)}
+.sel-ctrl:focus{border-color:var(--ford-vivid)}
+.icon-btn{width:30px;height:30px;border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;background:var(--c-card);border:1px solid var(--c-border);color:var(--c-mid);transition:var(--tr)}
+.icon-btn i{font-size:13px}
+.icon-btn:hover{background:var(--ford-light);color:var(--ford-vivid)}
+

@@ -1,0 +1,19 @@
+<div class="modal-ov" id="metaModal" onclick="if(event.target===this)closeModal('metaModal')">
+  <div class="modal-box modal-sm">
+    <button class="modal-x" onclick="closeModal('metaModal')"><i class="ph-bold ph-x"></i></button>
+    <div style="padding:22px">
+      <h3 style="font-size:20px;font-weight:700;color:var(--c-text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--c-border)">Nova Meta</h3>
+      <div class="m-form">
+        <label>Indicador<select id="metaTipo"><option value="vendas">Vendas (unidades)</option><option value="receita">Receita (R$)</option><option value="leads">Leads qualificados</option><option value="nps">NPS</option><option value="sla">SLA medio (h)</option></select></label>
+        <label>Consultor / Equipe<input type="text" id="metaResponsavel" placeholder="Ex: Ricardo Costa"/></label>
+        <label>Valor da meta<input type="number" id="metaValor" placeholder="Ex: 30"/></label>
+        <label>Periodo<input type="month" id="metaPeriodo"/></label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn-sec" onclick="closeModal('metaModal')">Cancelar</button>
+        <button class="btn-prim" onclick="addMeta()">Criar Meta</button>
+      </div>
+    </div>
+  </div>
+</div>
+

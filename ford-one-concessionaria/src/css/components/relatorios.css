@@ -1,0 +1,19 @@
+/* ============================================================
+   relatorios.css — grade de cards de relatórios.
+   .rel-grid, .rel-card, .rel-btn, .export-opt-btn, etc.
+============================================================ */
+/* ── RELATÓRIOS ── */
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:14px}
+.rel-card{background:var(--c-card);border-radius:var(--r);padding:18px;border:1px solid var(--c-border);box-shadow:var(--sh0);display:flex;flex-direction:column;gap:10px;transition:var(--tr);cursor:pointer}
+.rel-card:hover{box-shadow:var(--sh1);transform:translateY(-2px)}
+.rel-title{font-size:var(--fs3);font-weight:700;color:var(--c-text)}
+.rel-desc{font-size:var(--fs0);color:var(--c-mid);line-height:1.55}
+.rel-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;gap:8px;flex-wrap:wrap}
+.rel-last{font-size:var(--fs0);color:var(--c-dim)}
+.rel-btn{height:30px;padding:0 14px;font-size:var(--fs0);font-weight:700;color:#fff;background:var(--ford-blue);border-radius:var(--rsm);transition:var(--tr);display:inline-flex;align-items:center;gap:5px}
+.rel-btn:hover{background:var(--ford-vivid)}
+.export-opt-btn{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--c-border);background:var(--c-card);width:100%;text-align:left;transition:var(--tr);cursor:pointer}
+.export-opt-btn:hover{background:var(--ford-light);border-color:var(--ford-vivid)}
+.export-opt-icon{width:36px;height:36px;border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.export-opt-icon i{font-size:17px}
+

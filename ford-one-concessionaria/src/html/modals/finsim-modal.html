@@ -1,0 +1,21 @@
+<div class="modal-ov" id="finSimModal" onclick="if(event.target===this)closeModal('finSimModal')">
+  <div class="modal-box modal-sm">
+    <button class="modal-x" onclick="closeModal('finSimModal')"><i class="ph-bold ph-x"></i></button>
+    <div style="padding:22px">
+      <h3 style="font-size:20px;font-weight:700;color:var(--c-text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--c-border)">Simulacao de Financiamento</h3>
+      <div class="m-form">
+        <label>Cliente<input type="text" id="finCli" placeholder="Nome do cliente"/></label>
+        <label>Veiculo<input type="text" id="finVei" placeholder="Modelo e versao"/></label>
+        <label>Valor do veiculo (R$)<input type="number" id="finValor" value="199900" oninput="calcFin()"/></label>
+        <label>Entrada (R$)<input type="number" id="finEntrada" value="40000" oninput="calcFin()"/></label>
+        <label>Prazo (meses)<select id="finPrazo" onchange="calcFin()"><option value="24">24x</option><option value="36">36x</option><option value="48" selected>48x</option><option value="60">60x</option><option value="72">72x</option></select></label>
+        <label>Taxa mensal (%)<input type="number" id="finTaxa" value="1.49" step="0.01" oninput="calcFin()"/></label>
+      </div>
+      <div class="fin-result" id="finResult" style="margin-top:16px;padding:14px;background:var(--ford-light);border-radius:var(--r);border-left:4px solid var(--ford-vivid)"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn-sec" onclick="closeModal('finSimModal')">Cancelar</button>
+        <button class="btn-prim" onclick="saveFinSim()">Salvar Simulacao</button>
+      </div>
+    </div>
+  </div>
+</div>

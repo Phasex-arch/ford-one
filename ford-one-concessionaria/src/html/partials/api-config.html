@@ -1,0 +1,21 @@
+<!-- ============================================================
+     Ford One API — Integração
+     Adicione este bloco no <head> do index.html, ANTES do
+     fechamento </head>.
+
+     CONFIGURAÇÃO:
+     Altere FORD_API_URL para apontar para sua instância da API.
+     Deixe FORD_API_AUTOLOAD = true para carregamento automático.
+     ============================================================ -->
+<script>
+  // URL da Ford One API (ajuste conforme seu ambiente)
+  window.FORD_API_URL = 'http://localhost:3000/api/v1';
+
+  // true = carrega dados da API automaticamente ao abrir o portal
+  window.FORD_API_AUTOLOAD = true;
+
+  // true = mostra logs de debug da API no console
+  window.FORD_API_DEBUG = false;
+</script>
+<!-- Inclua o serviço da API ANTES de script.js -->
+<!-- <script src="src/js/services/api.service.js"></script> -->

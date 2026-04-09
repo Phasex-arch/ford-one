@@ -1,0 +1,27 @@
+/* ============================================================
+   avaliacao.css — cards de avaliação e modal premium.
+   .aval-card, .aval-modal-header, .aval-modal-body, etc.
+============================================================ */
+/* ── AVALIAÇÃO ── */
+.aval-card{background:var(--c-card);border-radius:var(--r);padding:14px 16px;border:1px solid var(--c-border);margin-bottom:8px;box-shadow:var(--sh0);cursor:pointer;transition:var(--tr)}
+.aval-card:hover{box-shadow:var(--sh1);transform:translateY(-1px)}
+.aval-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:9px}
+.aval-stars{font-size:var(--fs2);letter-spacing:1px}
+.aval-name{font-weight:600;font-size:var(--fs1);white-space:nowrap}
+.aval-date{font-size:var(--fs0);color:var(--c-dim)}
+.aval-txt{font-size:var(--fs1);color:var(--c-mid);line-height:1.55}
+/* MODAL de avaliação — premium */
+.aval-modal-header{display:flex;align-items:center;gap:14px;padding:20px 22px;background:linear-gradient(135deg,var(--ford-blue),var(--ford-mid));border-radius:var(--rlg) var(--rlg) 0 0}
+.aval-modal-av{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:var(--fs4);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,.3)}
+.aval-modal-info{flex:1;min-width:0}
+.aval-modal-nome{font-weight:700;font-size:var(--fs3);color:#fff;margin-bottom:2px}
+.aval-modal-data{font-size:var(--fs0);color:rgba(255,255,255,.65)}
+.aval-modal-nota{display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(255,255,255,.15);border-radius:var(--rsm);padding:7px 12px;flex-shrink:0}
+.aval-modal-nota-num{font-size:20px;font-weight:800;color:#fff;line-height:1}
+.aval-modal-body{padding:18px 22px 22px}
+.aval-modal-quote{background:var(--ford-light);border-left:3px solid var(--ford-vivid);border-radius:var(--rsm);padding:12px 14px;font-size:var(--fs1);color:var(--c-text);line-height:1.6;margin-bottom:14px;font-style:italic}
+.aval-modal-meta{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.aval-modal-row{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:var(--c-bg);border-radius:var(--rsm)}
+.aval-modal-lbl{font-size:var(--fs1);color:var(--c-mid);font-weight:500}
+.aval-modal-val{font-size:var(--fs1);font-weight:700;color:var(--c-text);text-align:right}
+

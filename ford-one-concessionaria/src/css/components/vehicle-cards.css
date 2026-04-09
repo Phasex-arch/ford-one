@@ -1,0 +1,25 @@
+/* ============================================================
+   vehicle-cards.css — cards de veículo do histórico de cliente.
+   .vehicles-grid, .vh-card, .vh-img, .vh-body, .vh-meta, etc.
+============================================================ */
+/* ── VEHICLES ── */
+.vehicles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:15px}
+.vh-card{background:var(--c-card);border-radius:var(--rlg);border:1px solid var(--c-border);box-shadow:var(--sh0);overflow:hidden;cursor:pointer;transition:var(--tr);display:flex;flex-direction:column;position:relative}
+.vh-card:hover{transform:translateY(-2px);box-shadow:var(--sh1)}
+.vh-card.atual{border:2px solid var(--ford-vivid)}
+.vh-banner{position:absolute;top:8px;left:8px;background:var(--ford-vivid);color:#fff;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:20px;z-index:2}
+.vh-img{height:155px;background:linear-gradient(135deg,var(--c-bg),#d8e2f0);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.vh-img img{width:100%;height:100%;object-fit:cover}
+.vh-ph{display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--c-dim)}
+.vh-ph i{font-size:38px}
+.vh-ph span{font-size:var(--fs0)}
+.vh-body{padding:14px;flex:1}
+.vh-model{font-size:var(--fs4);font-weight:700;color:var(--c-text)}
+.vh-ver{font-size:var(--fs0);color:var(--c-mid);margin-bottom:10px;margin-top:1px}
+.vh-meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.vm-lbl{font-size:var(--fs0);font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--c-dim)}
+.vm-val{font-size:var(--fs1);font-weight:600;color:var(--c-text)}
+.vh-foot{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--c-bg);border-top:1px solid var(--c-border);margin-top:auto;gap:8px}
+.vh-foot-txt{font-size:var(--fs0);color:var(--c-mid)}
+.vh-foot-txt strong{color:var(--c-text)}
+

@@ -1,0 +1,18 @@
+/* ============================================================
+   charts.css — cards de gráfico canvas e tooltip interativo.
+   .chart-card, .chart-head, canvas, .chart-legend, .ch-tip
+============================================================ */
+/* ── CHARTS ── */
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.chart-card{background:var(--c-card);border-radius:var(--r);padding:20px;box-shadow:var(--sh0);border:1px solid var(--c-border);overflow:hidden}
+.chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.chart-head h3{font-size:var(--fs3);font-weight:600;color:var(--c-text);white-space:nowrap}
+canvas{width:100%!important;display:block}
+.chart-legend{display:flex;align-items:center;gap:10px;font-size:var(--fs0);color:var(--c-mid);flex-shrink:0;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.dot.blue{background:var(--ford-vivid)}
+.dot.dashed{border:2px dashed var(--orange);width:8px;height:8px;border-radius:50%}
+.ch-tip{position:fixed;background:var(--c-text);color:var(--c-card);padding:6px 10px;border-radius:var(--rsm);font-size:var(--fs0);font-weight:600;pointer-events:none;white-space:nowrap;z-index:9999;box-shadow:var(--sh1);opacity:0;transition:opacity .15s;line-height:1.5}
+.ch-tip.on{opacity:1}
+

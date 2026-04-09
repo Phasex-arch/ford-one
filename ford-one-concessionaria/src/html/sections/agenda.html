@@ -1,0 +1,30 @@
+    <!-- AGENDA -->
+    <section class="module" id="mod-agenda">
+      <div class="mod-header">
+        <div><h1>Agenda</h1><p class="mod-sub">Controle de horarios e capacidade tecnica</p></div>
+        <div class="mod-actions">
+          <button class="btn-prim" onclick="openScheduleModal(-1)"><i class="ph-bold ph-plus"></i> Novo Agendamento</button>
+        </div>
+      </div>
+      <div class="agenda-layout">
+        <div class="agenda-side">
+          <h4 class="panel-lbl">Tecnicos</h4>
+          <div id="tecnicosList"></div>
+          <h4 class="panel-lbl" style="margin-top:20px">Capacidade Hoje</h4>
+          <div class="cap-wrap">
+            <div class="cap-row"><span>Ocupacao</span><span id="capLabel">–</span></div>
+            <div class="cap-bar" onclick="showToast('Capacidade atualizada','info')"><div id="capFill" class="cap-fill" style="width:0%"></div></div>
+            <div id="capInfo" class="cap-info"></div>
+          </div>
+        </div>
+        <div class="agenda-main">
+          <div class="agenda-day-row">
+            <button class="icon-btn" onclick="shiftDay(-1)"><i class="ph-bold ph-caret-left"></i></button>
+            <h3 id="agendaDayTitle"></h3>
+            <button class="icon-btn" onclick="shiftDay(1)"><i class="ph-bold ph-caret-right"></i></button>
+          </div>
+          <div id="agendaSlots"></div>
+        </div>
+      </div>
+    </section>
+

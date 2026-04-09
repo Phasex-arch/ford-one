@@ -1,0 +1,14 @@
+    <!-- SERVICOS -->
+    <section class="module" id="mod-servicos">
+      <div class="mod-header">
+        <div><h1>Servicos</h1><p class="mod-sub">Ordens de servico e atendimentos</p></div>
+        <div class="mod-actions"><button class="btn-prim" onclick="openNovaOSModal()"><i class="ph-bold ph-plus"></i> Nova OS</button></div>
+      </div>
+      <div class="tabs-row">
+        <button class="tab-btn active" onclick="switchTab(this,'previstos')">Previstos <span class="tab-ct">12</span></button>
+        <button class="tab-btn" onclick="switchTab(this,'andamento')">Em andamento <span class="tab-ct">8</span></button>
+        <button class="tab-btn" onclick="switchTab(this,'concluidos')">Concluidos <span class="tab-ct">47</span></button>
+      </div>
+      <div id="servicosContent"></div>
+    </section>
+
