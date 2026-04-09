@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "ford-one-concessionaria",
+    "slug": "ford-one-concessionaria",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
