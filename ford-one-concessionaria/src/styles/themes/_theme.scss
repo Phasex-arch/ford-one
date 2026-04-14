@@ -1,0 +1,72 @@
+// _theme.scss
+// CSS custom properties IDÊNTICAS ao style.css original.
+// Nenhuma cor, valor ou nome foi alterado.
+
+:root {
+  --ford-blue: #00095b;
+  --ford-mid: #0a1490;
+  --ford-vivid: #1700f4;
+  --ford-light: #eceffe;
+  --c-bg: #f3f4f8;
+  --c-card: #fff;
+  --c-border: #e2e5ef;
+  --c-text: #0d0f1a;
+  --c-mid: #4b5268;
+  --c-dim: #9196ae;
+  --c-input: #fff;
+  --green: #10b981;
+  --green-bg: #ecfdf5;
+  --orange: #f59e0b;
+  --orange-bg: #fffbeb;
+  --red: #ef4444;
+  --red-bg: #fef2f2;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --teal: #0ea5e9;
+  --teal-bg: #e0f2fe;
+  --gold: #d97706;
+  --gold-bg: #fffbeb;
+  --navy: #1e3a5f;
+  --navy-bg: #eff3f8;
+  --hh: 60px;
+  --sw: 248px;
+  --si: 60px;
+  --bh: 34px;
+  --r: 10px;
+  --rsm: 6px;
+  --rlg: 14px;
+  --sh0: 0 1px 4px rgba(0, 9, 91, 0.07);
+  --sh1: 0 4px 16px rgba(0, 9, 91, 0.11);
+  --sh2: 0 12px 40px rgba(0, 9, 91, 0.16);
+  --tr: all 0.18s ease;
+  --fs0: 11px;
+  --fs1: 12.5px;
+  --fs2: 13.5px;
+  --fs3: 14.5px;
+  --fs4: 17px;
+  --fs5: 22px;
+}
+
+[data-theme='dark'] {
+  --c-bg: #0e1020;
+  --c-card: #161929;
+  --c-border: #252a42;
+  --c-text: #e8eaf6;
+  --c-mid: #9098bf;
+  --c-dim: #5a6080;
+  --c-input: #1e2238;
+  --ford-light: #1e2448;
+  --ford-blue: #8aa4ff;
+  --ford-mid: #6278f0;
+  --ford-vivid: #5a78ff;
+  --green-bg: #073a22;
+  --orange-bg: #362208;
+  --red-bg: #380e0e;
+  --purple-bg: #20103a;
+  --teal-bg: #082838;
+  --gold-bg: #322006;
+  --navy-bg: #101e32;
+  --chart-text: #9098bf;
+  --chart-grid: #252a42;
+  --chart-card: #161929;
+}
