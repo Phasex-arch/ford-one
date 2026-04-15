@@ -172,9 +172,15 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
             </div>
             <div className="m-form">
               <label>Nome completo<input type="text" defaultValue="Ricardo Costa"/></label>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                <label>Cargo<input type="text" defaultValue="Gerente Comercial"/></label>
-                <label>Ramal<input type="text" defaultValue="(11) 3000-4001"/></label>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                <label style={{ minWidth: 0 }}>
+                  Cargo
+                  <input type="text" defaultValue="Gerente Comercial"/>
+                </label>
+                <label style={{ minWidth: 0 }}>
+                  Ramal
+                  <input type="text" defaultValue="(11) 3000-4001"/>
+                </label>
               </div>
               <label>E-mail<input type="email" defaultValue="ricardo.costa@fordspcentro.com.br"/></label>
             </div>
