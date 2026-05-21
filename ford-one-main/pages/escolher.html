@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ford One — Escolha seu acesso</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo/logo-ford.png" />
+  <link rel="stylesheet" href="../main.css" />
+</head>
+<body class="page-secondary">
+
+  <canvas id="bg" class="page-canvas"></canvas>
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <a href="../index.html" class="logo">
+      <img src="../assets/images/logo/logo-ford.png" alt="Ford" class="logo-ford-img" />
+      <div class="logo-divider"></div>
+      <div class="logo-text">
+        <span class="logo-title">FORD ONE</span>
+        <span class="logo-sub">PORTAL FORD</span>
+      </div>
+    </a>
+    <a href="../index.html" class="back-link">
+      <i class="fa-solid fa-chevron-left"></i> Voltar
+    </a>
+  </header>
+
+  <!-- CHOOSER -->
+  <div class="chooser">
+    <div class="chooser-header">
+      <div class="page-tag">
+        <span class="page-tag-dot"></span>
+        Ford Smart Ecosystem
+      </div>
+      <h1 class="chooser-title">Como deseja acessar<br />o Ford One?</h1>
+      <p class="chooser-sub">Escolha a plataforma ideal para voc&ecirc;.</p>
+    </div>
+
+    <div class="cards">
+      <a href="concessionaria.html" class="card">
+        <div class="card-icon-wrap"><i class="fa-solid fa-display"></i></div>
+        <span class="card-label">Site da Concession&aacute;ria</span>
+        <p class="card-desc">Acesse o portal completo pelo navegador do seu computador ou tablet.</p>
+        <div class="card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="app-mobile.html" class="card">
+        <div class="card-icon-wrap"><i class="fa-solid fa-mobile-screen"></i></div>
+        <span class="card-label">Acesso Mobile</span>
+        <p class="card-desc">Escaneie o QR Code e acesse o Ford One direto no navegador do seu celular.</p>
+        <div class="card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/utils/canvas.js"></script>
+  <script src="../js/pages/bg-chooser.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      initChooserBackground('bg');
+    });
+  </script>
+
+</body>
+</html>

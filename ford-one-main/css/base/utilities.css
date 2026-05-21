@@ -1,0 +1,70 @@
+/* ============================================================
+   FORD ONE — Utilities & Layout
+   css/base/utilities.css
+   ============================================================ */
+
+.container {
+  width: 100%;
+  max-width: var(--container-w);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.section {
+  padding: 100px 0;
+  position: relative;
+}
+
+.dark-section {
+  background: var(--ford-dark);
+  color: var(--ford-white);
+}
+
+/* Section tags */
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ford-sky);
+  background: rgba(23, 0, 244, 0.09);
+  border: 1px solid rgba(23, 0, 244, 0.22);
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 24px;
+}
+.section-tag.light {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Section titles */
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.8vw, 50px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ford-graphite);
+  margin-bottom: 20px;
+}
+.section-title strong { color: var(--ford-blue); }
+.section-title.light  { color: var(--ford-white); }
+.section-title.light strong { color: var(--ford-sky); }
+.section-title.center { text-align: center; }
+
+/* Section desc */
+.section-desc {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ford-muted);
+  line-height: 1.78;
+  max-width: 600px;
+  margin-bottom: 16px;
+}
+.section-desc.light  { color: rgba(255, 255, 255, 0.62); }
+.section-desc.center { text-align: center; margin-left: auto; margin-right: auto; }

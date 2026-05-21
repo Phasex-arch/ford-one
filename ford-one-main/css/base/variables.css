@@ -1,0 +1,38 @@
+/* ============================================================
+   FORD ONE — Design Tokens & CSS Variables
+   css/base/variables.css
+   ============================================================ */
+
+:root {
+  /* Paleta oficial Ford */
+  --ford-blue:        #00095b;
+  --ford-blue-dark:   #000740;
+  --ford-sky:         #1700f4;
+  --ford-sky-light:   rgba(23, 0, 244, 0.14);
+  --ford-white:       #ffffff;
+  --ford-off-white:   #f4f6f9;
+  --ford-light-gray:  #e1e6ed;
+  --ford-mid-gray:    #8a97a8;
+  --ford-graphite:    #1a1e24;
+  --ford-dark:        #00071a;
+  --ford-dark-card:   #000d2e;
+  --ford-border-dark: rgba(255, 255, 255, 0.07);
+  --ford-muted:       #4d5d6e;
+
+  /* Tipografia */
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body:    'Barlow', sans-serif;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+
+  /* Transitions */
+  --transition:      0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-fast: 0.16s ease;
+
+  /* Layout */
+  --header-h:    72px;
+  --container-w: 1200px;
+}

@@ -1,0 +1,62 @@
+/* ============================================================
+   FORD ONE — Responsive
+   css/sections/responsive.css
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .tech-grid      { grid-template-columns: repeat(2, 1fr); }
+  .vehicles-grid  { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid    { grid-template-columns: 1fr 1fr; gap: 36px; }
+}
+
+@media (max-width: 900px) {
+  .nav, .btn-cta-header { display: none; }
+  .hamburger { display: flex; }
+
+  .nav.open {
+    display: flex; flex-direction: column;
+    position: fixed; top: var(--header-h); left: 0; right: 0;
+    background: rgba(10,13,20,0.98); backdrop-filter: blur(18px);
+    padding: 22px 28px 28px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    gap: 3px; z-index: 999;
+  }
+  .nav.open .nav-link { font-size: 15px; padding: 11px 12px; }
+
+  .hero-car   { display: none; }
+  .hero-title { font-size: clamp(38px, 9vw, 68px); }
+  .what-grid  { grid-template-columns: 1fr; gap: 36px; }
+  .diff-split { grid-template-columns: 1fr; gap: 36px; }
+  .diff-overlay-card { position: static; display: inline-block; margin-top: 14px; }
+  .contact-grid      { grid-template-columns: 1fr; gap: 36px; }
+  .ecosystem-visual  { width: 340px; height: 340px; }
+  .eco-node   { width: 108px; }
+  .eco-node p { display: none; }
+  .steps-flow { flex-direction: column; align-items: stretch; }
+  .step-arrow { transform: rotate(90deg); width: 100%; height: 24px; justify-content: center; padding-top: 0; }
+  .step       { width: 100%; }
+}
+
+@media (max-width: 680px) {
+  :root { --header-h: 60px; }
+
+  .container     { padding: 0 18px; }
+  .section       { padding: 68px 0; }
+  .hero-stats    { flex-direction: column; gap: 14px; align-items: flex-start; }
+  .hero-stats .stat-sep { display: none; }
+  .hero-actions  { flex-direction: column; }
+  .hero-actions a { text-align: center; justify-content: center; }
+  .tech-grid     { grid-template-columns: 1fr; }
+  .benefits-grid { grid-template-columns: 1fr; }
+  .vehicles-grid { grid-template-columns: 1fr; }
+  .form-row      { grid-template-columns: 1fr; }
+  .contact-form  { padding: 24px 18px; }
+  .footer-grid   { grid-template-columns: 1fr; gap: 28px; }
+  .footer-bottom .container { flex-direction: column; text-align: center; }
+  .ecosystem-visual  { width: 270px; height: 270px; }
+  .eco-core { width: 68px; height: 68px; }
+  .eco-core-label { font-size: 8px; }
+  .eco-node { width: 86px; padding: 10px 7px; }
+  .eco-node-icon { font-size: 16px; }
+  .eco-node h4   { font-size: 11px; }
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ford One — Login</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo/logo-ford.png" />
+  <link rel="stylesheet" href="../main.css" />
+</head>
+<body class="page-secondary">
+
+  <canvas id="bg" class="page-canvas"></canvas>
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <a href="../index.html" class="logo">
+      <img src="../assets/images/logo/logo-ford.png" alt="Ford" class="logo-ford-img" />
+      <div class="logo-divider"></div>
+      <div class="logo-text">
+        <span class="logo-title">FORD ONE</span>
+        <span class="logo-sub">PORTAL FORD</span>
+      </div>
+    </a>
+    <a href="escolher.html" class="back-link">
+      <i class="fa-solid fa-chevron-left"></i> Voltar
+    </a>
+  </header>
+
+  <!-- LOGIN -->
+  <div class="login-wrap">
+    <div class="login-header">
+      <div class="login-tag">
+        <span class="page-tag-dot"></span>
+        Acesso Restrito
+      </div>
+      <h1 class="login-title">Portal da Concession&aacute;ria</h1>
+      <p class="login-sub">Insira suas credenciais para continuar.</p>
+    </div>
+
+    <div class="login-card spinning-border">
+
+      <!-- Erro -->
+      <div class="error-msg" id="errorMsg">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>Usu&aacute;rio ou senha incorretos.</span>
+      </div>
+
+      <!-- Usuário -->
+      <div class="login-form-group">
+        <label for="username">Usu&aacute;rio</label>
+        <div class="login-input-wrap">
+          <i class="fa-solid fa-user input-icon"></i>
+          <input type="text" id="username" placeholder="Digite seu usu&aacute;rio" autocomplete="username" />
+        </div>
+      </div>
+
+      <!-- Senha -->
+      <div class="login-form-group">
+        <label for="password">Senha</label>
+        <div class="login-input-wrap">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <input type="password" id="password" placeholder="Digite sua senha" autocomplete="current-password" />
+          <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar senha">
+            <i class="fa-regular fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Botão -->
+      <button class="btn-login" id="btnLogin">
+        <span class="btn-text">Entrar <i class="fa-solid fa-arrow-right"></i></span>
+        <div class="spinner"></div>
+      </button>
+
+      <p class="login-footer-note">
+        <i class="fa-solid fa-shield-halved"></i>
+        Acesso seguro &mdash; Ford Smart Ecosystem
+      </p>
+
+      <!-- Credenciais visíveis -->
+      <div class="credentials-hint">
+        <div class="credentials-hint-title">
+          <i class="fa-solid fa-key"></i>
+          Credenciais de acesso
+        </div>
+        <div class="credentials-row">
+          <span class="credentials-label">Usu&aacute;rio</span>
+          <span class="credentials-value" title="Clique para copiar"
+            onclick="navigator.clipboard.writeText('Ford-PhaseX')">Ford-PhaseX</span>
+        </div>
+        <div class="credentials-row">
+          <span class="credentials-label">Senha</span>
+          <span class="credentials-value" title="Clique para copiar"
+            onclick="navigator.clipboard.writeText('Ford')">Ford</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/utils/canvas.js"></script>
+  <script src="../js/pages/bg-login.js"></script>
+  <script src="../js/pages/login.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      initLoginBackground('bg');
+      initLogin();
+    });
+  </script>
+
+</body>
+</html>

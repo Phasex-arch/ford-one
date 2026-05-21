@@ -1,0 +1,89 @@
+/* ============================================================
+   FORD ONE — Form Components
+   css/components/form.css
+   ============================================================ */
+
+.contact-form {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-lg);
+  padding: 38px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.form-group { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.form-group.full { grid-column: 1 / -1; }
+
+.form-group label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 14px; font-weight: 300;
+  color: var(--ford-white);
+  outline: none;
+  transition: var(--transition-fast);
+  -webkit-appearance: none;
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: rgba(255,255,255,0.22); }
+.form-group select { color: rgba(255,255,255,0.65); cursor: pointer; }
+.form-group select option { background: var(--ford-dark); color: var(--ford-white); }
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--ford-sky);
+  background: rgba(23,0,244,0.06);
+  box-shadow: 0 0 0 3px rgba(23,0,244,0.1);
+}
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error { border-color: #e53e3e; }
+
+.field-error { font-size: 11px; color: #fc8181; min-height: 15px; display: block; }
+
+.btn-submit {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--ford-blue);
+  color: var(--ford-white);
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 16px 30px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  margin-top: 6px; cursor: pointer; border: none;
+}
+.btn-submit:hover { background: var(--ford-sky); transform: translateY(-2px); box-shadow: 0 8px 26px rgba(23,0,244,0.32); }
+.btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+/* Success */
+.form-success {
+  display: none;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(23,0,244,0.28);
+  border-radius: var(--radius-lg);
+  padding: 56px 38px; text-align: center;
+}
+.form-success.show { display: block; animation: fadeSlideUp 0.5s ease; }
+.success-icon {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, var(--ford-blue), var(--ford-sky));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--ford-white);
+  margin: 0 auto 22px;
+}
+.form-success h3 { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--ford-white); margin-bottom: 10px; }
+.form-success p  { font-size: 15px; font-weight: 300; color: rgba(255,255,255,0.55); }

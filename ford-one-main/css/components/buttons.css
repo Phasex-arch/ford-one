@@ -1,0 +1,97 @@
+/* ============================================================
+   FORD ONE — Buttons
+   css/components/buttons.css
+   ============================================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ford-blue);
+  color: var(--ford-white);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 15px 30px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: var(--ford-sky);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(23, 0, 244, 0.35);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--ford-white);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 14px 30px;
+  border: 1.5px solid rgba(255, 255, 255, 0.38);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  border-color: var(--ford-white);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--ford-blue);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 13px 26px;
+  border: 2px solid var(--ford-blue);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  cursor: pointer;
+}
+.btn-outline:hover { background: var(--ford-blue); color: var(--ford-white); transform: translateY(-2px); }
+.btn-outline.light { color: rgba(255,255,255,.75); border-color: rgba(255,255,255,.28); }
+.btn-outline.light:hover { background: rgba(255,255,255,.09); border-color: var(--ford-white); color: var(--ford-white); }
+
+.btn-cta-final {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ford-sky);
+  color: var(--ford-white);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 18px 44px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-cta-final:hover {
+  background: var(--ford-white);
+  color: var(--ford-blue);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 36px rgba(23, 0, 244, 0.28);
+}

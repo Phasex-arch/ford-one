@@ -1,0 +1,87 @@
+/* ============================================================
+   FORD ONE — Keyframes & Animations
+   css/base/animations.css
+   ============================================================ */
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateY(-50%) translateX(36px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealRight {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes revealFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.5); }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  50%       { transform: scaleY(0.4); opacity: 0.35; }
+}
+
+@keyframes ecoRing {
+  0%   { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes spin {
+  to { --a: 360deg; }
+}
+
+@keyframes spinSm {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rpl {
+  to { transform: scale(1); opacity: 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Elementos com animação pausada — ativados via .visible pelo observer */
+.concept-card,
+.tech-card,
+.benefit-card,
+.step,
+.eco-node,
+.vehicle-card { animation: revealUp 0.55s ease both; animation-play-state: paused; }
+
+.diff-item     { animation: revealRight 0.5s ease both; animation-play-state: paused; }
+
+.concept-card.visible,
+.tech-card.visible,
+.benefit-card.visible,
+.step.visible,
+.vehicle-card.visible { animation-play-state: running; }
+
+.eco-node      { animation: revealFade 0.5s ease both; animation-play-state: paused; }
+.eco-node.visible { animation-play-state: running; }
+
+.diff-item.visible { animation-play-state: running; }
