@@ -1,0 +1,82 @@
+// ─────────────────────────────────────────
+// FORD ONE — Mixins
+// ─────────────────────────────────────────
+@use 'variables' as *;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin section-base {
+  padding: 100px 0;
+  position: relative;
+}
+
+@mixin dark-section {
+  background: $ford-dark;
+  color: $ford-white;
+}
+
+@mixin container {
+  width: 100%;
+  max-width: $container-w;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+@mixin font-display {
+  font-family: $font-display;
+}
+
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $font-display;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: $radius-sm;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+@mixin section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $font-display;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: $ford-sky;
+  background: rgba(23, 0, 244, 0.09);
+  border: 1px solid rgba(23, 0, 244, 0.22);
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 24px;
+}
+
+@mixin respond-to($bp) {
+  @if $bp == 'xl' {
+    @media (max-width: 1100px) { @content; }
+  } @else if $bp == 'md' {
+    @media (max-width: 900px) { @content; }
+  } @else if $bp == 'sm' {
+    @media (max-width: 680px) { @content; }
+  } @else if $bp == 'xs' {
+    @media (max-width: 480px) { @content; }
+  }
+}

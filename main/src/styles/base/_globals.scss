@@ -1,0 +1,121 @@
+// ─────────────────────────────────────────
+// FORD ONE — Global Utilities & Keyframes
+// ─────────────────────────────────────────
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// ── Keyframes ──
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateY(-50%) translateX(36px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealRight {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes revealFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.5); }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  50%       { transform: scaleY(0.4); opacity: 0.35; }
+}
+
+@keyframes ecoRing {
+  0%   { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes rpl {
+  to { transform: scale(1); opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+// ── Container ──
+.container {
+  width: 100%;
+  max-width: $container-w;
+  margin: 0 auto;
+  padding: 0 32px;
+
+  @include respond-to('sm') {
+    padding: 0 18px;
+  }
+}
+
+// ── Section base ──
+.section {
+  padding: 100px 0;
+  position: relative;
+
+  @include respond-to('sm') {
+    padding: 68px 0;
+  }
+}
+
+.dark-section {
+  background: $ford-dark;
+  color: $ford-white;
+}
+
+// ── Section tag ──
+.section-tag {
+  @include section-tag;
+
+  &.light {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+}
+
+// ── Section title ──
+.section-title {
+  font-family: $font-display;
+  font-size: clamp(30px, 3.8vw, 50px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: $ford-graphite;
+  margin-bottom: 20px;
+
+  strong { color: $ford-blue; }
+
+  &.light { color: $ford-white; strong { color: $ford-sky; } }
+  &.center { text-align: center; }
+}
+
+// ── Section desc ──
+.section-desc {
+  font-size: 16px;
+  font-weight: 300;
+  color: #4d5d6e;
+  line-height: 1.78;
+  max-width: 600px;
+  margin-bottom: 16px;
+
+  &.light  { color: rgba(255, 255, 255, 0.62); }
+  &.center { text-align: center; margin-left: auto; margin-right: auto; }
+}

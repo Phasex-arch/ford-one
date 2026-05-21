@@ -1,0 +1,87 @@
+@use '../../../styles/abstracts/variables' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+.page { background: $ford-blue; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 64px; position: relative; }
+.canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+.header {
+  position: fixed; top: 0; left: 0; right: 0; height: 64px;
+  background: rgba(0,9,91,0.96); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; padding: 0 40px; z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.logoImg { height: 34px; width: auto; display: block; }
+.logoDivider { width: 1px; height: 28px; background: rgba(255,255,255,0.22); }
+.logoText { display: flex; flex-direction: column; gap: 2px; }
+.logoTitle { font-family: $font-display; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; color: $ford-white; line-height: 1; }
+.logoSub { font-family: $font-display; font-size: 9px; font-weight: 400; letter-spacing: 0.16em; color: rgba(255,255,255,0.42); line-height: 1; text-transform: uppercase; }
+.backLink { margin-left: auto; font-family: $font-display; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.42); text-decoration: none; display: flex; align-items: center; gap: 7px; transition: color 0.2s; &:hover { color: $ford-white; } }
+
+.loginWrap { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 32px; padding: 40px 20px; animation: fadeUp 0.65s ease both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+.loginHeader { text-align: center; }
+.loginTag { display: inline-flex; align-items: center; gap: 8px; font-family: $font-display; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 5px 13px; border-radius: 100px; margin-bottom: 18px; }
+.tagDot { width: 6px; height: 6px; background: $ford-sky; border-radius: 50%; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.loginTitle { font-family: $font-display; font-size: clamp(26px,3.5vw,38px); font-weight: 900; color: $ford-white; line-height: 1.08; }
+.loginSub { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.42); margin-top: 8px; }
+
+.loginCard {
+  width: 100%; max-width: 400px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px; padding: 36px 32px; position: relative;
+}
+
+.errorMsg { display: flex; align-items: center; gap: 8px; background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.3); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ff8080; margin-bottom: 18px; }
+
+.formGroup {
+  display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px;
+  label { font-family: $font-display; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.42); }
+}
+
+.inputWrap {
+  position: relative;
+  i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; color: rgba(255,255,255,0.28); pointer-events: none; }
+  input {
+    width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+    padding: 13px 14px 13px 40px; font-size: 14px; color: $ford-white; outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; -webkit-appearance: none;
+    &::placeholder { color: rgba(255,255,255,0.2); }
+    &:focus { border-color: $ford-sky; background: rgba(23,0,244,0.08); box-shadow: 0 0 0 3px rgba(23,0,244,0.12); }
+  }
+}
+
+.inputError { border-color: #ff4d4d !important; }
+
+.togglePass {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.4); font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; z-index: 2; transition: color 0.2s;
+  &:hover { color: rgba(255,255,255,0.85); }
+}
+
+.btnLogin {
+  width: 100%; background: $ford-sky; color: $ford-white;
+  font-family: $font-display; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 15px;
+  border: none; border-radius: 6px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+  &:hover { background: #1200cc; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(23,0,244,0.38); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+}
+
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spinSm 0.7s linear infinite; }
+@keyframes spinSm { to { transform: rotate(360deg); } }
+
+.footerNote { text-align: center; font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.22); margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+.credentialsHint { margin-top: 20px; background: rgba(23,0,244,0.1); border: 1px solid rgba(23,0,244,0.3); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+.credentialsTitle { font-family: $font-display; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px; }
+.credentialsRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.credentialsLabel { font-family: $font-display; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.credentialsValue { font-family: monospace; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 4px 10px; cursor: pointer; transition: background 0.2s, color 0.2s; user-select: all; &:hover { background: rgba(23,0,244,0.2); color: $ford-white; } }

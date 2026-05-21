@@ -1,0 +1,71 @@
+@use '../../../styles/abstracts/variables' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+.page { background: $ford-blue; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 64px; position: relative; }
+.canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+.header { position: fixed; top: 0; left: 0; right: 0; height: 64px; background: rgba(0,9,91,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; padding: 0 40px; z-index: 100; @include respond-to('xs') { padding: 0 18px; } }
+.logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.logoImg { height: 34px; width: auto; display: block; }
+.logoDivider { width: 1px; height: 28px; background: rgba(255,255,255,0.25); }
+.logoText { display: flex; flex-direction: column; gap: 2px; }
+.logoTitle { font-family: $font-display; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; color: $ford-white; line-height: 1; }
+.logoSub { font-family: $font-display; font-size: 9px; font-weight: 400; letter-spacing: 0.16em; color: rgba(255,255,255,0.45); line-height: 1; text-transform: uppercase; }
+.backLink { margin-left: auto; font-family: $font-display; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); text-decoration: none; display: flex; align-items: center; gap: 7px; transition: color 0.2s; &:hover { color: $ford-white; } }
+
+.wrapper { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 40px 20px; text-align: center; animation: fadeUp 0.7s ease both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+.tag { display: inline-flex; align-items: center; gap: 8px; font-family: $font-display; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 100px; }
+.tagDot { width: 6px; height: 6px; background: $ford-sky; border-radius: 50%; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.title { font-family: $font-display; font-size: clamp(24px,3.5vw,38px); font-weight: 900; color: $ford-white; line-height: 1.1; }
+.sub { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.65; max-width: 340px; margin: 0 auto; }
+
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 22px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 24px;
+    background: conic-gradient(from var(--a, 0deg), transparent 70%, rgba(23,0,244,0.65) 85%, transparent 100%);
+    z-index: -1;
+    animation: spin 4s linear infinite;
+  }
+
+  @include respond-to('xs') { padding: 24px; }
+}
+
+@keyframes spin { to { --a: 360deg; } }
+@property --a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+
+.typeBadge { display: inline-flex; align-items: center; gap: 8px; font-family: $font-display; font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: $ford-white; background: rgba(23,0,244,0.2); border: 1px solid rgba(23,0,244,0.4); padding: 7px 16px; border-radius: 100px; }
+
+.qrWrap {
+  width: 200px;
+  height: 200px;
+  background: $ford-white;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg { width: 100%; height: 100%; }
+
+  @include respond-to('xs') { width: 168px; height: 168px; }
+}
+
+.label { font-family: $font-display; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.hint { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.28); display: flex; align-items: center; gap: 6px; }

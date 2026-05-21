@@ -1,0 +1,155 @@
+@use '../../../../styles/abstracts/variables' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 72px;
+  align-items: start;
+
+  @include respond-to('md') { grid-template-columns: 1fr; gap: 36px; }
+}
+
+.left {}
+
+.info {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.infoIcon { color: $ford-sky; font-size: 14px; width: 16px; text-align: center; }
+
+.socialRow { display: flex; gap: 10px; margin-top: 28px; }
+
+.socialBtn {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  transition: $transition;
+
+  &:hover { background: $ford-sky; border-color: $ford-sky; color: $ford-white; transform: translateY(-2px); }
+}
+
+.form {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: $radius-lg;
+  padding: 38px;
+
+  @include respond-to('sm') { padding: 24px 18px; }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+
+  @include respond-to('sm') { grid-template-columns: 1fr; }
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+
+  &.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: $font-display;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  input, select, textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: $radius-sm;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 300;
+    color: $ford-white;
+    outline: none;
+    transition: $transition-fast;
+    -webkit-appearance: none;
+    font-family: $font-body;
+
+    &::placeholder { color: rgba(255, 255, 255, 0.22); }
+    &:focus { border-color: $ford-sky; background: rgba(23, 0, 244, 0.06); box-shadow: 0 0 0 3px rgba(23, 0, 244, 0.1); }
+  }
+
+  select { color: rgba(255, 255, 255, 0.65); cursor: pointer; option { background: $ford-dark; } }
+}
+
+.inputError { border-color: #e53e3e !important; }
+.fieldError { font-size: 11px; color: #fc8181; min-height: 15px; display: block; }
+
+.submitBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: $ford-blue;
+  color: $ford-white;
+  font-family: $font-display;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 16px 30px;
+  border-radius: $radius-sm;
+  transition: $transition;
+  margin-top: 6px;
+  cursor: pointer;
+  border: none;
+
+  &:hover { background: $ford-sky; transform: translateY(-2px); box-shadow: 0 8px 26px rgba(23, 0, 244, 0.32); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+}
+
+.successBox {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(23, 0, 244, 0.28);
+  border-radius: $radius-lg;
+  padding: 56px 38px;
+  text-align: center;
+  animation: fadeSlideUp 0.5s ease;
+
+  h3 { font-family: $font-display; font-size: 26px; font-weight: 700; color: $ford-white; margin-bottom: 10px; }
+  p  { font-size: 15px; font-weight: 300; color: rgba(255, 255, 255, 0.55); }
+}
+
+.successIcon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, $ford-blue, $ford-sky);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: $ford-white;
+  margin: 0 auto 22px;
+}
