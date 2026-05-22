@@ -21,11 +21,12 @@
 
 import { useState, useCallback } from 'react';
 import { getSlotsForDay } from '../services/agenda.service';
-import { TECNICOS } from '../../../data/tecnicos.data';
+import { useTecnicos } from '../../../shared/hooks/useTecnicos';
 import { DAYS, MONTHS } from '../../../shared/utils/dates';
 import type { ToastType } from '../../../shared/hooks/useToast';
 
 export function useAgenda(showToast: (m:string,t?:ToastType)=>void) {
+  const TECNICOS = useTecnicos();
   const [offset, setOffset] = useState(0);
   const [schedOpen, setSchedOpen] = useState(false);
   const [preselSlot, setPreselSlot] = useState(-1);

@@ -1,70 +1,151 @@
 /**
  * @file useServicos.ts
  * @module servicos
- * @description Hook de estado e lógica do módulo de Serviços (Ordens de Serviço).
+ * @description Hook de estado e logica do modulo de Servicos (Ordens de Servico).
  *
- * Gerencia:
- * - tab: aba ativa ('previstos' | 'andamento' | 'concluidos')
- * - list: array de OS da aba ativa (leitura direta do store mutável)
- * - detailIdx: índice da OS com modal de detalhe aberto
- * - editIdx: índice da OS com modal de edição aberto
- * - deleteIdx: índice da OS com modal de exclusão aberto
- * - novaOSOpen: visibilidade do modal "Nova OS"
- *
- * Operações:
- * - moverOS(idx)         → move OS da aba atual para a próxima (prev→and→conc)
- * - deletarOS(idx)       → remove OS do array e fecha modal de confirmação
- * - salvarEdicao(idx, d) → aplica os campos editados na OS via Object.assign
- * - criarOS(dados)       → cria nova OS em previstos com número sequencial
- *
- * @param showToast → callback para feedback de cada operação
+ * Substitui o antigo store mutavel em memoria por chamadas reais para
+ * /api/v1/servicos. Mantem um pequeno store local com as tres abas para
+ * preservar a API publica consumida pela ServicosScreen (`store[tab].length`,
+ * `list = store[tab]`, indices em moverOS/deletarOS/salvarEdicao/criarOS).
  */
 
-import { useState, useCallback } from 'react';
-import { store } from '../services/servicos.service';
-import { TECNICOS } from '../../../data/tecnicos.data';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  atualizarServico,
+  criarServico,
+  fetchAll,
+  moverServico,
+  removerServico,
+  type ServicoLocal,
+  type ServicoStoreLocal,
+  type ServicoTabKey,
+} from '../services/servicos.service';
+import { tecnicosStore, useStore } from '../../../shared/api/cache';
+import { extractErrorMessage } from '../../../shared/api/http';
 import type { OrdemServico } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 
-export type OSTab = 'previstos' | 'andamento' | 'concluidos';
+export type OSTab = ServicoTabKey;
 
-export function useServicos(showToast: (m:string,t?:ToastType)=>void) {
+const EMPTY_STORE: ServicoStoreLocal = { previstos: [], andamento: [], concluidos: [] };
+
+export function useServicos(showToast: (m: string, t?: ToastType) => void) {
   const [tab, setTab] = useState<OSTab>('previstos');
-  const [, forceUpdate] = useState(0);
-  const refresh = () => forceUpdate(n=>n+1);
-  const [detailIdx, setDetailIdx] = useState<number|null>(null);
-  const [editIdx, setEditIdx] = useState<number|null>(null);
-  const [deleteIdx, setDeleteIdx] = useState<number|null>(null);
+  const [store, setStore] = useState<ServicoStoreLocal>(EMPTY_STORE);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [detailIdx, setDetailIdx] = useState<number | null>(null);
+  const [editIdx, setEditIdx] = useState<number | null>(null);
+  const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
   const [novaOSOpen, setNovaOSOpen] = useState(false);
 
-  const list: OrdemServico[] = store[tab];
+  const TECNICOS = useStore(tecnicosStore);
 
-  const moverOS = useCallback((idx: number) => {
-    const s = store[tab].splice(idx,1)[0]; if(!s) return;
-    const prox = {previstos:'andamento',andamento:'concluidos'} as Record<string,keyof typeof store>;
-    const dest = prox[tab];
-    if(dest) { store[dest].unshift(s); showToast(`OS ${s.num} movida!`,'success'); refresh(); }
-  },[tab]);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const snapshot = await fetchAll();
+      setStore(snapshot);
+    } catch (err) {
+      setError(extractErrorMessage(err, 'Falha ao carregar OS.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const deletarOS = useCallback((idx: number) => {
-    const s = store[tab][idx]; if(!s) return;
-    store[tab].splice(idx,1);
-    setDeleteIdx(null); refresh(); showToast(`OS ${s.num} excluída.`,'info');
-  },[tab]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
-  const salvarEdicao = useCallback((idx: number, data: Partial<OrdemServico>) => {
-    Object.assign(store[tab][idx], data);
-    setEditIdx(null); refresh(); showToast('OS atualizada!','success');
-  },[tab]);
+  const list = useMemo<OrdemServico[]>(() => store[tab], [store, tab]);
 
-  const criarOS = useCallback((dados: Omit<OrdemServico,'num'|'pc'>) => {
-    const num = '#' + (4900 + store.previstos.length + 1);
-    store.previstos.unshift({num, pc:'ok', ...dados});
-    setNovaOSOpen(false); if(tab==='previstos') refresh();
-    showToast(`OS ${num} criada!`,'success');
-  },[tab]);
+  const moverOS = useCallback(
+    async (idx: number) => {
+      const item = store[tab][idx];
+      if (!item) return;
+      try {
+        const updated = await moverServico(item);
+        if (!updated) {
+          showToast('OS ja esta no status final.', 'info');
+          return;
+        }
+        await refresh();
+        showToast(`OS ${item.num} movida!`, 'success');
+      } catch (err) {
+        showToast(extractErrorMessage(err, 'Falha ao mover OS.'), 'error');
+      }
+    },
+    [store, tab, refresh, showToast]
+  );
 
-  return { tab, setTab, list, detailIdx, setDetailIdx, editIdx, setEditIdx,
-           deleteIdx, setDeleteIdx, novaOSOpen, setNovaOSOpen,
-           moverOS, deletarOS, salvarEdicao, criarOS, TECNICOS, store };
+  const deletarOS = useCallback(
+    async (idx: number) => {
+      const item = store[tab][idx];
+      if (!item) return;
+      try {
+        await removerServico(item);
+        setDeleteIdx(null);
+        await refresh();
+        showToast(`OS ${item.num} excluida.`, 'info');
+      } catch (err) {
+        showToast(extractErrorMessage(err, 'Falha ao excluir OS.'), 'error');
+      }
+    },
+    [store, tab, refresh, showToast]
+  );
+
+  const salvarEdicao = useCallback(
+    async (idx: number, data: Partial<OrdemServico>) => {
+      const item = store[tab][idx];
+      if (!item) return;
+      try {
+        await atualizarServico(item, data);
+        setEditIdx(null);
+        await refresh();
+        showToast('OS atualizada!', 'success');
+      } catch (err) {
+        showToast(extractErrorMessage(err, 'Falha ao atualizar OS.'), 'error');
+      }
+    },
+    [store, tab, refresh, showToast]
+  );
+
+  const criarOS = useCallback(
+    async (dados: Omit<OrdemServico, 'num' | 'pc'>) => {
+      try {
+        const novo = await criarServico(dados);
+        setNovaOSOpen(false);
+        await refresh();
+        if (tab !== 'previstos') setTab('previstos');
+        showToast(`OS ${novo.num} criada!`, 'success');
+      } catch (err) {
+        showToast(extractErrorMessage(err, 'Falha ao criar OS.'), 'error');
+      }
+    },
+    [refresh, tab, showToast]
+  );
+
+  return {
+    tab,
+    setTab,
+    list,
+    detailIdx,
+    setDetailIdx,
+    editIdx,
+    setEditIdx,
+    deleteIdx,
+    setDeleteIdx,
+    novaOSOpen,
+    setNovaOSOpen,
+    moverOS,
+    deletarOS,
+    salvarEdicao,
+    criarOS,
+    TECNICOS,
+    store,
+    loading,
+    error,
+    refresh,
+  };
 }

@@ -25,7 +25,8 @@ import { useLeads } from './hooks/useLeads';
 import { getLead } from './services/leads.service';
 import { formatCurrency, cap } from '../../shared/utils/formatters';
 import { useApp } from '../../shared/context/AppContext';
-import { TECNICOS, SLOT_HOURS } from '../../data/tecnicos.data';
+import { SLOT_HOURS } from '../../data/tecnicos.data';
+import { useTecnicos } from '../../shared/hooks/useTecnicos';
 import type { LeadUrgencia } from '../../types/global.types';
 import type { ToastType } from '../../shared/hooks/useToast';
 
@@ -34,6 +35,7 @@ interface Props { showToast: (m: string, t?: ToastType) => void; }
 export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
   const { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline } = useLeads();
   const { leadSchedule, setLeadSchedule, navigate } = useApp();
+  const TECNICOS = useTecnicos();
   const [schedLeadId, setSchedLeadId] = useState<string|null>(null);
   const [schedDay, setSchedDay] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState(-1);

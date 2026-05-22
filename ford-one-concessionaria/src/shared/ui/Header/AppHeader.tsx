@@ -27,6 +27,7 @@
 import React, { useState } from "react";
 import { GlobalSearch } from "../GlobalSearch/GlobalSearch";
 import { useApp } from "../../context/AppContext";
+import { useAuth } from "../../auth/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
 import type { ToastType } from "../../hooks/useToast";
 
@@ -35,9 +36,29 @@ interface Props {
   showToast: (msg: string, type?: ToastType) => void;
 }
 
+const ROLE_LABEL: Record<string, string> = {
+  ADMIN: "Administrador",
+  GERENTE: "Gerente Comercial",
+  FUNCIONARIO: "Colaborador",
+};
+
+const computeInitials = (name?: string): string => {
+  if (!name) return "FO";
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "FO";
+};
+
 export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
   const { navigate } = useApp();
+  const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const displayName = user?.nome ?? "Usuario";
+  const displayRole = ROLE_LABEL[user?.role ?? ""] ?? "Colaborador";
+  const initials = computeInitials(user?.nome);
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [notifBadge, setNotifBadge] = useState(4);
@@ -102,10 +123,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
       navigate("config");
     } else if (a === "sair") {
       showToast("Sessão encerrada. Até logo!", "info");
-      setTimeout(() => {
-        document.body.innerHTML =
-          '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#00095b;color:white;font-family:Inter,sans-serif;font-size:18px;letter-spacing:2px;font-weight:600">FORD ONE — SESSÃO ENCERRADA</div>';
-      }, 1200);
+      setTimeout(() => logout(), 400);
     }
   };
 
@@ -183,10 +201,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
               setNotifOpen(false);
             }}
           >
-            <div className="user-av">NM</div>
+            <div className="user-av">{initials}</div>
             <div className="user-info-hdr">
-              <span className="user-nm">Nathan Morais</span>
-              <span className="user-rl">Gerente Comercial</span>
+              <span className="user-nm">{displayName}</span>
+              <span className="user-rl">{displayRole}</span>
             </div>
             <i className="ph-bold ph-caret-down user-chev" />
           </button>
@@ -236,10 +254,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="ud-top">
-            <div className="ud-av">NM</div>
+            <div className="ud-av">{initials}</div>
             <div>
-              <div className="ud-name">Nathan Morais</div>
-              <div className="ud-role">Gerente Comercial · Ford SP Centro</div>
+              <div className="ud-name">{displayName}</div>
+              <div className="ud-role">{displayRole} · Ford SP Centro</div>
             </div>
           </div>
           <button className="ud-row" onClick={() => handleUdAction("perfil")}>
@@ -313,7 +331,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                     flexShrink: 0,
                   }}
                 >
-                  NM
+                  {initials}
                 </div>
                 <div>
                   <div
@@ -323,19 +341,19 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                       color: "var(--c-text)",
                     }}
                   >
-                    Nathan Morais
+                    {displayName}
                   </div>
                   <div
                     style={{ fontSize: "var(--fs1)", color: "var(--c-mid)" }}
                   >
-                    Gerente Comercial · Ford SP Centro
+                    {displayRole} · Ford SP Centro
                   </div>
                 </div>
               </div>
               <div className="m-form">
                 <label>
                   Nome completo
-                  <input type="text" defaultValue="Nathan Morais" />
+                  <input type="text" defaultValue={displayName} />
                 </label>
                 <div
                   style={{
@@ -346,7 +364,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                 >
                   <label style={{ minWidth: 0 }}>
                     Cargo
-                    <input type="text" defaultValue="Gerente Comercial" />
+                    <input type="text" defaultValue={displayRole} />
                   </label>
                   <label style={{ minWidth: 0 }}>
                     Ramal
@@ -357,7 +375,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                   E-mail
                   <input
                     type="email"
-                    defaultValue="nathan.morais@fordspcentro.com.br"
+                    defaultValue={user?.email ?? ""}
                   />
                 </label>
               </div>

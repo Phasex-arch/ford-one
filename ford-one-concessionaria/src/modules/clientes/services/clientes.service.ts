@@ -1,19 +1,17 @@
 /**
  * @file clientes.service.ts
  * @module clientes
- * @description Service responsável por operações de dados de clientes.
+ * @description Service de clientes. Agora delega para a API NestJS
+ * (`/api/v1/clientes`) via src/shared/api/resources/clientes.ts, mantendo
+ * a mesma assinatura publica usada pelo useClientes (filtros + criacao).
  *
- * Funções exportadas:
- * - filterClientes(filters) → filtra e ordena a lista por query, status e ordem
- * - addCliente(dados)       → cria novo cliente, gera ID e iniciais, insere no array
- * - SEGMENTOS               → array com os 5 segmentos válidos de cliente
- *
- * Em produção: substituir os acessos ao array CLIENTES por chamadas à API REST.
- * A interface ClienteFilters é exportada para o hook e o componente de filtros.
+ * A filtragem por texto + ordenacao continua acontecendo no cliente
+ * porque a UI permite alternar entre nome / LTV / ultimo atendimento e a
+ * API so expoe filtros por status/segmento/search.
  */
 
 import type { Cliente, ClienteStatus, ClienteSegmento } from '../../../types/global.types';
-import { CLIENTES } from '../../../data/clientes.data';
+import * as clientesApi from '../../../shared/api/resources/clientes';
 
 export interface ClienteFilters {
   query: string;
@@ -21,22 +19,59 @@ export interface ClienteFilters {
   order: 'nome' | 'ltv' | 'ult';
 }
 
-export function filterClientes(filters: ClienteFilters): Cliente[] {
+const DATE_BR_REGEX = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+
+function parseDateBr(value: string): number {
+  const m = DATE_BR_REGEX.exec(value);
+  if (!m) return 0;
+  const [, dd, mm, yyyy] = m;
+  return new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+}
+
+export function applyFilters(items: Cliente[], filters: ClienteFilters): Cliente[] {
   const q = filters.query.toLowerCase();
-  let list = CLIENTES.filter(c =>
-    (!q || c.nome.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)) &&
-    (!filters.status || c.status === filters.status)
+  let list = items.filter(
+    (c) =>
+      (!q || c.nome.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)) &&
+      (!filters.status || c.status === filters.status)
   );
   if (filters.order === 'ltv') list = [...list].sort((a, b) => b.ltv - a.ltv);
+  else if (filters.order === 'ult')
+    list = [...list].sort((a, b) => parseDateBr(b.ult) - parseDateBr(a.ult));
+  else if (filters.order === 'nome')
+    list = [...list].sort((a, b) => a.nome.localeCompare(b.nome));
   return list;
 }
 
-export function addCliente(dados: Pick<Cliente, 'nome' | 'tel' | 'email' | 'status' | 'seg'>): Cliente {
-  const ini = dados.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-  const newId = 'C' + String(100 + CLIENTES.length + 1);
-  const novo: Cliente = { id: newId, ini, v: 0, ltv: 0, ult: new Date().toLocaleDateString('pt-BR'), ...dados };
-  CLIENTES.push(novo);
-  return novo;
+export async function fetchClientes(filters: ClienteFilters): Promise<Cliente[]> {
+  const items = await clientesApi.list({
+    status: filters.status || undefined,
+    search: filters.query || undefined,
+    limit: 100,
+  });
+  return applyFilters(items, filters);
+}
+
+export async function createCliente(
+  dados: Pick<Cliente, 'nome' | 'tel' | 'email' | 'status' | 'seg'>
+): Promise<Cliente> {
+  const iniciais = dados.nome
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'CL';
+  const codigo = `C${Date.now().toString().slice(-6)}`;
+  return clientesApi.create(dados, { codigo, iniciais });
+}
+
+export async function updateCliente(id: string, patch: Partial<Cliente>): Promise<Cliente> {
+  return clientesApi.update(id, patch);
+}
+
+export async function removeCliente(id: string): Promise<void> {
+  return clientesApi.remove(id);
 }
 
 export const SEGMENTOS: ClienteSegmento[] = ['Padrão', 'Família', 'Executivo', 'Premium', 'VIP'];

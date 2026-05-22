@@ -21,7 +21,7 @@ import React from 'react';
 import { useHistorico } from './hooks/useHistorico';
 import { VehicleModal } from './components/VehicleModal/VehicleModal';
 import { useApp } from '../../shared/context/AppContext';
-import { CLIENTES } from '../../data/clientes.data';
+import { clientesStore } from '../../shared/api/cache';
 import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
 import { cap } from '../../shared/utils/formatters';
 import { formatCurrency } from '../../shared/utils/formatters';
@@ -41,7 +41,7 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
   };
 
   const handleOpenVehicle = (cid: string, vid: string) => {
-    const c = CLIENTES.find(x => x.id === cid);
+    const c = clientesStore.get().find(x => x.id === cid);
     const veicsC = (window as any).__veiculos?.[cid] || [];
     if (c) {
       const v = veicsC.find((x: any) => x.id === vid);

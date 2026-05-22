@@ -15,9 +15,7 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { CLIENTES } from '../../../data/clientes.data';
-import { ESTOQUE } from '../../../data/estoque.data';
-import { LEADS } from '../../../data/leads.data';
+import { clientesStore, estoqueStore, leadsStore, useStore } from '../../api/cache';
 import { formatCurrency } from '../../utils/formatters';
 import { useApp } from '../../context/AppContext';
 import type { ModuleId } from '../../../types/global.types';
@@ -26,25 +24,28 @@ interface SearchItem { type: string; label: string; sub: string; action: () => v
 
 export const GlobalSearch: React.FC = () => {
   const { navigate, logAccess } = useApp();
+  const clientes = useStore(clientesStore);
+  const estoque = useStore(estoqueStore);
+  const leads = useStore(leadsStore);
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<SearchItem[]>([]);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const buildIndex = (): SearchItem[] => [
-    ...CLIENTES.map(c => ({ type:'Cliente', label:c.nome, sub:c.email,
+    ...clientes.map(c => ({ type:'Cliente', label:c.nome, sub:c.email,
       action: () => { logAccess(c.id); navigate('historico'); setTimeout(() => {
         const ev = new CustomEvent('ford:selectCliente', { detail: c.id });
         window.dispatchEvent(ev);
       }, 120); }
     })),
-    ...ESTOQUE.map(e => ({ type:'Estoque', label:`${e.modelo} ${e.versao}`, sub:formatCurrency(e.preco),
+    ...estoque.map(e => ({ type:'Estoque', label:`${e.modelo} ${e.versao}`, sub:formatCurrency(e.preco),
       action: () => { navigate('estoque'); setTimeout(() => {
         const ev = new CustomEvent('ford:openEstoque', { detail: e.id });
         window.dispatchEvent(ev);
       }, 180); }
     })),
-    ...LEADS.map(l => ({ type:'Lead', label:l.cli, sub:l.nec,
+    ...leads.map(l => ({ type:'Lead', label:l.cli, sub:l.nec,
       action: () => { navigate('leads'); setTimeout(() => {
         const ev = new CustomEvent('ford:openLead', { detail: l.id });
         window.dispatchEvent(ev);

@@ -19,6 +19,7 @@
 
 import React, { useState } from 'react';
 import { useTheme } from '../../shared/hooks/useTheme';
+import { ColaboradoresCard } from './components/ColaboradoresCard';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
@@ -182,6 +183,9 @@ export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
             Salvar metas
           </button>
         </div>
+
+        {/* ── Colaboradores ────────────────────────────────────────────────── */}
+        <ColaboradoresCard showToast={showToast} />
 
         {/* ── Documentação do Sistema ───────────────────────────────────────── */}
         <div className="config-card">

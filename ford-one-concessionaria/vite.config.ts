@@ -7,6 +7,8 @@ import path from 'path';
 // Para domínio próprio (CNAME), deixe '/'
 const base = process.env.VITE_BASE ?? '/';
 
+const apiTarget = process.env.VITE_API_PROXY_TARGET ?? 'http://localhost:3001';
+
 export default defineConfig({
   plugins: [react()],
   base,
@@ -17,6 +19,15 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, './src/shared'),
       '@styles': path.resolve(__dirname, './src/styles'),
       '@data': path.resolve(__dirname, './src/data'),
+    },
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: apiTarget,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

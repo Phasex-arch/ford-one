@@ -3,7 +3,8 @@
  * @description Componente raiz da aplicação Ford One.
  *
  * Responsabilidades:
- * - Envolver toda a árvore de componentes com o AppProvider (estado global)
+ * - Envolver toda a árvore de componentes com AuthProvider + AppProvider
+ * - Gatear a renderização: mostrar LoginScreen quando não há sessão
  * - Instanciar o AppLayout (Header + Sidebar + área principal)
  * - Renderizar a tela correta com base no módulo ativo (activeModule)
  * - Montar o ToastContainer para exibir notificações globais
@@ -14,9 +15,11 @@
  */
 import React from 'react';
 import { AppProvider, useApp } from '../shared/context/AppContext';
+import { AuthProvider, useAuth } from '../shared/auth/AuthContext';
 import { AppLayout } from '../shared/ui/Layout/AppLayout';
 import { ToastContainer } from '../shared/components/Toast/Toast';
 import { useToast } from '../shared/hooks/useToast';
+import { LoginScreen } from '../modules/auth/login.screen';
 import { DashboardScreen }      from '../modules/dashboard/dashboard.screen';
 import { ClientesScreen }       from '../modules/clientes/clientes.screen';
 import { HistoricoScreen }      from '../modules/historico/historico.screen';
@@ -32,6 +35,35 @@ import { DesempenhoScreen }     from '../modules/desempenho/desempenho.screen';
 import { RelatoriosScreen }     from '../modules/relatorios/relatorios.screen';
 import { ConfiguracoesScreen }  from '../modules/configuracoes/configuracoes.screen';
 import '../styles/globals.scss';
+
+const BootSpinner: React.FC = () => (
+  <div
+    style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#050a36',
+      color: '#fff',
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span
+        style={{
+          width: 22,
+          height: 22,
+          border: '3px solid rgba(255,255,255,0.25)',
+          borderTopColor: '#fff',
+          borderRadius: '50%',
+          animation: 'fordBootSpin 0.8s linear infinite',
+          display: 'inline-block',
+        }}
+      />
+      <span style={{ letterSpacing: 1, fontWeight: 600 }}>Ford One</span>
+    </div>
+    <style>{`@keyframes fordBootSpin { to { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 const AppInner: React.FC = () => {
   const { activeModule } = useApp();
@@ -64,8 +96,21 @@ const AppInner: React.FC = () => {
   );
 };
 
+const AppShell: React.FC = () => {
+  const { user, ready } = useAuth();
+  if (!ready) return <BootSpinner />;
+  if (!user) return <LoginScreen />;
+  return (
+    <AppProvider>
+      <AppInner />
+    </AppProvider>
+  );
+};
+
 const App: React.FC = () => (
-  <AppProvider><AppInner /></AppProvider>
+  <AuthProvider>
+    <AppShell />
+  </AuthProvider>
 );
 
 export default App;

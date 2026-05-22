@@ -18,7 +18,7 @@
  */
 
 import React, { useState } from 'react';
-import { AVALIACOES } from '../../data/avaliacoes.data';
+import { useAvaliacoes } from './hooks/useAvaliacoes';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
@@ -26,11 +26,20 @@ interface Props { showToast:(m:string,t?:ToastType)=>void; }
 const stars = (n:number) => '★'.repeat(n)+'☆'.repeat(5-n);
 
 export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
+  const { avaliacoes: AVALIACOES, stats } = useAvaliacoes();
   const [modalIdx, setModalIdx] = useState<number|null>(null);
   const [reply, setReply] = useState('');
   const aval = modalIdx !== null ? AVALIACOES[modalIdx] : null;
 
-  const kpis=[{ic:'ic-gold',fa:'ph-star',lbl:'Nota Geral',val:'4.8',delta:'Excelente',cls:'pos'},{ic:'ic-blue',fa:'ph-chat-circle',lbl:'NPS',val:'72',delta:'Zona de excelência',cls:'pos'},{ic:'ic-teal',fa:'ph-clock',lbl:'SLA Médio',val:'2.3h',delta:'Abaixo da meta',cls:'pos'},{ic:'ic-green',fa:'ph-chart-bar',lbl:'Ranking',val:'#3',delta:'de 48 concessionárias',cls:'pos'}];
+  const notaGeral = (() => {
+    const fromStats = typeof stats?.media === 'number' ? stats.media : null;
+    if (fromStats !== null) return fromStats.toFixed(1);
+    if (AVALIACOES.length === 0) return '0.0';
+    const avg = AVALIACOES.reduce((s, a) => s + a.nota, 0) / AVALIACOES.length;
+    return avg.toFixed(1);
+  })();
+
+  const kpis=[{ic:'ic-gold',fa:'ph-star',lbl:'Nota Geral',val:notaGeral,delta:'Excelente',cls:'pos'},{ic:'ic-blue',fa:'ph-chat-circle',lbl:'NPS',val:'72',delta:'Zona de excelência',cls:'pos'},{ic:'ic-teal',fa:'ph-clock',lbl:'SLA Médio',val:'2.3h',delta:'Abaixo da meta',cls:'pos'},{ic:'ic-green',fa:'ph-chart-bar',lbl:'Ranking',val:'#3',delta:'de 48 concessionárias',cls:'pos'}];
 
   return (
     <section className="module active" id="mod-avaliacao">

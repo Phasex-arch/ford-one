@@ -21,7 +21,7 @@
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { AccessLogItem, VehicleLogItem, ModuleId } from '../../types/global.types';
 import { nowStr } from '../utils/dates';
-import { CLIENTES } from '../../data/clientes.data';
+import { clientesStore } from '../api/cache';
 
 interface LeadScheduleEntry { dayOffset: number; slotIdx: number; }
 
@@ -62,7 +62,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const logAccess = useCallback((cid: string) => {
     setAccessLog(prev => {
       if (prev.clientes.find(x => x.id === cid)) return prev;
-      const c = CLIENTES.find(x => x.id === cid);
+      const c = clientesStore.get().find(x => x.id === cid);
       if (!c) return prev;
       return { ...prev, clientes: [...prev.clientes, { id: cid, nome: c.nome, ini: c.ini, hora: nowStr() }] };
     });

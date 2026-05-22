@@ -21,7 +21,7 @@
 
 import React, { useState } from 'react';
 import { useAgenda } from './hooks/useAgenda';
-import { TECNICOS } from '../../data/tecnicos.data';
+import { useTecnicos } from '../../shared/hooks/useTecnicos';
 import { cap } from '../../shared/utils/formatters';
 import type { ToastType } from '../../shared/hooks/useToast';
 
@@ -30,6 +30,7 @@ interface Props { showToast:(m:string,t?:ToastType)=>void; }
 export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
   const { slots, getDayTitle, active, total, pct, shiftDay, cancelApt,
           schedOpen, setSchedOpen, selectedSlot, setSelectedSlot, confirmSchedule } = useAgenda(showToast);
+  const TECNICOS = useTecnicos();
   const [schedCli, setSchedCli] = useState('');
   const [schedServ, setSchedServ] = useState('');
   const [schedTech, setSchedTech] = useState('');

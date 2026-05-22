@@ -16,10 +16,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getVeiculosCliente } from '../services/historico.service';
-import { CLIENTES } from '../../../data/clientes.data';
+import { clientesStore, useStore } from '../../../shared/api/cache';
 import type { Veiculo, Cliente } from '../../../types/global.types';
 
 export function useHistorico() {
+  const clientes = useStore(clientesStore);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
@@ -35,7 +36,7 @@ export function useHistorico() {
   }, []);
 
   const selectedCliente: Cliente | undefined = selectedId
-    ? CLIENTES.find(c => c.id === selectedId)
+    ? clientes.find(c => c.id === selectedId)
     : undefined;
 
   const veiculos: Veiculo[] = selectedId ? getVeiculosCliente(selectedId) : [];
