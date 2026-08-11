@@ -55,7 +55,7 @@ export function Hero() {
       <div className={styles.heroCar}>
         <div className={styles.carGlow} />
         <img
-          src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1200&q=90&auto=format"
+          src="https://media.ed.edmunds-media.com/ford/maverick/2026/oem/2026_ford_maverick_crew-cab-pickup_lariat_fq_oem_1_1600.jpg"
           alt="Ford veículo premium"
           className={styles.carImg}
         />

@@ -170,10 +170,10 @@ export function LandingScreen() {
           <p className="section-desc light center">O Ford One está disponível para toda a linha atual Ford. Conecte seu veículo e comece hoje mesmo.</p>
           <div className="vehicles-grid">
             {[
-              { delay: 0,   img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80&auto=format', badge: 'Esportivo', name: 'Ford Mustang',  cat: 'Performance & Estilo' },
-              { delay: 100, img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80&auto=format', badge: 'SUV', name: 'Ford Bronco', cat: 'Aventura & Off-Road' },
-              { delay: 200, img: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80&auto=format', badge: 'Elétrico', badgeElectric: true, name: 'F-150 Lightning', cat: 'Elétrico & Tecnológico', featured: true },
-              { delay: 300, img: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=600&q=80&auto=format', badge: 'Família', name: 'Ford Explorer', cat: 'Família & Conforto' },
+              { delay: 0, img: 'https://www.topgear.com/sites/default/files/2024/12/54196859052_9249719e93_o.jpg', badge: 'Esportivo', name: 'Ford Mustang',  cat: 'Performance & Estilo' },
+              { delay: 100, img: 'https://cdn.autopapo.com.br/box/uploads/2021/03/16103101/ford-bronco-suv-utilitario-esportivo-jipe--732x488.jpg', badge: 'SUV', name: 'Ford Bronco', cat: 'Aventura & Off-Road' },
+              { delay: 200, img: 'https://cdn.motor1.com/images/mgl/y2p4Bq/s1/f-150-lightning-flash-1.jpg', badge: 'Elétrico', badgeElectric: true, name: 'F-150 Lightning', cat: 'Elétrico & Tecnológico', featured: true },
+              { delay: 300, img: 'https://quatrorodas.abril.com.br/wp-content/uploads/2024/02/Ford-Explorer-2025-4.jpg?quality=70&strip=info&w=720&crop', badge: 'Família', name: 'Ford Explorer', cat: 'Família & Conforto' },
             ].map(({ delay, img, badge, badgeElectric, name, cat, featured }) => (
               <div key={name} className={`vehicle-card${featured ? ' featured-vehicle' : ''}`} data-delay={delay}>
                 <div className="vehicle-img-wrap">
@@ -202,7 +202,7 @@ export function LandingScreen() {
           <h2 className="section-title">Inovação que você<br /><strong>pode sentir na prática</strong></h2>
           <div className="diff-split">
             <div className="diff-visual">
-              <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&q=85&auto=format" alt="Tecnologia Ford" className="diff-img" />
+              <img src="https://cdn.autopapo.com.br/box/uploads/2018/11/22195928/img_2882-732x488.jpg" alt="Tecnologia Ford" className="diff-img" />
               <div className="diff-overlay-card">
                 <span className="doc-big">34%</span>
                 <span className="doc-small">economia média em manutenção</span>
@@ -231,7 +231,7 @@ export function LandingScreen() {
       {/* CTA FINAL */}
       <section className="cta-final">
         <div className="cta-bg-wrap">
-          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1800&q=85&auto=format" alt="Ford CTA" className="cta-bg-img" />
+          <img src="https://cdn.motor1.com/images/mgl/m691A/s3/ford-fusion-2019-br.jpg" />
           <div className="cta-overlay" />
         </div>
         <div className="container cta-content">
