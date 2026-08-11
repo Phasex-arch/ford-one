@@ -1,0 +1,98 @@
+/* ============================================================
+   DARK THEME — Tema escuro
+   ============================================================ */
+[data-theme="dark"] {
+    --c-bg: #0e1020;
+    --c-card: #161929;
+    --c-border: #252a42;
+    --c-text: #e8eaf6;
+    --c-mid: #9098bf;
+    --c-dim: #5a6080;
+    --c-input: #1e2238;
+    --ford-light: #1e2448;
+    --ford-blue: #8aa4ff;
+    --ford-mid: #6278f0;
+    --ford-vivid: #5a78ff;
+    --green-bg: #073a22;
+    --orange-bg: #362208;
+    --red-bg: #380e0e;
+    --purple-bg: #20103a;
+    --teal-bg: #082838;
+    --gold-bg: #322006;
+    --navy-bg: #101e32;
+    --chart-text: #9098bf;
+    --chart-grid: #252a42;
+    --chart-card: #161929;
+}
+
+[data-theme="dark"] .header {
+    background: #0a0d1f;
+}
+
+[data-theme="dark"] .sidebar {
+    background: #0d1023;
+}
+
+[data-theme="dark"] body::after {
+    background: #0a0d1f;
+}
+
+[data-theme="dark"] .btn-prim {
+    background: #3050d0;
+}
+
+[data-theme="dark"] .btn-prim:hover {
+    background: var(--ford-vivid);
+}
+
+[data-theme="dark"] .nav-item:hover,
+[data-theme="dark"] .nav-item.active {
+    color: var(--ford-vivid);
+}
+
+[data-theme="dark"] .nav-item.active {
+    background: rgba(90, 120, 255, .12);
+}
+
+[data-theme="dark"] .cli-av,
+[data-theme="dark"] .chip-av,
+[data-theme="dark"] .tec-av {
+    background: rgba(90, 120, 255, .15);
+    color: var(--ford-blue);
+}
+
+[data-theme="dark"] .ud-av,
+[data-theme="dark"] .user-av {
+    background: #3050d0;
+}
+
+[data-theme="dark"] .notif-row.unread {
+    background: rgba(90, 120, 255, .08);
+}
+
+[data-theme="dark"] .search-results {
+    background: var(--c-card);
+    border-color: var(--c-border);
+}
+
+[data-theme="dark"] .sri:hover {
+    background: var(--ford-light);
+}
+
+[data-theme="dark"] .sri-tag {
+    background: var(--ford-light);
+    color: var(--ford-vivid);
+}
+
+[data-theme="dark"] .hdr-dropdown {
+    background: var(--c-card);
+    border-color: var(--c-border);
+}
+
+[data-theme="dark"] .hdr-dd-head {
+    background: var(--c-bg);
+}
+
+[data-theme="dark"] .ud-top {
+    background: var(--c-bg);
+}

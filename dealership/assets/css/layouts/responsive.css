@@ -1,0 +1,128 @@
+/* ============================================================
+   RESPONSIVE — Ajustes gerais de responsividade
+   ============================================================ */
+
+/* --- Mobile First --- */
+
+/* Tablets e telas menores */
+@media(max-width: 1024px) {
+    .os-card {
+        grid-template-columns: 68px 1fr 1fr auto auto auto;
+    }
+
+    .os-val {
+        display: none;
+    }
+}
+
+@media(max-width: 900px) {
+    .agenda-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .os-card {
+        grid-template-columns: 68px 1fr 1fr auto;
+    }
+
+    .os-tech {
+        display: none;
+    }
+}
+
+/* Tablets */
+@media(max-width: 768px) {
+    .sidebar-overlay {
+        display: none;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+        box-shadow: var(--sh2);
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        display: none;
+    }
+
+    .agenda-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .fin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .m-grid,
+    .m-grid.three {
+        grid-template-columns: 1fr;
+    }
+
+    .os-card {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    body::after {
+        font-size: 9px;
+        letter-spacing: .2px;
+    }
+}
+
+/* Smartphones */
+@media(max-width: 520px) {
+    .estoque-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vehicles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pipeline-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fin-values {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .os-card {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+}
+
+/* --- Chart tooltips --- */
+.ch-tip {
+    position: fixed;
+    background: var(--c-text);
+    color: var(--c-card);
+    padding: 6px 10px;
+    border-radius: var(--rsm);
+    font-size: var(--fs0);
+    font-weight: 600;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 9999;
+    box-shadow: var(--sh1);
+    opacity: 0;
+    transition: opacity .15s;
+    line-height: 1.5;
+}
+
+.ch-tip.on {
+    opacity: 1;
+}

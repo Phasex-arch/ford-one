@@ -1,0 +1,31 @@
+/* ============================================================
+   RECEITA — Estilos do módulo Receita
+   ============================================================ */
+
+#receitaKpis .kpi-card {
+    flex: 1 1 200px;
+}
+
+#receitaCateg,
+#receitaTrim {
+    width: 100% !important;
+    height: 210px !important;
+}
+
+/* Responsivo */
+@media(max-width: 768px) {
+    #receitaKpis .kpi-card {
+        flex: 1 1 140px;
+    }
+
+    #receitaCateg,
+    #receitaTrim {
+        height: 170px !important;
+    }
+}
+
+@media(max-width: 520px) {
+    #receitaKpis .kpi-card {
+        flex: 1 1 100%;
+    }
+}

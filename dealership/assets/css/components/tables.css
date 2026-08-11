@@ -1,0 +1,290 @@
+/* ============================================================
+   TABLES — Estilos de tabelas
+   ============================================================ */
+.tbl-wrap {
+    background: var(--c-card);
+    border-radius: var(--r);
+    box-shadow: var(--sh0);
+    border: 1px solid var(--c-border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.data-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs1);
+    min-width: 640px;
+}
+
+.data-tbl thead {
+    background: var(--c-bg);
+}
+
+.data-tbl th {
+    padding: 10px 13px;
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--c-mid);
+    border-bottom: 1px solid var(--c-border);
+    white-space: nowrap;
+}
+
+.data-tbl td {
+    padding: 11px 13px;
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: middle;
+}
+
+.data-tbl tr:last-child td {
+    border-bottom: none;
+}
+
+.data-tbl tbody tr:hover {
+    background: var(--ford-light);
+    cursor: pointer;
+}
+
+/* ── Cell com avatar ── */
+.cli-cell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.cli-av {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ford-light);
+    color: var(--ford-blue);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cli-name {
+    font-weight: 600;
+    font-size: var(--fs1);
+    white-space: nowrap;
+}
+
+.cli-id {
+    font-size: var(--fs0);
+    color: var(--c-dim);
+    white-space: nowrap;
+}
+
+/* ── Status Pills ── */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: var(--fs0);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pill::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.pill.ativo {
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.pill.ativo::before {
+    background: var(--green);
+}
+
+.pill.ativo-v {
+    background: var(--ford-light);
+    color: var(--ford-vivid);
+}
+
+.pill.ativo-v::before {
+    background: var(--ford-vivid);
+}
+
+.pill.inativo {
+    background: var(--c-bg);
+    color: var(--c-mid);
+}
+
+.pill.inativo::before {
+    background: var(--c-dim);
+}
+
+.pill.potencial {
+    background: var(--orange-bg);
+    color: var(--gold);
+}
+
+.pill.potencial::before {
+    background: var(--orange);
+}
+
+.pill.vendido {
+    background: var(--purple-bg);
+    color: var(--purple);
+}
+
+.pill.vendido::before {
+    background: var(--purple);
+}
+
+.pill.substituido {
+    background: var(--orange-bg);
+    color: var(--gold);
+}
+
+.pill.substituido::before {
+    background: var(--gold);
+}
+
+/* ── LTV ── */
+.ltv-v {
+    font-weight: 700;
+    color: var(--c-text);
+    white-space: nowrap;
+}
+
+/* ── Button dentro da tabela ── */
+.btn-tbl {
+    height: 28px;
+    padding: 0 11px;
+    border-radius: var(--rsm);
+    font-size: var(--fs0);
+    font-weight: 700;
+    color: var(--ford-vivid);
+    border: 1px solid var(--ford-vivid);
+    background: var(--ford-light);
+    transition: var(--tr);
+    white-space: nowrap;
+}
+
+.btn-tbl:hover {
+    background: var(--ford-vivid);
+    color: #fff;
+}
+
+/* ── Responsivo ── */
+@media(max-width: 768px) {
+    .tbl-wrap {
+        overflow-x: visible;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .data-tbl {
+        min-width: 0;
+        display: block;
+    }
+
+    .data-tbl thead {
+        display: none;
+    }
+
+    .data-tbl tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .data-tbl tbody tr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto auto;
+        gap: 4px 12px;
+        background: var(--c-card);
+        border-radius: var(--r);
+        padding: 14px 16px;
+        border: 1px solid var(--c-border);
+        box-shadow: var(--sh0);
+        cursor: pointer;
+    }
+
+    .data-tbl tbody tr:hover {
+        background: var(--ford-light);
+    }
+
+    .data-tbl tbody td {
+        display: block;
+        padding: 0;
+        border: none;
+        font-size: var(--fs1);
+    }
+
+    .data-tbl tbody td:nth-child(1) {
+        grid-column: 1/2;
+        grid-row: 1/2;
+    }
+
+    .data-tbl tbody td:nth-child(2) {
+        grid-column: 1/2;
+        grid-row: 2/3;
+        color: var(--c-mid);
+        font-size: var(--fs0);
+    }
+
+    .data-tbl tbody td:nth-child(3) {
+        grid-column: 1/2;
+        grid-row: 3/4;
+        font-size: var(--fs0);
+    }
+
+    .data-tbl tbody td:nth-child(4) {
+        display: none;
+    }
+
+    .data-tbl tbody td:nth-child(5) {
+        grid-column: 2/3;
+        grid-row: 1/2;
+        text-align: right;
+    }
+
+    .data-tbl tbody td:nth-child(6) {
+        display: none;
+    }
+
+    .data-tbl tbody td:nth-child(7) {
+        grid-column: 2/3;
+        grid-row: 2/3;
+        text-align: right;
+        font-weight: 700;
+        color: var(--c-text);
+        font-size: var(--fs1);
+    }
+
+    .data-tbl tbody td:nth-child(8) {
+        grid-column: 1/-1;
+        grid-row: 4/5;
+        padding-top: 10px;
+        border-top: 1px solid var(--c-border);
+        margin-top: 4px;
+    }
+
+    .data-tbl tbody td:nth-child(8) .btn-tbl {
+        width: 100%;
+        text-align: center;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

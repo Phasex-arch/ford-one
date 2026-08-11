@@ -1,0 +1,69 @@
+/* ============================================================
+   DASHBOARD — Estilos do módulo Dashboard
+   ============================================================ */
+
+/* KPI Grid específico do dashboard */
+#dashKpis .kpi-card {
+    flex: 1 1 180px;
+}
+
+/* Gráficos */
+#revenueChart,
+#conversionChart {
+    width: 100% !important;
+    height: 210px !important;
+}
+
+/* Legenda dos gráficos */
+.chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--fs0);
+    color: var(--c-mid);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.leg {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot.blue {
+    background: var(--ford-vivid);
+}
+
+.dot.dashed {
+    border: 2px dashed var(--orange);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Responsivo */
+@media(max-width: 768px) {
+    #dashKpis .kpi-card {
+        flex: 1 1 140px;
+    }
+}
+
+@media(max-width: 520px) {
+    #dashKpis .kpi-card {
+        flex: 1 1 100%;
+    }
+
+    #revenueChart,
+    #conversionChart {
+        height: 160px !important;
+    }
+}

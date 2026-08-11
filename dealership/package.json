@@ -1,0 +1,22 @@
+{
+    "name": "ford-one-portal",
+    "version": "3.2.0",
+    "description": "Ford One – Portal da Concessionária",
+    "main": "index.html",
+    "scripts": {
+        "start": "serve .",
+        "dev": "serve . --port 3000",
+        "build": "echo 'Build step not configured'"
+    },
+    "keywords": [
+        "ford",
+        "dealership",
+        "dashboard",
+        "crm"
+    ],
+    "author": "Ford Brasil",
+    "license": "MIT",
+    "devDependencies": {
+        "serve": "^14.2.0"
+    }
+}

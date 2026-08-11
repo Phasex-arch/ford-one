@@ -1,0 +1,268 @@
+/* ============================================================
+   METAS — Estilos do módulo Metas
+   ============================================================ */
+
+.meta-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    border: 1px solid var(--c-border);
+    box-shadow: var(--sh0);
+    transition: var(--tr);
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 160px;
+    max-width: 100%;
+}
+
+.meta-card:hover {
+    box-shadow: var(--sh1);
+    transform: translateY(-1px);
+}
+
+.meta-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 6px;
+}
+
+.meta-title {
+    font-size: var(--fs1);
+    font-weight: 700;
+    color: var(--c-text);
+    white-space: nowrap;
+}
+
+.meta-period {
+    font-size: 10px;
+    color: var(--c-dim);
+    background: var(--c-bg);
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.meta-values {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    gap: 6px;
+}
+
+.meta-atual {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--c-text);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.meta-alvo {
+    font-size: var(--fs0);
+    color: var(--c-dim);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.meta-alvo span {
+    font-weight: 700;
+    color: var(--c-mid);
+    white-space: nowrap;
+    display: block;
+}
+
+.meta-bar-wrap {
+    margin-bottom: 8px;
+}
+
+.meta-bar-track {
+    height: 6px;
+    background: var(--c-bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.meta-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .8s ease;
+}
+
+.meta-bar-fill.on-track {
+    background: linear-gradient(90deg, var(--ford-vivid), var(--green));
+}
+
+.meta-bar-fill.at-risk {
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+}
+
+.meta-bar-fill.exceeded {
+    background: linear-gradient(90deg, var(--green), #059669);
+}
+
+.meta-bar-fill.behind {
+    background: linear-gradient(90deg, var(--red), var(--orange));
+}
+
+.meta-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.meta-pct {
+    font-size: var(--fs0);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.meta-status-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.tag-exceeded {
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.tag-on-track {
+    background: var(--ford-light);
+    color: var(--ford-vivid);
+}
+
+.tag-at-risk {
+    background: var(--orange-bg);
+    color: var(--gold);
+}
+
+.tag-behind {
+    background: var(--red-bg);
+    color: var(--red);
+}
+
+.metas-ranking {
+    background: var(--c-card);
+    border-radius: var(--r);
+    border: 1px solid var(--c-border);
+    box-shadow: var(--sh0);
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.metas-ranking-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--c-border);
+    background: var(--c-bg);
+    font-size: var(--fs3);
+    font-weight: 700;
+    color: var(--c-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metas-ranking-head i {
+    font-size: 16px;
+    color: var(--gold);
+}
+
+.rank-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--c-border);
+    transition: var(--tr);
+}
+
+.rank-row:last-child {
+    border-bottom: none;
+}
+
+.rank-row:hover {
+    background: var(--ford-light);
+}
+
+.rank-pos {
+    font-size: var(--fs5);
+    font-weight: 800;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.rank-pos.gold {
+    color: #d97706;
+}
+
+.rank-pos.silver {
+    color: #6b7280;
+}
+
+.rank-pos.bronze {
+    color: #92400e;
+}
+
+.rank-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: var(--fs1);
+    color: var(--c-text);
+}
+
+.rank-sub {
+    font-size: var(--fs0);
+    color: var(--c-dim);
+}
+
+.rank-bar-wrap {
+    width: 110px;
+    flex-shrink: 0;
+}
+
+.rank-bar-track {
+    height: 5px;
+    background: var(--c-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 3px;
+}
+
+.rank-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--ford-vivid);
+}
+
+.rank-pct {
+    font-size: var(--fs0);
+    font-weight: 700;
+    color: var(--ford-vivid);
+    text-align: right;
+}
+
+/* Responsivo */
+@media(max-width: 768px) {
+    .meta-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .rank-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .rank-bar-wrap {
+        width: 100%;
+    }
+}

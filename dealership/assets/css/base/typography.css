@@ -1,0 +1,45 @@
+/* ============================================================
+   TYPOGRAPHY — Estilos de fonte
+   ============================================================ */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-size: var(--fs2);
+    line-height: 1.55;
+}
+
+h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--c-text);
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: var(--fs5);
+    font-weight: 700;
+    color: var(--c-text);
+    line-height: 1.2;
+}
+
+h3 {
+    font-size: var(--fs4);
+    font-weight: 700;
+    color: var(--c-text);
+    margin-bottom: 12px;
+}
+
+.sec-title {
+    font-size: var(--fs4);
+    font-weight: 700;
+    color: var(--c-text);
+    margin-bottom: 12px;
+}
+
+.mod-sub {
+    font-size: var(--fs1);
+    color: var(--c-mid);
+    margin-top: 3px;
+}

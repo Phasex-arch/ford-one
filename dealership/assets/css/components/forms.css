@@ -1,0 +1,111 @@
+/* ============================================================
+   FORMS — Estilos de formulários
+   ============================================================ */
+.m-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.m-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--c-mid);
+}
+
+.m-form input,
+.m-form select,
+.m-form textarea {
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--rsm);
+    font-size: var(--fs1);
+    background: var(--c-input);
+    color: var(--c-text);
+    font-family: inherit;
+    transition: var(--tr);
+}
+
+.m-form textarea {
+    height: auto;
+    padding: 8px 10px;
+}
+
+.m-form input:focus,
+.m-form select:focus,
+.m-form textarea:focus {
+    border-color: var(--ford-vivid);
+    box-shadow: 0 0 0 3px rgba(23, 0, 244, .08);
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.srch-field {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+}
+
+.srch-field i {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--c-dim);
+    pointer-events: none;
+}
+
+.srch-field input {
+    width: 100%;
+    height: 34px;
+    padding: 0 12px 0 30px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--rsm);
+    font-size: var(--fs1);
+    background: var(--c-input);
+    color: var(--c-text);
+    transition: var(--tr);
+}
+
+.srch-field input:focus {
+    border-color: var(--ford-vivid);
+    box-shadow: 0 0 0 3px rgba(23, 0, 244, .08);
+}
+
+.filter-bar select {
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--rsm);
+    font-size: var(--fs1);
+    background: var(--c-input);
+    color: var(--c-text);
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--tr);
+}
+
+.filter-bar select:focus {
+    border-color: var(--ford-vivid);
+}
+
+@media(max-width: 520px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

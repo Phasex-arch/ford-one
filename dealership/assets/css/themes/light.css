@@ -1,0 +1,38 @@
+/* ============================================================
+   LIGHT THEME — Tema claro (padrão)
+   ============================================================ */
+[data-theme="light"] {
+    --c-bg: #f3f4f8;
+    --c-card: #fff;
+    --c-border: #e2e5ef;
+    --c-text: #0d0f1a;
+    --c-mid: #4b5268;
+    --c-dim: #9196ae;
+    --c-input: #fff;
+    --ford-light: #eceffe;
+    --ford-blue: #00095b;
+    --ford-mid: #0a1490;
+    --ford-vivid: #1700f4;
+    --green-bg: #ecfdf5;
+    --orange-bg: #fffbeb;
+    --red-bg: #fef2f2;
+    --purple-bg: #f5f3ff;
+    --teal-bg: #e0f2fe;
+    --gold-bg: #fffbeb;
+    --navy-bg: #eff3f8;
+    --chart-text: #4b5268;
+    --chart-grid: #e2e5ef;
+    --chart-card: #fff;
+}
+
+[data-theme="light"] .header {
+    background: var(--ford-blue);
+}
+
+[data-theme="light"] .sidebar {
+    background: var(--c-card);
+}
+
+[data-theme="light"] body::after {
+    background: var(--ford-blue);
+}

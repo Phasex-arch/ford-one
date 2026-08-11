@@ -1,0 +1,421 @@
+/* ============================================================
+   CARDS — Componentes de cartão
+   ============================================================ */
+
+/* ── KPI Cards ── */
+.kpi-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.kpi-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 14px;
+    box-shadow: var(--sh0);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid var(--c-border);
+    transition: var(--tr);
+    cursor: pointer;
+    flex: 1 1 150px;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sh1);
+}
+
+.kpi-ic {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--rsm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.kpi-ic i {
+    font-size: 16px;
+}
+
+.ic-blue {
+    background: var(--ford-light);
+}
+
+.ic-blue i {
+    color: var(--ford-vivid);
+}
+
+.ic-teal {
+    background: var(--teal-bg);
+}
+
+.ic-teal i {
+    color: var(--teal);
+}
+
+.ic-green {
+    background: var(--green-bg);
+}
+
+.ic-green i {
+    color: var(--green);
+}
+
+.ic-orange {
+    background: var(--orange-bg);
+}
+
+.ic-orange i {
+    color: var(--orange);
+}
+
+.ic-purple {
+    background: var(--purple-bg);
+}
+
+.ic-purple i {
+    color: var(--purple);
+}
+
+.ic-gold {
+    background: var(--gold-bg);
+}
+
+.ic-gold i {
+    color: var(--gold);
+}
+
+.ic-navy {
+    background: var(--navy-bg);
+}
+
+.ic-navy i {
+    color: var(--navy);
+}
+
+.kpi-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.kpi-lbl {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--c-dim);
+    margin-bottom: 5px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.kpi-val {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--c-text);
+    line-height: 1.1;
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+.kpi-val.sm {
+    font-size: 18px;
+}
+
+.kpi-delta {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.kpi-delta.pos {
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.kpi-delta.neg {
+    background: var(--red-bg);
+    color: var(--red);
+}
+
+.kpi-delta.neu {
+    background: var(--c-bg);
+    color: var(--c-mid);
+}
+
+/* ── Chart Cards ── */
+.chart-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 20px;
+    box-shadow: var(--sh0);
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+}
+
+.chart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+}
+
+.chart-head h3 {
+    font-size: var(--fs3);
+    font-weight: 600;
+    color: var(--c-text);
+    white-space: nowrap;
+}
+
+.chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--fs0);
+    color: var(--c-mid);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.leg {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot.blue {
+    background: var(--ford-vivid);
+}
+
+.dot.dashed {
+    border: 2px dashed var(--orange);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: transparent;
+}
+
+/* ── Alert Cards ── */
+.alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+    gap: 10px;
+}
+
+.alert-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 13px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid var(--c-border);
+    border-left-width: 4px;
+    box-shadow: var(--sh0);
+    transition: var(--tr);
+    cursor: pointer;
+}
+
+.alert-card:hover {
+    box-shadow: var(--sh1);
+    transform: translateY(-1px);
+}
+
+.ac-red {
+    border-left-color: var(--red);
+}
+
+.ac-red>i {
+    color: var(--red);
+}
+
+.ac-orange {
+    border-left-color: var(--orange);
+}
+
+.ac-orange>i {
+    color: var(--orange);
+}
+
+.ac-blue {
+    border-left-color: var(--ford-vivid);
+}
+
+.ac-blue>i {
+    color: var(--ford-vivid);
+}
+
+.ac-green {
+    border-left-color: var(--green);
+}
+
+.ac-green>i {
+    color: var(--green);
+}
+
+.alert-card>i {
+    font-size: 17px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.al-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.al-body strong {
+    display: block;
+    font-size: var(--fs1);
+    color: var(--c-text);
+    margin-bottom: 2px;
+}
+
+.al-body p {
+    font-size: var(--fs0);
+    color: var(--c-mid);
+    line-height: 1.4;
+}
+
+.al-link {
+    flex-shrink: 0;
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: var(--rsm);
+    font-size: var(--fs0);
+    font-weight: 700;
+    color: var(--ford-vivid);
+    border: 1px solid var(--ford-vivid);
+    background: var(--ford-light);
+    transition: var(--tr);
+    white-space: nowrap;
+}
+
+.alert-card:hover .al-link {
+    background: var(--ford-vivid);
+    color: #fff;
+}
+
+/* ── Meta Cards ── */
+.meta-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    border: 1px solid var(--c-border);
+    box-shadow: var(--sh0);
+    transition: var(--tr);
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 160px;
+    max-width: 100%;
+}
+
+.meta-card:hover {
+    box-shadow: var(--sh1);
+    transform: translateY(-1px);
+}
+
+/* ── Financiamento Cards ── */
+.fin-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 20px;
+    border: 1px solid var(--c-border);
+    box-shadow: var(--sh0);
+    transition: var(--tr);
+    cursor: pointer;
+    flex: 1 1 300px;
+}
+
+.fin-card:hover {
+    box-shadow: var(--sh1);
+    transform: translateY(-1px);
+}
+
+/* ── Relatório Cards ── */
+.rel-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    padding: 18px;
+    border: 1px solid var(--c-border);
+    box-shadow: var(--sh0);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: var(--tr);
+    cursor: pointer;
+}
+
+.rel-card:hover {
+    box-shadow: var(--sh1);
+    transform: translateY(-2px);
+}
+
+/* ── Estoque Cards ── */
+.est-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+    box-shadow: var(--sh0);
+    cursor: pointer;
+    transition: var(--tr);
+    display: flex;
+    flex-direction: column;
+}
+
+.est-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sh1);
+}
+
+/* ── Lead Cards ── */
+.lead-card {
+    background: var(--c-card);
+    border-radius: var(--r);
+    border: 1px solid var(--c-border);
+    padding: 16px;
+    box-shadow: var(--sh0);
+    transition: var(--tr);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.lead-card:hover {
+    box-shadow: var(--sh1);
+    transform: translateY(-1px);
+}
+
+.lead-card.urgente {
+    border-left: 3px solid var(--red);
+}
+
+.lead-card.alta {
+    border-left: 3px solid var(--orange);
+}
+
+.lead-card.media {
+    border-left: 3px solid var(--ford-vivid);
+}

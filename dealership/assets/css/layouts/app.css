@@ -1,0 +1,176 @@
+/* ============================================================
+   APP LAYOUT — Estrutura principal
+   ============================================================ */
+
+/* Rodapé fixo */
+body::after {
+    content: 'Ford One · Ford Smart Ecosystem · Todos os direitos reservados · 2025';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--bh);
+    background: var(--ford-blue);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 10.5px;
+    letter-spacing: 0.6px;
+    line-height: var(--bh);
+    text-align: center;
+    z-index: 810;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+/* Layout principal */
+.app-layout {
+    display: flex;
+    margin-top: var(--hh);
+    min-height: calc(100vh - var(--hh) - var(--bh));
+}
+
+/* Conteúdo principal */
+.main {
+    flex: 1;
+    margin-left: var(--sw);
+    padding: 22px 20px calc(var(--bh) + 18px);
+    transition: margin-left 0.22s ease;
+    min-width: 0;
+}
+
+.main.expanded {
+    margin-left: var(--si);
+}
+
+/* Módulos */
+.module {
+    display: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.module.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Cabeçalho do módulo */
+.mod-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.mod-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--c-text);
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.mod-sub {
+    font-size: var(--fs1);
+    color: var(--c-mid);
+    margin-top: 3px;
+}
+
+.mod-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.sec-title {
+    font-size: var(--fs4);
+    font-weight: 700;
+    color: var(--c-text);
+    margin-bottom: 12px;
+}
+
+/* Responsivo */
+@media(max-width: 768px) {
+    body::after {
+        font-size: 9px;
+        letter-spacing: 0.2px;
+    }
+
+    .main {
+        margin-left: 0 !important;
+        padding: 24px 18px calc(var(--bh) + 32px);
+    }
+
+    .main.expanded {
+        margin-left: 0 !important;
+    }
+
+    .mod-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .mod-header h1 {
+        font-size: 18px;
+    }
+
+    .mod-sub {
+        font-size: var(--fs0);
+    }
+
+    .mod-actions {
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kpi-grid {
+        gap: 8px;
+    }
+
+    .dash-row {
+        grid-template-columns: 1fr;
+    }
+
+    .alerts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 1200px) {
+    .dash-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 520px) {
+    .main {
+        padding: 20px 16px calc(var(--bh) + 32px);
+    }
+
+    .kpi-grid {
+        gap: 7px;
+    }
+
+    .kpi-val {
+        font-size: 18px;
+    }
+}

@@ -1,0 +1,87 @@
+/* ============================================================
+   CLIENTES — Estilos do módulo Clientes
+   ============================================================ */
+
+/* Tabela de clientes */
+#clientTbody .cli-cell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+#clientTbody .cli-av {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ford-light);
+    color: var(--ford-blue);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#clientTbody .cli-name {
+    font-weight: 600;
+    font-size: var(--fs1);
+    white-space: nowrap;
+}
+
+#clientTbody .cli-id {
+    font-size: var(--fs0);
+    color: var(--c-dim);
+    white-space: nowrap;
+}
+
+#clientTbody .ltv-v {
+    font-weight: 700;
+    color: var(--c-text);
+    white-space: nowrap;
+}
+
+/* Filtros */
+#clientSearch {
+    width: 100%;
+}
+
+/* Status pills */
+.pill.ativo {
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.pill.ativo::before {
+    background: var(--green);
+}
+
+.pill.inativo {
+    background: var(--c-bg);
+    color: var(--c-mid);
+}
+
+.pill.inativo::before {
+    background: var(--c-dim);
+}
+
+.pill.potencial {
+    background: var(--orange-bg);
+    color: var(--gold);
+}
+
+.pill.potencial::before {
+    background: var(--orange);
+}
+
+/* Responsivo */
+@media(max-width: 768px) {
+    #clientTbody .cli-cell {
+        flex-direction: row;
+    }
+
+    #clientTbody td:nth-child(8) .btn-tbl {
+        width: 100%;
+        text-align: center;
+    }
+}

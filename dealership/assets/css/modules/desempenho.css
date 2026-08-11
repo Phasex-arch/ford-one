@@ -1,0 +1,31 @@
+/* ============================================================
+   DESEMPENHO — Estilos do módulo Desempenho
+   ============================================================ */
+
+#desempKpis .kpi-card {
+    flex: 1 1 180px;
+}
+
+#consultorChart,
+#retencaoChart {
+    width: 100% !important;
+    height: 210px !important;
+}
+
+/* Responsivo */
+@media(max-width: 768px) {
+    #desempKpis .kpi-card {
+        flex: 1 1 140px;
+    }
+
+    #consultorChart,
+    #retencaoChart {
+        height: 170px !important;
+    }
+}
+
+@media(max-width: 520px) {
+    #desempKpis .kpi-card {
+        flex: 1 1 100%;
+    }
+}
