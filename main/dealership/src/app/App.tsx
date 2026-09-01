@@ -31,6 +31,9 @@ import { AvaliacaoScreen }      from '../modules/avaliacao/avaliacao.screen';
 import { DesempenhoScreen }     from '../modules/desempenho/desempenho.screen';
 import { RelatoriosScreen }     from '../modules/relatorios/relatorios.screen';
 import { ConfiguracoesScreen }  from '../modules/configuracoes/configuracoes.screen';
+// TypeScript may complain about missing .scss module declarations for
+// side-effect style imports. Suppress that error here.
+// @ts-ignore
 import '../styles/globals.scss';
 
 const AppInner: React.FC = () => {
