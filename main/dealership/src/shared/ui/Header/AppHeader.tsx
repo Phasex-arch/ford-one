@@ -131,11 +131,11 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
             onClick={() => navigate("dashboard")}
             style={{ cursor: "pointer" }}
           >
-            <div className="ford-logo-wrap">
+            <div className="icon_ford_one-wrap">
               <img
-                src="/assets/images/logo/ford-logo.png"
+                src="/assets/images/logo/icon_ford_one.png"
                 alt="Ford"
-                className="ford-logo-img"
+                className="icon_ford_one-img"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}

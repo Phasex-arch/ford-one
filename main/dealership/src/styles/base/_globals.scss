@@ -58,8 +58,8 @@ img{display:block;max-width:100%}
 .sidebar-toggle{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px;border-radius:var(--rsm);width:32px;height:32px;flex-shrink:0;transition:var(--tr)}
 .sidebar-toggle:hover{background:rgba(255,255,255,.12)}
 .sidebar-toggle span{display:block;width:17px;height:2px;background:rgba(255,255,255,.85);border-radius:2px}
-.ford-logo-wrap{display:flex;align-items:center;flex-shrink:0}
-.ford-logo-img{height:36px;width:auto;object-fit:contain;display:block;filter:none;}
+.icon_ford_one-wrap{display:flex;align-items:center;flex-shrink:0}
+.icon_ford_one-img{height:36px;width:auto;object-fit:contain;display:block;filter:none;}
 .brand{display:flex;align-items:center;gap:8px;flex-shrink:0;cursor:pointer}
 .brand-divider{width:1px;height:20px;background:rgba(255,255,255,.2);flex-shrink:0;margin:0 2px}
 .brand-text{display:flex;flex-direction:column;line-height:1.15}

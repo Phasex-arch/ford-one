@@ -173,7 +173,7 @@ export function LandingScreen() {
               { delay: 0, img: 'https://www.topgear.com/sites/default/files/2024/12/54196859052_9249719e93_o.jpg', badge: 'Esportivo', name: 'Ford Mustang',  cat: 'Performance & Estilo' },
               { delay: 100, img: 'https://cdn.autopapo.com.br/box/uploads/2021/03/16103101/ford-bronco-suv-utilitario-esportivo-jipe--732x488.jpg', badge: 'SUV', name: 'Ford Bronco', cat: 'Aventura & Off-Road' },
               { delay: 200, img: 'https://cdn.motor1.com/images/mgl/y2p4Bq/s1/f-150-lightning-flash-1.jpg', badge: 'Elétrico', badgeElectric: true, name: 'F-150 Lightning', cat: 'Elétrico & Tecnológico', featured: true },
-              { delay: 300, img: 'https://quatrorodas.abril.com.br/wp-content/uploads/2024/02/Ford-Explorer-2025-4.jpg?quality=70&strip=info&w=720&crop', badge: 'Família', name: 'Ford Explorer', cat: 'Família & Conforto' },
+              { delay: 300, img: 'https://quatrorodas.abril.com.br/wp-content/uploads/2024/02/Ford-Explorer-2026-4.jpg?quality=70&strip=info&w=720&crop', badge: 'Família', name: 'Ford Explorer', cat: 'Família & Conforto' },
             ].map(({ delay, img, badge, badgeElectric, name, cat, featured }) => (
               <div key={name} className={`vehicle-card${featured ? ' featured-vehicle' : ''}`} data-delay={delay}>
                 <div className="vehicle-img-wrap">

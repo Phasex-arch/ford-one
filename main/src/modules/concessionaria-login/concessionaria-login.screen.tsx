@@ -23,7 +23,7 @@ export function ConcessionariaLoginScreen() {
 
       <header className={styles.header}>
         <Link to={ROUTES.HOME} className={styles.logo}>
-          <img src="assets/images/logo/logo-ford.png" alt="Ford" className={styles.logoImg} />
+          <img src="assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
           <div className={styles.logoDivider} />
           <div className={styles.logoText}>
             <span className={styles.logoTitle}>FORD ONE</span>
@@ -121,15 +121,15 @@ export function ConcessionariaLoginScreen() {
               Credenciais de acesso
             </div>
             {[
-              { label: 'Usuário', value: 'Ford-PhaseX' },
-              { label: 'Senha',   value: 'Ford' },
-            ].map(({ label, value }) => (
+              { label: 'Usuário', value: 'Ford-PhaseX', fill: () => { clearErrors(); setUsername('Ford-PhaseX'); } },
+              { label: 'Senha',   value: 'Ford',        fill: () => { clearErrors(); setPassword('Ford'); } },
+            ].map(({ label, value, fill }) => (
               <div key={label} className={styles.credentialsRow}>
                 <span className={styles.credentialsLabel}>{label}</span>
                 <span
                   className={styles.credentialsValue}
-                  title="Clique para copiar"
-                  onClick={() => navigator.clipboard.writeText(value)}
+                  title="Clique para preencher"
+                  onClick={fill}
                 >
                   {value}
                 </span>

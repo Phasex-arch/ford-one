@@ -8,7 +8,7 @@ export function Footer() {
           <div className={styles.grid}>
             <div className={styles.brand}>
               <div className={styles.logo}>
-                <img src="assets/images/logo/logo-ford.png" alt="Ford" className={styles.logoImg} />
+                <img src="assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
                 <div className={styles.logoDivider} />
                 <div className={styles.logoText}>
                   <span className={styles.logoTitle}>FORD ONE</span>
@@ -73,7 +73,7 @@ export function Footer() {
 
       <div className={styles.bottom}>
         <div className="container">
-          <span>© 2025 Ford Motor Company do Brasil. Todos os direitos reservados.</span>
+          <span>© 2026 Ford Motor Company do Brasil. Todos os direitos reservados.</span>
           <span>Ford One™ — Ford Smart Ecosystem</span>
         </div>
       </div>

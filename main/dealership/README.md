@@ -44,9 +44,9 @@ O site será publicado automaticamente em cada push na branch `main`.
 
 ### Logo da Ford
 
-Coloque o arquivo `ford-logo.png` em:
+Coloque o arquivo `icon_ford_one.png` em:
 ```
-public/assets/images/logo/ford-logo.png
+public/assets/images/logo/icon_ford_one.png
 ```
 
 ## Estrutura

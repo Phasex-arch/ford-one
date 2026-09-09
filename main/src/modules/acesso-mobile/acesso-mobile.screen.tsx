@@ -15,7 +15,7 @@ export function AcessoMobileScreen() {
 
       <header className={styles.header}>
         <Link to={ROUTES.HOME} className={styles.logo}>
-          <img src="assets/images/logo/logo-ford.png" alt="Ford" className={styles.logoImg} />
+          <img src="assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
           <div className={styles.logoDivider} />
           <div className={styles.logoText}>
             <span className={styles.logoTitle}>FORD ONE</span>

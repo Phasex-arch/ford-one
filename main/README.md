@@ -31,9 +31,9 @@ npm run dev
 
 ## Assets
 
-Coloque o arquivo `logo-ford.png` em:
+Coloque o arquivo `icon_ford_one.png` em:
 ```
-public/assets/images/logo/logo-ford.png
+public/assets/images/logo/icon_ford_one.png
 ```
 
 ## Rotas
