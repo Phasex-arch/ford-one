@@ -23,7 +23,7 @@ import { todayLabel } from '../../shared/utils/dates';
 import type { DashPeriod } from '../../data/dashboard.data';
 
 export const DashboardScreen: React.FC = () => {
-  const { period, handlePeriodChange, kpis } = useDashboard();
+  const { period, handlePeriodChange, kpis, loading, error, data } = useDashboard();
   const { navigate } = useApp();
 
   return (
@@ -56,8 +56,10 @@ export const DashboardScreen: React.FC = () => {
           <KpiCard key={k.key} kpi={k} />
         ))}
       </div>
+      {loading && <p className="mod-sub">Carregando dados...</p>}
+      {error && <p className="mod-sub">{error}</p>}
 
-      <DashCharts period={period} />
+      <DashCharts period={period} data={data} />
 
       <h3 className="sec-title">Alertas Operacionais</h3>
       <div className="alerts-grid">

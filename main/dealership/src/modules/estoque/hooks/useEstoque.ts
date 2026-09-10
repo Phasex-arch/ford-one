@@ -13,15 +13,17 @@
  * para abrir o modal de um veículo específico via busca global.
  */
 
-import { useState, useMemo, useCallback } from 'react';
-import { filterEstoque, type EstoqueFilters } from '../services/estoque.service';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { filterEstoque, fetchEstoque, type EstoqueFilters } from '../services/estoque.service';
 
 const DEFAULT: EstoqueFilters = { query:'', cond:'', seg:'' };
 export function useEstoque() {
   const [filters, setFilters] = useState<EstoqueFilters>(DEFAULT);
   const [modalId, setModalId] = useState<string|null>(null);
+  const [source, setSource] = useState<Awaited<ReturnType<typeof fetchEstoque>>>([]);
+  useEffect(() => { fetchEstoque().then(setSource).catch(() => setSource([])); }, []);
 
-  const estoque = useMemo(() => filterEstoque(filters), [filters]);
+  const estoque = useMemo(() => filterEstoque(filters, source), [filters, source]);
   const updateFilter = useCallback(<K extends keyof EstoqueFilters>(k:K,v:EstoqueFilters[K]) => setFilters(p=>({...p,[k]:v})),[]);
 
   return { estoque, filters, updateFilter, modalId, setModalId };

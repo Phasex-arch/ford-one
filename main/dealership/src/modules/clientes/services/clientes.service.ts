@@ -13,7 +13,7 @@
  */
 
 import type { Cliente, ClienteStatus, ClienteSegmento } from '../../../types/global.types';
-import { CLIENTES } from '../../../data/clientes.data';
+import { apiRequest } from '../../../shared/api/client';
 
 export interface ClienteFilters {
   query: string;
@@ -21,9 +21,16 @@ export interface ClienteFilters {
   order: 'nome' | 'ltv' | 'ult';
 }
 
-export function filterClientes(filters: ClienteFilters): Cliente[] {
+const list = (value: Cliente[] | { items?: Cliente[]; clientes?: Cliente[] }) =>
+  Array.isArray(value) ? value : value.items || value.clientes || [];
+
+export async function fetchClientes(): Promise<Cliente[]> {
+  return list(await apiRequest<Cliente[] | { items?: Cliente[]; clientes?: Cliente[] }>('/clientes'));
+}
+
+export function filterClientes(filters: ClienteFilters, source: Cliente[] = []): Cliente[] {
   const q = filters.query.toLowerCase();
-  let list = CLIENTES.filter(c =>
+  let list = source.filter(c =>
     (!q || c.nome.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)) &&
     (!filters.status || c.status === filters.status)
   );
@@ -31,12 +38,8 @@ export function filterClientes(filters: ClienteFilters): Cliente[] {
   return list;
 }
 
-export function addCliente(dados: Pick<Cliente, 'nome' | 'tel' | 'email' | 'status' | 'seg'>): Cliente {
-  const ini = dados.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-  const newId = 'C' + String(100 + CLIENTES.length + 1);
-  const novo: Cliente = { id: newId, ini, v: 0, ltv: 0, ult: new Date().toLocaleDateString('pt-BR'), ...dados };
-  CLIENTES.push(novo);
-  return novo;
+export async function createCliente(dados: Pick<Cliente, 'nome' | 'tel' | 'email' | 'status' | 'seg'>): Promise<Cliente> {
+  return apiRequest<Cliente>('/clientes', { method: 'POST', body: JSON.stringify(dados) });
 }
 
 export const SEGMENTOS: ClienteSegmento[] = ['Padrão', 'Família', 'Executivo', 'Premium', 'VIP'];

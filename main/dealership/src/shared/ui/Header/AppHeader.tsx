@@ -29,13 +29,19 @@ import { GlobalSearch } from "../GlobalSearch/GlobalSearch";
 import { useApp } from "../../context/AppContext";
 import { useTheme } from "../../hooks/useTheme";
 import type { ToastType } from "../../hooks/useToast";
+import { clearToken } from "../../api/client";
+import type { AuthenticatedUser } from "../../api/client";
 
 interface Props {
   onToggleSidebar: () => void;
   showToast: (msg: string, type?: ToastType) => void;
+  user: AuthenticatedUser | null;
 }
 
-export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
+const roleLabel = (role: AuthenticatedUser['role']): string =>
+  role === 'ADMIN' ? 'Administrador' : role === 'GERENTE' ? 'Gerente' : 'Funcionário';
+
+export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast, user }) => {
   const { navigate } = useApp();
   const { theme, setTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -80,6 +86,9 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
 
   void theme;
   void setTheme;
+  const userName = user?.nome ?? 'Usuário';
+  const userRole = user ? roleLabel(user.role) : 'Carregando...';
+  const userInitials = userName.split(' ').map(part => part[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 
   const markAllRead = () => {
     setNotifs((prev) => prev.map((n) => ({ ...n, unread: false })));
@@ -102,10 +111,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
       navigate("config");
     } else if (a === "sair") {
       showToast("Sessão encerrada. Até logo!", "info");
-      setTimeout(() => {
-        document.body.innerHTML =
-          '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#00095b;color:white;font-family:Inter,sans-serif;font-size:18px;letter-spacing:2px;font-weight:600">FORD ONE — SESSÃO ENCERRADA</div>';
-      }, 1200);
+      clearToken();
+      const portalUrl = import.meta.env.VITE_PORTAL_URL
+        || (import.meta.env.DEV ? "http://localhost:5173" : "http://localhost:8080");
+      window.location.href = `${portalUrl.replace(/\/$/, "")}/concessionaria`;
     }
   };
 
@@ -183,10 +192,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
               setNotifOpen(false);
             }}
           >
-            <div className="user-av">NM</div>
+            <div className="user-av">{userInitials}</div>
             <div className="user-info-hdr">
-              <span className="user-nm">Nathan Morais</span>
-              <span className="user-rl">Gerente Comercial</span>
+              <span className="user-nm">{userName}</span>
+              <span className="user-rl">{userRole}</span>
             </div>
             <i className="ph-bold ph-caret-down user-chev" />
           </button>
@@ -236,10 +245,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="ud-top">
-            <div className="ud-av">NM</div>
+            <div className="ud-av">{userInitials}</div>
             <div>
-              <div className="ud-name">Nathan Morais</div>
-              <div className="ud-role">Gerente Comercial · Ford SP Centro</div>
+              <div className="ud-name">{userName}</div>
+              <div className="ud-role">{userRole} · Ford SP Centro</div>
             </div>
           </div>
           <button className="ud-row" onClick={() => handleUdAction("perfil")}>
@@ -313,7 +322,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                     flexShrink: 0,
                   }}
                 >
-                  NM
+                  {userInitials}
                 </div>
                 <div>
                   <div
@@ -323,19 +332,19 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                       color: "var(--c-text)",
                     }}
                   >
-                    Nathan Morais
+                    {userName}
                   </div>
                   <div
                     style={{ fontSize: "var(--fs1)", color: "var(--c-mid)" }}
                   >
-                    Gerente Comercial · Ford SP Centro
+                    {userRole} · Ford SP Centro
                   </div>
                 </div>
               </div>
               <div className="m-form">
                 <label>
                   Nome completo
-                  <input type="text" defaultValue="Nathan Morais" />
+                  <input type="text" defaultValue={userName} />
                 </label>
                 <div
                   style={{
@@ -346,7 +355,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                 >
                   <label style={{ minWidth: 0 }}>
                     Cargo
-                    <input type="text" defaultValue="Gerente Comercial" />
+                    <input type="text" defaultValue={userRole} />
                   </label>
                   <label style={{ minWidth: 0 }}>
                     Ramal
@@ -357,7 +366,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                   E-mail
                   <input
                     type="email"
-                    defaultValue="nathan.morais@fordspcentro.com.br"
+                    defaultValue={user?.email ?? ""}
                   />
                 </label>
               </div>

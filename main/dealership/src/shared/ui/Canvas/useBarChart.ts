@@ -38,6 +38,10 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
 
     const P = { t:18, r:18, b:26, l:44 };
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
+    if (cfg.data.length === 0 || cfg.labels.length === 0) {
+      ctx.clearRect(0, 0, W, H);
+      return;
+    }
     const mx = Math.max(...cfg.data) * 1.15;
     const bw = (pw / cfg.data.length) * .58;
     const gap = (pw / cfg.data.length) * .21;

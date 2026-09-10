@@ -16,8 +16,7 @@
  */
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { filterLeads } from '../services/leads.service';
-import { LEADS } from '../../../data/leads.data';
+import { filterLeads, fetchLeads } from '../services/leads.service';
 import { useApp } from '../../../shared/context/AppContext';
 import { formatCurrency } from '../../../shared/utils/formatters';
 import type { LeadUrgencia } from '../../../types/global.types';
@@ -26,15 +25,17 @@ export function useLeads() {
   const [urgFilter, setUrgFilter] = useState<LeadUrgencia|''>('');
   const [modalId, setModalId] = useState<string|null>(null);
   const { leadSchedule } = useApp();
+  const [source, setSource] = useState<Awaited<ReturnType<typeof fetchLeads>>>([]);
+  useEffect(() => { fetchLeads().then(setSource).catch(() => setSource([])); }, []);
 
-  const leads = useMemo(() => filterLeads(urgFilter), [urgFilter]);
+  const leads = useMemo(() => filterLeads(urgFilter, source), [urgFilter, source]);
 
   const pipeline = useMemo(() => ({
-    total: LEADS.length,
-    urgentes: LEADS.filter(l=>l.urg==='urgente').length,
-    pipeline: LEADS.reduce((s,l)=>s+l.val,0),
-    ticketMedio: Math.round(LEADS.reduce((s,l)=>s+l.val,0)/LEADS.length),
-  }), []);
+    total: source.length,
+    urgentes: source.filter(l=>l.urg==='urgente').length,
+    pipeline: source.reduce((s,l)=>s+l.val,0),
+    ticketMedio: source.length ? Math.round(source.reduce((s,l)=>s+l.val,0)/source.length) : 0,
+  }), [source]);
 
   useEffect(() => {
     const h = (e: Event) => setModalId((e as CustomEvent<string>).detail);

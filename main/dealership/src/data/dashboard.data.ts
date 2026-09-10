@@ -18,6 +18,8 @@ export interface DashData {
   sla: number;
   nota: number;
   estq: number;
+  revenue?: { labels: string[]; actual: number[]; target?: number[] };
+  conversion?: { labels: string[]; values: number[] };
 }
 
 export const DASH_DATA: Record<DashPeriod, DashData> = {

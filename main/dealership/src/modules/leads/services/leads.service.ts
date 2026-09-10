@@ -10,10 +10,17 @@
  * Em produção: substituir por chamada GET /api/leads?urg=urgente.
  */
 
-import { LEADS } from '../../../data/leads.data';
 import type { Lead, LeadUrgencia } from '../../../types/global.types';
+import { apiRequest } from '../../../shared/api/client';
+let currentLeads: Lead[] = [];
 
-export function filterLeads(urg: LeadUrgencia | ''): Lead[] {
-  return !urg ? LEADS : LEADS.filter(l => l.urg === urg);
+export async function fetchLeads(): Promise<Lead[]> {
+  const result = await apiRequest<Lead[] | { items?: Lead[]; leads?: Lead[] }>('/leads');
+  currentLeads = Array.isArray(result) ? result : result.items || result.leads || [];
+  return currentLeads;
 }
-export function getLead(id: string) { return LEADS.find(l => l.id === id); }
+
+export function filterLeads(urg: LeadUrgencia | '', source: Lead[] = []): Lead[] {
+  return !urg ? source : source.filter(l => l.urg === urg);
+}
+export function getLead(id: string) { return currentLeads.find(l => l.id === id); }

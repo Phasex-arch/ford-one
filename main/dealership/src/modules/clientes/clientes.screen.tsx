@@ -26,7 +26,7 @@ import type { ToastType } from '../../shared/hooks/useToast';
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 export const ClientesScreen: React.FC<Props> = ({ showToast }) => {
-  const { clientes, filters, updateFilter, modalOpen, setModalOpen, salvarNovoCliente } = useClientes();
+  const { clientes, filters, updateFilter, modalOpen, setModalOpen, salvarNovoCliente, error } = useClientes();
   const { navigate, logAccess } = useApp();
 
   const goHistorico = (id: string) => {
@@ -49,6 +49,7 @@ export const ClientesScreen: React.FC<Props> = ({ showToast }) => {
         </div>
       </div>
       <ClienteFiltersBar filters={filters} onChange={updateFilter} />
+      {error && <p className="mod-sub">{error}</p>}
       <div className="tbl-wrap">
         <table className="data-tbl">
           <thead>

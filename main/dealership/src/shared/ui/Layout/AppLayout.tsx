@@ -16,10 +16,15 @@ import React, { useState, type ReactNode } from 'react';
 import { AppHeader } from '../Header/AppHeader';
 import { AppSidebar } from '../Sidebar/AppSidebar';
 import type { ToastType } from '../../hooks/useToast';
+import type { AuthenticatedUser } from '../../api/client';
 
-interface Props { children: ReactNode; showToast: (msg: string, type?: ToastType) => void; }
+interface Props {
+  children: ReactNode;
+  showToast: (msg: string, type?: ToastType) => void;
+  user: AuthenticatedUser | null;
+}
 
-export const AppLayout: React.FC<Props> = ({ children, showToast }) => {
+export const AppLayout: React.FC<Props> = ({ children, showToast, user }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -33,7 +38,7 @@ export const AppLayout: React.FC<Props> = ({ children, showToast }) => {
 
   return (
     <>
-      <AppHeader onToggleSidebar={onToggleSidebar} showToast={showToast} />
+      <AppHeader onToggleSidebar={onToggleSidebar} showToast={showToast} user={user} />
       <div className={`app-layout${collapsed ? ' sidebar-collapsed' : ''}`} id="appLayout">
         <AppSidebar collapsed={collapsed} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
         <main className={`main${collapsed ? ' expanded' : ''}`} id="mainContent">

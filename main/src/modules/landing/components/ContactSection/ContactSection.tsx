@@ -5,7 +5,7 @@ import styles from './ContactSection.module.scss';
  * Seção de contato com formulário validado e mensagem de sucesso.
  */
 export function ContactSection() {
-  const { form, errors, success, loading, setField, handlePhoneInput, handleSubmit } = useContactForm();
+  const { form, errors, success, loading, submitError, setField, handlePhoneInput, handleSubmit } = useContactForm();
 
   return (
     <section className="section dark-section" id="contato">
@@ -57,6 +57,7 @@ export function ContactSection() {
               </div>
             ) : (
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                {submitError && <div className={styles.fieldError} role="alert">{submitError}</div>}
                 <div className={styles.row}>
                   <div className={styles.group}>
                     <label htmlFor="nome">Nome completo *</label>

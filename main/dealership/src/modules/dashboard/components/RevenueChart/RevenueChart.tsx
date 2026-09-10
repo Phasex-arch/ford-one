@@ -16,25 +16,28 @@
 import React, { useEffect } from 'react';
 import { useLineChart } from '../../../../shared/ui/Canvas/useLineChart';
 import { useBarChart } from '../../../../shared/ui/Canvas/useBarChart';
+import type { DashData } from '../../../../data/dashboard.data';
 
-interface Props { period: string; }
+interface Props { period: string; data: DashData | null; }
 
-export const DashCharts: React.FC<Props> = ({ period }) => {
+export const DashCharts: React.FC<Props> = ({ period, data }) => {
+  const revenue = data?.revenue;
+  const conversion = data?.conversion;
   useLineChart('revenueChart', {
-    labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    labels: revenue?.labels || [],
     sets: [
-      { data:[820,910,870,1050,980,1120,1080,1200,1150,1320,1280,1400], color:'#1700f4', fill:true },
-      { data:[900,900,900,1000,1000,1000,1100,1100,1100,1200,1200,1200], color:'#F59E0B', dashed:true },
+      { data:revenue?.actual || [], color:'#1700f4', fill:true },
+      { data:revenue?.target || [], color:'#F59E0B', dashed:true },
     ],
     unit: 'k',
-  }, [period]);
+  }, [period, data]);
 
   useBarChart('conversionChart', {
-    labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
-    data: [28,31,29,34,32,34],
+    labels: conversion?.labels || [],
+    data: conversion?.values || [],
     color: '#1700f4',
     unit: '%',
-  }, [period]);
+  }, [period, data]);
 
   useEffect(() => {
     const handleResize = () => {

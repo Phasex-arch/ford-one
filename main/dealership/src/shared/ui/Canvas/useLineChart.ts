@@ -42,6 +42,10 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
     const P = { t:18, r:18, b:26, l:44 };
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
     const all = cfg.sets.flatMap(s => s.data);
+    if (cfg.labels.length === 0 || all.length === 0) {
+      ctx.clearRect(0, 0, W, H);
+      return;
+    }
     const mn = Math.min(...all) * .88; const mx = Math.max(...all) * 1.1;
     const tx = (i: number) => P.l + i / (cfg.labels.length - 1) * pw;
     const ty = (v: number) => P.t + ph - (v - mn) / (mx - mn) * ph;
@@ -59,6 +63,7 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
 
     cfg.sets.forEach(ds => {
       const pts = ds.data.map((v, i) => [tx(i), ty(v)] as [number, number]);
+      if (pts.length === 0) return;
       if (ds.fill) {
         ctx.beginPath(); ctx.moveTo(pts[0][0], ty(mn));
         pts.forEach(([x, y]) => ctx.lineTo(x, y));
