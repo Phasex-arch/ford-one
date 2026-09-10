@@ -4,7 +4,8 @@
  * @description Hook de estado e lógica do módulo de Metas.
  *
  * Gerencia:
- * - metas: array de Meta (inicializado com data/metas.data.ts)
+ * - metas: array de Meta vindo de GET /metas
+ * - loading/error: estado da carga (via useAsyncList)
  * - modalOpen: visibilidade do modal "Nova Meta"
  *
  * Funções auxiliares:
@@ -12,19 +13,20 @@
  *   baseado no percentual atingido, respeitando lowerIsBetter (ex: SLA)
  * - fmtVal(m, v) → formata o valor conforme o tipo de indicador
  *   (receita → moeda, % → sufixo, h → horas, demais → número)
- * - addMeta(tipo, resp, val, per) → valida e adiciona nova meta ao array
+ * - addMeta(tipo, resp, val, per) → valida e cria a meta via POST /metas
  *
  * @param showToast → feedback de criação de meta
  */
 
 import { useState, useCallback } from 'react';
-import { METAS_INICIAL } from '../../../data/metas.data';
+import { useAsyncList } from '../../../shared/hooks/useAsyncList';
+import { fetchMetas, createMeta } from '../../../shared/api/resources';
 import { formatCurrency, formatNumber } from '../../../shared/utils/formatters';
 import type { Meta, MetaIndicador } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 
 export function useMetas(showToast:(m:string,t?:ToastType)=>void) {
-  const [metas, setMetas] = useState<Meta[]>(METAS_INICIAL);
+  const { data: metas, setData: setMetas, loading, error } = useAsyncList(fetchMetas);
   const [modalOpen, setModalOpen] = useState(false);
 
   const getStatus = (m: Meta) => {
@@ -45,10 +47,18 @@ export function useMetas(showToast:(m:string,t?:ToastType)=>void) {
   const addMeta = useCallback((tipo: MetaIndicador, resp: string, val: number, per: string) => {
     if(!resp||!val||!per){showToast('Preencha todos os campos.','warning');return;}
     const labels: Record<string,string> = {vendas:'Vendas',receita:'Receita',leads:'Leads',nps:'NPS',sla:'SLA',conv:'Conversão'};
-    setMetas(p=>[...p,{id:'M'+Date.now(),titulo:labels[tipo]||tipo,periodo:per,indicador:tipo,atual:0,alvo:val,
-      unidade:tipo==='receita'?'R$':tipo==='sla'?'h':'',responsavel:resp,lowerIsBetter:tipo==='sla'}]);
-    setModalOpen(false);showToast('Meta criada!','success');
-  },[showToast]);
+    createMeta({
+      titulo: labels[tipo]||tipo,
+      periodo: per,
+      indicador: tipo,
+      alvo: val,
+      unidade: tipo==='receita'?'R$':tipo==='sla'?'h':'',
+      responsavel: resp,
+      lowerIsBetter: tipo==='sla',
+    })
+      .then(nova => { setMetas(p=>[...p,nova]); setModalOpen(false); showToast('Meta criada!','success'); })
+      .catch(e => showToast(e?.message||'Erro ao criar meta.','warning'));
+  },[showToast,setMetas]);
 
-  return { metas, modalOpen, setModalOpen, getStatus, fmtVal, addMeta };
+  return { metas, modalOpen, setModalOpen, getStatus, fmtVal, addMeta, loading, error };
 }

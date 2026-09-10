@@ -6,6 +6,7 @@
  * Gerencia:
  * - filters: estado dos filtros (query, status, order) com valor padrão
  * - clientes: lista filtrada/ordenada (memo recalculado ao mudar filters)
+ * - loading/error: estado do GET /clientes (via useAsyncList)
  * - updateFilter: atualiza um campo do filtro sem resetar os demais
  * - modalOpen/setModalOpen: visibilidade do modal "Novo Cliente"
  * - salvarNovoCliente: valida campos, chama addCliente() do service,
@@ -15,8 +16,9 @@
  * ou como o cliente é criado — apenas consome este hook.
  */
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { Cliente } from '../../../types/global.types';
+import { useAsyncList } from '../../../shared/hooks/useAsyncList';
 import { filterClientes, fetchClientes, createCliente, type ClienteFilters } from '../services/clientes.service';
 
 const DEFAULT: ClienteFilters = { query: '', status: '', order: 'nome' };
@@ -24,9 +26,7 @@ const DEFAULT: ClienteFilters = { query: '', status: '', order: 'nome' };
 export function useClientes() {
   const [filters, setFilters] = useState<ClienteFilters>(DEFAULT);
   const [modalOpen, setModalOpen] = useState(false);
-  const [source, setSource] = useState<Cliente[]>([]);
-  const [error, setError] = useState('');
-  useEffect(() => { fetchClientes().then(setSource).catch(e => setError(e.message)); }, []);
+  const { data: source, setData: setSource, loading, error } = useAsyncList(fetchClientes);
 
   const clientes = useMemo(() => filterClientes(filters, source), [filters, source]);
 
@@ -51,5 +51,5 @@ export function useClientes() {
     []
   );
 
-  return { clientes, filters, updateFilter, modalOpen, setModalOpen, salvarNovoCliente, error };
+  return { clientes, filters, updateFilter, modalOpen, setModalOpen, salvarNovoCliente, loading, error };
 }

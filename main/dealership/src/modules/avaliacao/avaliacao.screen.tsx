@@ -17,8 +17,9 @@
  * - showToast → feedback de envio de resposta
  */
 
-import React, { useState } from 'react';
-import { AVALIACOES } from '../../data/avaliacoes.data';
+import React, { useState, useEffect } from 'react';
+import { useAsyncList } from '../../shared/hooks/useAsyncList';
+import { fetchAvaliacoes, fetchAvaliacaoStats, type AvaliacaoStats } from '../../shared/api/resources';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
@@ -28,9 +29,13 @@ const stars = (n:number) => '★'.repeat(n)+'☆'.repeat(5-n);
 export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
   const [modalIdx, setModalIdx] = useState<number|null>(null);
   const [reply, setReply] = useState('');
-  const aval = modalIdx !== null ? AVALIACOES[modalIdx] : null;
+  const { data: avaliacoes, loading, error } = useAsyncList(fetchAvaliacoes);
+  const [stats, setStats] = useState<AvaliacaoStats|null>(null);
+  useEffect(() => { fetchAvaliacaoStats().then(setStats).catch(() => setStats(null)); }, []);
+  const aval = modalIdx !== null ? avaliacoes[modalIdx] : null;
 
-  const kpis=[{ic:'ic-gold',fa:'ph-star',lbl:'Nota Geral',val:'4.8',delta:'Excelente',cls:'pos'},{ic:'ic-blue',fa:'ph-chat-circle',lbl:'NPS',val:'72',delta:'Zona de excelência',cls:'pos'},{ic:'ic-teal',fa:'ph-clock',lbl:'SLA Médio',val:'2.3h',delta:'Abaixo da meta',cls:'pos'},{ic:'ic-green',fa:'ph-chart-bar',lbl:'Ranking',val:'#3',delta:'de 48 concessionárias',cls:'pos'}];
+  const notaGeral = stats ? stats.notaMedia.toFixed(1) : '—';
+  const kpis=[{ic:'ic-gold',fa:'ph-star',lbl:'Nota Geral',val:notaGeral,delta:stats?`${stats.total} avaliações`:'Carregando...',cls:'pos'},{ic:'ic-blue',fa:'ph-chat-circle',lbl:'NPS',val:'72',delta:'Zona de excelência',cls:'pos'},{ic:'ic-teal',fa:'ph-clock',lbl:'SLA Médio',val:'2.3h',delta:'Abaixo da meta',cls:'pos'},{ic:'ic-green',fa:'ph-chart-bar',lbl:'Ranking',val:'#3',delta:'de 48 concessionárias',cls:'pos'}];
 
   return (
     <section className="module active" id="mod-avaliacao">
@@ -39,7 +44,11 @@ export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
         {kpis.map(k=><div key={k.lbl} className="kpi-card"><div className={`kpi-ic ${k.ic}`}><i className={`ph-bold ${k.fa}`}/></div><div className="kpi-body"><span className="kpi-lbl">{k.lbl}</span><span className="kpi-val">{k.val}</span><span className={`kpi-delta ${k.cls}`}>{k.delta}</span></div></div>)}
       </div>
       <div id="avalList" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14,marginTop:16}}>
-        {AVALIACOES.map((a,i)=>{
+        {loading && <p className="mod-sub">Carregando avaliações...</p>}
+        {error && <p className="mod-sub" role="alert">{error}</p>}
+        {!loading && !error && avaliacoes.length === 0 &&
+          <p className="mod-sub">Nenhuma avaliação registrada.</p>}
+        {avaliacoes.map((a,i)=>{
           const ini=a.c.split(' ').map(n=>n[0]).slice(0,2).join('');
           return (
             <div key={i} className="aval-card" onClick={()=>setModalIdx(i)} style={{cursor:'pointer'}}>

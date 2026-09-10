@@ -4,7 +4,8 @@
  * Equivalente React da lógica SIDX + globalSearch do script.js original.
  *
  * Funcionalidades:
- * - Indexa em tempo real: clientes, estoque, leads e módulos principais
+ * - Indexa clientes, estoque e leads vindos da API (GET /clientes, /estoque,
+ *   /leads) além dos módulos principais
  * - Filtra por nome, e-mail ou descrição com mínimo de 2 caracteres
  * - Limita a 7 resultados para não sobrecarregar a UI
  * - Realça o termo pesquisado nos resultados com <mark>
@@ -15,9 +16,9 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { CLIENTES } from '../../../data/clientes.data';
-import { ESTOQUE } from '../../../data/estoque.data';
-import { LEADS } from '../../../data/leads.data';
+import { fetchClientes, fetchEstoque, fetchLeads } from '../../api/resources';
+import { useAsyncList } from '../../hooks/useAsyncList';
+import type { Cliente, Estoque, Lead } from '../../../types/global.types';
 import { formatCurrency } from '../../utils/formatters';
 import { useApp } from '../../context/AppContext';
 import type { ModuleId } from '../../../types/global.types';
@@ -30,21 +31,24 @@ export const GlobalSearch: React.FC = () => {
   const [hits, setHits] = useState<SearchItem[]>([]);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: clientes } = useAsyncList<Cliente>(fetchClientes);
+  const { data: estoque } = useAsyncList<Estoque>(fetchEstoque);
+  const { data: leads } = useAsyncList<Lead>(fetchLeads);
 
   const buildIndex = (): SearchItem[] => [
-    ...CLIENTES.map(c => ({ type:'Cliente', label:c.nome, sub:c.email,
-      action: () => { logAccess(c.id); navigate('historico'); setTimeout(() => {
+    ...clientes.map(c => ({ type:'Cliente', label:c.nome, sub:c.email,
+      action: () => { logAccess(c); navigate('historico'); setTimeout(() => {
         const ev = new CustomEvent('ford:selectCliente', { detail: c.id });
         window.dispatchEvent(ev);
       }, 120); }
     })),
-    ...ESTOQUE.map(e => ({ type:'Estoque', label:`${e.modelo} ${e.versao}`, sub:formatCurrency(e.preco),
+    ...estoque.map(e => ({ type:'Estoque', label:`${e.modelo} ${e.versao}`, sub:formatCurrency(e.preco),
       action: () => { navigate('estoque'); setTimeout(() => {
         const ev = new CustomEvent('ford:openEstoque', { detail: e.id });
         window.dispatchEvent(ev);
       }, 180); }
     })),
-    ...LEADS.map(l => ({ type:'Lead', label:l.cli, sub:l.nec,
+    ...leads.map(l => ({ type:'Lead', label:l.cli, sub:l.nec,
       action: () => { navigate('leads'); setTimeout(() => {
         const ev = new CustomEvent('ford:openLead', { detail: l.id });
         window.dispatchEvent(ev);

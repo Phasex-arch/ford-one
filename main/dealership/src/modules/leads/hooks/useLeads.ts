@@ -9,13 +9,15 @@
  * - modalId: ID do lead com modal aberto
  * - pipeline: KPIs do pipeline (total, urgentes, valor total, ticket médio)
  * - leadSchedule: agendamentos do AppContext
+ * - loading/error: estado do GET /leads (via useAsyncList)
  *
  * Escuta o CustomEvent 'ford:openLead' para abrir modal via busca global.
  * Os agendamentos de leads são persistidos no AppContext para sobreviver
  * à troca de módulo.
  */
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useAsyncList } from '../../../shared/hooks/useAsyncList';
 import { filterLeads, fetchLeads } from '../services/leads.service';
 import { useApp } from '../../../shared/context/AppContext';
 import { formatCurrency } from '../../../shared/utils/formatters';
@@ -25,8 +27,7 @@ export function useLeads() {
   const [urgFilter, setUrgFilter] = useState<LeadUrgencia|''>('');
   const [modalId, setModalId] = useState<string|null>(null);
   const { leadSchedule } = useApp();
-  const [source, setSource] = useState<Awaited<ReturnType<typeof fetchLeads>>>([]);
-  useEffect(() => { fetchLeads().then(setSource).catch(() => setSource([])); }, []);
+  const { data: source, loading, error } = useAsyncList(fetchLeads);
 
   const leads = useMemo(() => filterLeads(urgFilter, source), [urgFilter, source]);
 
@@ -43,5 +44,5 @@ export function useLeads() {
     return () => window.removeEventListener('ford:openLead', h);
   }, []);
 
-  return { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline, leadSchedule, formatCurrency };
+  return { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline, leadSchedule, formatCurrency, loading, error };
 }

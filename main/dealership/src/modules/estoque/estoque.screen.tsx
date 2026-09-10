@@ -12,6 +12,9 @@
  * O subtítulo do header atualiza dinamicamente com a contagem de veículos filtrados.
  * Escuta CustomEvent 'ford:openEstoque' para abrir modal via busca global.
  *
+ * Permissões: as ações de escrita só aparecem para ADMIN/GERENTE, espelhando
+ * o @Roles() de POST/PATCH /estoque no backend.
+ *
  * Props:
  * - showToast           → feedback de ações (reserva, importação)
  * - onFinSimFromEstoque → abre simulador de financiamento com veículo pré-preenchido
@@ -24,12 +27,14 @@ import { EstoqueModal } from './components/EstoqueModal/EstoqueModal';
 import { getEstoque } from './services/estoque.service';
 import type { ToastType } from '../../shared/hooks/useToast';
 import { useApp } from '../../shared/context/AppContext';
+import { can } from '../../shared/auth/can';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; onFinSimFromEstoque:(id:string)=>void; }
 
 export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque }) => {
-  const { estoque, filters, updateFilter, modalId, setModalId } = useEstoque();
-  const { navigate } = useApp();
+  const { estoque, filters, updateFilter, modalId, setModalId, loading, error } = useEstoque();
+  const { navigate, user } = useApp();
+  const podeEscrever = can(user, 'estoque:write');
 
   useEffect(() => {
     const h = (e: Event) => setModalId((e as CustomEvent<string>).detail);
@@ -37,19 +42,21 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
     return () => window.removeEventListener('ford:openEstoque', h);
   }, [setModalId]);
 
-  const subtitle = `${estoque.length} veículos encontrados`;
+  const subtitle = loading ? 'Carregando estoque...' : `${estoque.length} veículos encontrados`;
 
   return (
     <section className="module active" id="mod-estoque">
       <div className="mod-header">
         <div><h1>Estoque</h1><p className="mod-sub" id="estoqueSubtitle">{subtitle}</p></div>
         <div className="mod-actions">
-          <button className="btn-sec" onClick={()=>showToast('Importando planilha...','info')}>
-            <i className="ph-bold ph-arrow-square-in"/> Importar planilha
-          </button>
-          <button className="btn-prim" onClick={()=>showToast('Funcionalidade em breve','info')}>
-            <i className="ph-bold ph-plus"/> Adicionar veículo
-          </button>
+          {podeEscrever && <>
+            <button className="btn-sec" onClick={()=>showToast('Importando planilha...','info')}>
+              <i className="ph-bold ph-arrow-square-in"/> Importar planilha
+            </button>
+            <button className="btn-prim" onClick={()=>showToast('Funcionalidade em breve','info')}>
+              <i className="ph-bold ph-plus"/> Adicionar veículo
+            </button>
+          </>}
         </div>
       </div>
 
@@ -75,7 +82,11 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
         </button>
       </div>
 
+      {error && <p className="mod-sub" role="alert">{error}</p>}
+
       <div className="estoque-grid" id="estoqueGrid">
+        {!loading && !error && estoque.length === 0 &&
+          <p className="mod-sub">Nenhum veículo encontrado.</p>}
         {estoque.map(e=><EstoqueCard key={e.id} item={e} onClick={()=>setModalId(e.id)}/>)}
       </div>
 

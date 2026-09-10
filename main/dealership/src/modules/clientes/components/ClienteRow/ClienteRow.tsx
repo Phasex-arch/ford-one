@@ -12,17 +12,17 @@
  *
  * Props:
  * - cliente   → objeto Cliente tipado
- * - onAcessar → callback chamado com o ID do cliente ao clicar
+ * - onAcessar → callback chamado com o cliente ao clicar
  */
 
 import React from 'react';
 import type { Cliente } from '../../../../types/global.types';
 import { formatCurrency, cap } from '../../../../shared/utils/formatters';
 
-interface Props { cliente: Cliente; onAcessar: (id: string) => void; }
+interface Props { cliente: Cliente; onAcessar: (cliente: Cliente) => void; }
 
 export const ClienteRow: React.FC<Props> = ({ cliente: c, onAcessar }) => (
-  <tr onClick={() => onAcessar(c.id)} style={{ cursor:'pointer' }}>
+  <tr onClick={() => onAcessar(c)} style={{ cursor:'pointer' }}>
     <td>
       <div className="cli-cell">
         <div className="cli-av">{c.ini}</div>
@@ -42,7 +42,7 @@ export const ClienteRow: React.FC<Props> = ({ cliente: c, onAcessar }) => (
     <td style={{ textAlign:'center', fontWeight:700 }}>{c.v}</td>
     <td className="ltv-v">{formatCurrency(c.ltv)}</td>
     <td>
-      <button className="btn-tbl" onClick={e => { e.stopPropagation(); onAcessar(c.id); }}>
+      <button className="btn-tbl" onClick={e => { e.stopPropagation(); onAcessar(c); }}>
         Acessar
       </button>
     </td>

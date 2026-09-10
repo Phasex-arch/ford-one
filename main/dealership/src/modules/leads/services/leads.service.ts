@@ -7,16 +7,17 @@
  * - filterLeads(urg) → retorna todos os leads ou filtra por urgência
  * - getLead(id)      → retorna um lead específico pelo ID
  *
- * Em produção: substituir por chamada GET /api/leads?urg=urgente.
+ * Os dados vêm de GET /leads; a conversão do contrato fica em shared/api/mappers.ts.
  */
 
 import type { Lead, LeadUrgencia } from '../../../types/global.types';
-import { apiRequest } from '../../../shared/api/client';
+import { fetchLeads as fetchLeadsApi } from '../../../shared/api/resources';
+
 let currentLeads: Lead[] = [];
 
+/** Mantém a última lista carregada para o lookup síncrono de getLead(). */
 export async function fetchLeads(): Promise<Lead[]> {
-  const result = await apiRequest<Lead[] | { items?: Lead[]; leads?: Lead[] }>('/leads');
-  currentLeads = Array.isArray(result) ? result : result.items || result.leads || [];
+  currentLeads = await fetchLeadsApi();
   return currentLeads;
 }
 

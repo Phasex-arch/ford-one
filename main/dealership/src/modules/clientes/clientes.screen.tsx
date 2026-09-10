@@ -21,18 +21,19 @@ import { ClienteRow } from './components/ClienteRow/ClienteRow';
 import { ClienteFiltersBar } from './components/ClienteFilters/ClienteFilters';
 import { NovoClienteModal } from './components/NovoClienteModal/NovoClienteModal';
 import { useApp } from '../../shared/context/AppContext';
+import type { Cliente } from '../../types/global.types';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 export const ClientesScreen: React.FC<Props> = ({ showToast }) => {
-  const { clientes, filters, updateFilter, modalOpen, setModalOpen, salvarNovoCliente, error } = useClientes();
+  const { clientes, filters, updateFilter, modalOpen, setModalOpen, salvarNovoCliente, loading, error } = useClientes();
   const { navigate, logAccess } = useApp();
 
-  const goHistorico = (id: string) => {
-    logAccess(id);
+  const goHistorico = (cliente: Cliente) => {
+    logAccess(cliente);
     navigate('historico');
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ford:selectCliente', { detail: id })), 120);
+    setTimeout(() => window.dispatchEvent(new CustomEvent('ford:selectCliente', { detail: cliente.id })), 120);
   };
 
   return (
@@ -49,7 +50,7 @@ export const ClientesScreen: React.FC<Props> = ({ showToast }) => {
         </div>
       </div>
       <ClienteFiltersBar filters={filters} onChange={updateFilter} />
-      {error && <p className="mod-sub">{error}</p>}
+      {error && <p className="mod-sub" role="alert">{error}</p>}
       <div className="tbl-wrap">
         <table className="data-tbl">
           <thead>
@@ -59,6 +60,9 @@ export const ClientesScreen: React.FC<Props> = ({ showToast }) => {
             </tr>
           </thead>
           <tbody>
+            {loading && <tr><td colSpan={8} className="mod-sub">Carregando clientes...</td></tr>}
+            {!loading && !error && clientes.length === 0 &&
+              <tr><td colSpan={8} className="mod-sub">Nenhum cliente encontrado.</td></tr>}
             {clientes.map(c => <ClienteRow key={c.id} cliente={c} onAcessar={goHistorico} />)}
           </tbody>
         </table>

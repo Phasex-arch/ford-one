@@ -25,15 +25,17 @@ import { useLeads } from './hooks/useLeads';
 import { getLead } from './services/leads.service';
 import { formatCurrency, cap } from '../../shared/utils/formatters';
 import { useApp } from '../../shared/context/AppContext';
-import { TECNICOS, SLOT_HOURS } from '../../data/tecnicos.data';
+import { SLOT_HOURS } from '../../data/tecnicos.data';
+import { useTecnicos } from '../../shared/hooks/useTecnicos';
 import type { LeadUrgencia } from '../../types/global.types';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
-  const { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline } = useLeads();
+  const { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline, loading, error } = useLeads();
   const { leadSchedule, setLeadSchedule, navigate } = useApp();
+  const { tecnicos } = useTecnicos();
   const [schedLeadId, setSchedLeadId] = useState<string|null>(null);
   const [schedDay, setSchedDay] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState(-1);
@@ -55,7 +57,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
     if (selectedSlot < 0) { showToast('Selecione um horário.','warning'); return; }
     if (!schedLeadId) return;
     const l = getLead(schedLeadId); if (!l) return;
-    const tech = TECNICOS.find(t=>t.status==='livre')?.nome || TECNICOS[0].nome;
+    const tech = tecnicos.find(t=>t.status==='livre')?.nome || tecnicos[0]?.nome || 'A designar';
     setLeadSchedule(p => ({...p, [schedLeadId]: { dayOffset: schedDay, slotIdx: selectedSlot }}));
     showToast(`Agendado: ${l.cli} às ${slots[selectedSlot]?.hora} com ${tech}!`, 'success');
     setSchedLeadId(null); setSelectedSlot(-1);
@@ -87,7 +89,12 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
         </select>
       </div>
 
+      {error && <p className="mod-sub" role="alert">{error}</p>}
+
       <div className="leads-grid" id="leadsGrid">
+        {loading && <p className="mod-sub">Carregando leads...</p>}
+        {!loading && !error && leads.length === 0 &&
+          <p className="mod-sub">Nenhum lead encontrado.</p>}
         {leads.map(l => {
           const bk = leadSchedule[l.id];
           const bookLabel = bk ? `${slots[bk.slotIdx]?.hora||'–'} (${bk.dayOffset===0?'Hoje':bk.dayOffset===1?'Amanhã':'+'+bk.dayOffset+'d'})` : '';

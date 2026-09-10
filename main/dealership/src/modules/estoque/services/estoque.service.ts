@@ -8,17 +8,20 @@
  * - getEstoque(id)         → retorna um veículo específico pelo ID
  *
  * A interface EstoqueFilters é exportada para o useEstoque e a barra de filtros.
- * Em produção: substituir por chamada GET /api/estoque?cond=&seg=&q=.
+ * Os dados vêm de GET /estoque; a conversão do contrato fica em shared/api/mappers.ts.
+ * O filtro é aplicado no cliente sobre a lista já carregada.
  */
 
 import type { Estoque } from '../../../types/global.types';
-import { apiRequest } from '../../../shared/api/client';
+import { fetchEstoque as fetchEstoqueApi } from '../../../shared/api/resources';
+
 let currentEstoque: Estoque[] = [];
 
 export interface EstoqueFilters { query: string; cond: string; seg: string; }
+
+/** Mantém a última lista carregada para o lookup síncrono de getEstoque(). */
 export async function fetchEstoque(): Promise<Estoque[]> {
-  const result = await apiRequest<Estoque[] | { items?: Estoque[]; estoque?: Estoque[] }>('/estoque');
-  currentEstoque = Array.isArray(result) ? result : result.items || result.estoque || [];
+  currentEstoque = await fetchEstoqueApi();
   return currentEstoque;
 }
 

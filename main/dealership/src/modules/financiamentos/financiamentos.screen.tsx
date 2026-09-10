@@ -25,6 +25,8 @@ import { useFinanciamentos } from './hooks/useFinanciamentos';
 import { formatCurrency } from '../../shared/utils/formatters';
 import type { ToastType } from '../../shared/hooks/useToast';
 import type { FinanciamentoStatus } from '../../types/global.types';
+import { useApp } from '../../shared/context/AppContext';
+import { can } from '../../shared/auth/can';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
 
@@ -36,13 +38,14 @@ const STATUS_MAP: Record<FinanciamentoStatus,{bg:string;c:string;lbl:string}> = 
 };
 
 export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
-  const { financiamentos, simOpen, setSimOpen, contratoId, setContratoId, contrato,
+  const { loading, error, financiamentos, simOpen, setSimOpen, contratoId, setContratoId, contrato,
           simVei, setSimVei, simCli, setSimCli, simValor, setSimValor, simEntrada, setSimEntrada,
           simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim } = useFinanciamentos(showToast);
 
   const totalCarteira = financiamentos.filter(f=>f.status==='aprovado').reduce((s,f)=>s+f.valor,0);
   const aprovados = financiamentos.filter(f=>f.status==='aprovado').length;
   const emAnalise = financiamentos.filter(f=>f.status==='analise').length;
+  const { user } = useApp();
   const parcela = calcParcela();
   const financiado = simValor-simEntrada;
   const totalPago = simEntrada+(parcela*simPrazo);
@@ -52,9 +55,13 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
       <div className="mod-header">
         <div><h1>Financiamentos</h1><p className="mod-sub">Simulações e contratos ativos</p></div>
         <div className="mod-actions">
-          <button className="btn-prim" onClick={()=>setSimOpen(true)}><i className="ph-bold ph-plus"/> Nova Simulação</button>
+          {can(user, 'financiamentos:write') &&
+            <button className="btn-prim" onClick={()=>setSimOpen(true)}><i className="ph-bold ph-plus"/> Nova Simulação</button>}
         </div>
       </div>
+
+      {loading && <p className="mod-sub">Carregando financiamentos...</p>}
+      {error && <p className="mod-sub" role="alert">{error}</p>}
 
       <div id="finContent">
         <div className="kpi-grid" style={{marginBottom:18}}>

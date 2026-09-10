@@ -1,22 +1,11 @@
 /**
  * @file tecnicos.data.ts
- * @description Dados mockados dos técnicos da oficina e horários disponíveis.
- * Exporta TECNICOS (lista de técnicos com especialidade e status)
- * e SLOT_HOURS (array de horários de 07:30 a 17:00 em intervalos de 30min).
+ * @description Grade de horários da oficina: SLOT_HOURS, de 07:30 a 17:00 em
+ * intervalos de 30 min.
  *
- * Em produção: substituir por chamada GET /api/tecnicos.
+ * Não é dado de API — é a configuração de funcionamento da oficina. A lista de
+ * técnicos saiu daqui e vem de GET /tecnicos (shared/hooks/useTecnicos.ts).
  */
-
-import type { Tecnico } from '../types/global.types';
-
-export const TECNICOS: Tecnico[] = [
-  { nome:'André Souza',    ini:'AS', esp:'Revisões programadas',    status:'ocupado' },
-  { nome:'Eduardo Lima',   ini:'EL', esp:'Elétrica e Eletrônica',   status:'livre'   },
-  { nome:'Marcos Vieira',  ini:'MV', esp:'Mecânica geral',          status:'livre'   },
-  { nome:'Bruna Castro',   ini:'BC', esp:'Funilaria e Pintura',     status:'pausa'   },
-  { nome:'Diego Ferreira', ini:'DF', esp:'Suspensão e Freios',      status:'ocupado' },
-  { nome:'Flávia Mendes',  ini:'FM', esp:'Revisões programadas',    status:'livre'   },
-];
 
 export const SLOT_HOURS = [
   '07:30','08:00','08:30','09:00','09:30','10:00',

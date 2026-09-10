@@ -1,28 +1,21 @@
 /**
  * @file servicos.service.ts
  * @module servicos
- * @description Service e store mutável de Ordens de Serviço.
+ * @description Acesso às Ordens de Serviço.
  *
- * Exporta `store`: objeto com três arrays mutáveis (previstos, andamento, concluidos),
- * inicializado com os dados de data/servicos.data.ts.
+ * A tela é organizada em abas (previstos/andamento/concluídos) que correspondem
+ * ao `status` do backend. O corte da lista única fica em shared/api/mappers.ts,
+ * junto da tradução status↔situação, e as operações de escrita vão direto para
+ * a API — o store mutável em memória que existia aqui foi removido.
  *
- * O store é mutado diretamente pelo useServicos (splice, unshift, Object.assign)
- * para simular operações CRUD em memória durante a sessão.
- * O forceUpdate() no hook dispara re-renders após cada mutação.
- *
- * Em produção: substituir por chamadas REST:
- * - GET    /api/os?tab=previstos
- * - POST   /api/os
- * - PUT    /api/os/:id
- * - DELETE /api/os/:id
- * - PATCH  /api/os/:id/mover
+ * - GET    /servicos        → fetchServicos (em shared/api/resources.ts)
+ * - POST   /servicos        → createServico
+ * - PATCH  /servicos/:id    → updateServico (campos) e moveServico (status)
+ * - DELETE /servicos/:id    → deleteServico
  */
 
-import { SERVICOS_INICIAL, type ServicoStore } from '../../../data/servicos.data';
-import { TECNICOS } from '../../../data/tecnicos.data';
-export { TECNICOS };
-export const store: ServicoStore = {
-  previstos: [...SERVICOS_INICIAL.previstos],
-  andamento: [...SERVICOS_INICIAL.andamento],
-  concluidos: [...SERVICOS_INICIAL.concluidos],
-};
+export { fetchServicos, createServico, updateServico, moveServico, deleteServico }
+  from '../../../shared/api/resources';
+
+export { agruparPorSituacao, proximaSituacao, type ServicoStore }
+  from '../../../shared/api/mappers';

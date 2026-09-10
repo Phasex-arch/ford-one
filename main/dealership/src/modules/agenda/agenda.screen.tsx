@@ -21,14 +21,13 @@
 
 import React, { useState } from 'react';
 import { useAgenda } from './hooks/useAgenda';
-import { TECNICOS } from '../../data/tecnicos.data';
 import { cap } from '../../shared/utils/formatters';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
 
 export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
-  const { slots, getDayTitle, active, total, pct, shiftDay, cancelApt,
+  const { tecnicos, slots, getDayTitle, active, total, pct, shiftDay, cancelApt,
           schedOpen, setSchedOpen, selectedSlot, setSelectedSlot, confirmSchedule } = useAgenda(showToast);
   const [schedCli, setSchedCli] = useState('');
   const [schedServ, setSchedServ] = useState('');
@@ -52,7 +51,7 @@ export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
           <div style={{marginTop:16}}>
             <div className="panel-lbl">Técnicos</div>
             <div id="tecnicosList">
-              {TECNICOS.map(t=>(
+              {tecnicos.map(t=>(
                 <div key={t.nome} className="tec-row">
                   <div className="tec-av">{t.ini}</div>
                   <div style={{flex:1}}><div className="tec-name">{t.nome}</div><div className="tec-esp">{t.esp}</div></div>
@@ -111,7 +110,7 @@ export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
                 <label>Serviço<input type="text" placeholder="Tipo de serviço ou veículo" value={schedServ} onChange={e=>setSchedServ(e.target.value)}/></label>
                 <label>Técnico<select value={schedTech} onChange={e=>setSchedTech(e.target.value)}>
                   <option value="">Sem técnico designado</option>
-                  {TECNICOS.map(t=><option key={t.nome}>{t.nome}</option>)}
+                  {tecnicos.map(t=><option key={t.nome}>{t.nome}</option>)}
                 </select></label>
               </div>
               <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:16}}>

@@ -10,19 +10,22 @@
  * - Controla abertura/fechamento do VehicleModal
  * - Fornece a função voltar() para retornar à listagem de clientes
  *
+ * A lista de clientes vem de GET /clientes; selectedCliente é derivado dela.
  * selectedCliente e veiculos são derivados de selectedId — sem duplicação de estado.
  * O VehicleModal acessa o veículo pelo selectedId + selectedVehicleId via service.
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAsyncList } from '../../../shared/hooks/useAsyncList';
 import { getVeiculosCliente } from '../services/historico.service';
-import { CLIENTES } from '../../../data/clientes.data';
+import { fetchClientes } from '../../clientes/services/clientes.service';
 import type { Veiculo, Cliente } from '../../../types/global.types';
 
 export function useHistorico() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
+  const { data: clientes } = useAsyncList<Cliente>(fetchClientes);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -35,7 +38,7 @@ export function useHistorico() {
   }, []);
 
   const selectedCliente: Cliente | undefined = selectedId
-    ? CLIENTES.find(c => c.id === selectedId)
+    ? clientes.find(c => c.id === selectedId)
     : undefined;
 
   const veiculos: Veiculo[] = selectedId ? getVeiculosCliente(selectedId) : [];
@@ -55,7 +58,7 @@ export function useHistorico() {
   }, []);
 
   return {
-    selectedId, selectedCliente, veiculos,
+    clientes, selectedId, selectedCliente, veiculos,
     openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen,
     voltar,
   };

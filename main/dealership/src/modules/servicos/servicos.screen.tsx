@@ -22,6 +22,8 @@ import React, { useState } from 'react';
 import { useServicos, type OSTab } from './hooks/useServicos';
 import { cap } from '../../shared/utils/formatters';
 import type { ToastType } from '../../shared/hooks/useToast';
+import { useApp } from '../../shared/context/AppContext';
+import { can } from '../../shared/auth/can';
 import type { OrdemServico } from '../../types/global.types';
 import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
 
@@ -33,10 +35,12 @@ const STATUS_LABEL: Record<OSTab,string> = { previstos:'Previsto', andamento:'Em
 const BADGE_CLS: Record<OSTab,string> = { previstos:'os-badge-previstos', andamento:'os-badge-andamento', concluidos:'os-badge-concluidos' };
 
 export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
-  const { tab, setTab, list, store, TECNICOS,
+  const { loading, error, tab, setTab, list, store, TECNICOS,
           detailIdx, setDetailIdx, editIdx, setEditIdx,
           deleteIdx, setDeleteIdx, novaOSOpen, setNovaOSOpen,
           moverOS, deletarOS, salvarEdicao, criarOS } = useServicos(showToast);
+  const { user } = useApp();
+  const podeExcluir = can(user, 'servicos:delete');
 
   const [editForm, setEditForm] = useState<Partial<OrdemServico>>({});
   const [novaForm, setNovaForm] = useState({ c:'', v:'', t:'', tech:'', prazo:'', val:'A calcular' });
@@ -62,8 +66,12 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
         ))}
       </div>
 
+      {error && <p className="mod-sub" role="alert">{error}</p>}
+
       <div id="servicosContent">
-        {list.length === 0
+        {loading
+        ? <p className="mod-sub">Carregando ordens de serviço...</p>
+        : list.length === 0
           ? <div style={{textAlign:'center',padding:40,color:'var(--c-dim)'}}>
               <i className="ph-bold ph-check-circle" style={{fontSize:36,marginBottom:10,display:'block',color:'var(--green)'}}/>
               <div style={{fontWeight:600}}>Nenhuma OS nesta categoria</div>
@@ -79,7 +87,8 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   <div className="os-val">{s.val}</div>
                   <div className="os-actions" onClick={e=>e.stopPropagation()}>
                     {tab!=='concluidos'&&<button className="btn-tbl" onClick={()=>setEditIdx(i)}>Editar</button>}
-                    <button className="btn-tbl" style={{color:"var(--red)"}} onClick={()=>setDeleteIdx(i)}>Excluir</button>
+                    {podeExcluir &&
+                      <button className="btn-tbl" style={{color:"var(--red)"}} onClick={()=>setDeleteIdx(i)}>Excluir</button>}
                   </div>
                 </div>
               ))}
@@ -115,7 +124,8 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   {tab!=='concluidos'&&<button className="btn-prim" onClick={()=>{if(detailIdx!==null)setEditIdx(detailIdx);setDetailIdx(null);}}><i className="ph-bold ph-pencil-simple"/> Editar</button>}
                   {tab==='previstos'&&<button className="btn-sec" onClick={()=>{if(detailIdx!==null)moverOS(detailIdx);setDetailIdx(null);}}><i className="ph-bold ph-arrow-right"/> Iniciar</button>}
                   {tab==='andamento'&&<button className="btn-sec" onClick={()=>{if(detailIdx!==null)moverOS(detailIdx);setDetailIdx(null);}}><i className="ph-bold ph-check"/> Concluir OS</button>}
-                  <button className="btn-danger-out" onClick={()=>{if(detailIdx!==null)setDeleteIdx(detailIdx);setDetailIdx(null);}}><i className="ph-bold ph-trash"/> Excluir</button>
+                  {podeExcluir &&
+                    <button className="btn-danger-out" onClick={()=>{if(detailIdx!==null)setDeleteIdx(detailIdx);setDetailIdx(null);}}><i className="ph-bold ph-trash"/> Excluir</button>}
                 </div>
               </div>
             </div>

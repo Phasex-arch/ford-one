@@ -21,7 +21,7 @@
 
 import { useState, useCallback } from 'react';
 import { getSlotsForDay } from '../services/agenda.service';
-import { TECNICOS } from '../../../data/tecnicos.data';
+import { useTecnicos } from '../../../shared/hooks/useTecnicos';
 import { DAYS, MONTHS } from '../../../shared/utils/dates';
 import type { ToastType } from '../../../shared/hooks/useToast';
 
@@ -31,6 +31,7 @@ export function useAgenda(showToast: (m:string,t?:ToastType)=>void) {
   const [preselSlot, setPreselSlot] = useState(-1);
   const [selectedSlot, setSelectedSlot] = useState(-1);
   const [, forceUpdate] = useState(0);
+  const { tecnicos } = useTecnicos();
 
   const slots = getSlotsForDay(offset);
 
@@ -54,13 +55,13 @@ export function useAgenda(showToast: (m:string,t?:ToastType)=>void) {
   const confirmSchedule = (cli: string, serv: string, tech: string) => {
     if (selectedSlot < 0) { showToast('Selecione um horário.','warning'); return; }
     if (!cli || !serv) { showToast('Preencha cliente e serviço.','warning'); return; }
-    const t = tech || TECNICOS.find(x=>x.status==='livre')?.nome || TECNICOS[0].nome;
+    const t = tech || tecnicos.find(x=>x.status==='livre')?.nome || tecnicos[0]?.nome || 'A designar';
     getSlotsForDay(offset)[selectedSlot].apts.push({cli,type:serv,tech:t,cls:'',cancelled:false});
     setSchedOpen(false); setSelectedSlot(-1); forceUpdate(n=>n+1);
     showToast(`Agendado: ${cli} às ${slots[selectedSlot].hora} com ${t}!`,'success');
   };
 
-  return { slots, offset, getDayTitle, active, total, pct, shiftDay, cancelApt,
+  return { tecnicos, slots, offset, getDayTitle, active, total, pct, shiftDay, cancelApt,
            schedOpen, setSchedOpen, preselSlot, setPreselSlot, selectedSlot, setSelectedSlot,
-           confirmSchedule, TECNICOS };
+           confirmSchedule };
 }

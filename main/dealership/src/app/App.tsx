@@ -7,6 +7,7 @@
  * - Instanciar o AppLayout (Header + Sidebar + área principal)
  * - Renderizar a tela correta com base no módulo ativo (activeModule)
  * - Montar o ToastContainer para exibir notificações globais
+ * - Carregar o usuário autenticado (/auth/me) no AppContext e tratar 401/403
  * - Fornecer o callback showToast a todas as telas que precisam disparar toasts
  *
  * Padrão de roteamento: sem React Router — o módulo ativo é controlado pelo
@@ -39,9 +40,8 @@ import { ConfiguracoesScreen }  from '../modules/configuracoes/configuracoes.scr
 import '../styles/globals.scss';
 
 const AppInner: React.FC = () => {
-  const { activeModule } = useApp();
+  const { activeModule, setUser } = useApp();
   const { toasts, showToast } = useToast();
-  const [user, setUser] = React.useState<AuthenticatedUser | null>(null);
   useEffect(() => {
     const portalUrl = import.meta.env.VITE_PORTAL_URL
       || (import.meta.env.DEV ? 'http://localhost:5173' : 'http://localhost:8080');
@@ -56,7 +56,15 @@ const AppInner: React.FC = () => {
     }
     apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
     return () => window.removeEventListener('ford:unauthorized', redirect);
-  }, []);
+  }, [setUser]);
+
+  // 403 do backend vira aviso amigável em vez de falha silenciosa.
+  useEffect(() => {
+    const onForbidden = (e: Event) =>
+      showToast((e as CustomEvent<string>).detail || 'Acesso negado.', 'warning');
+    window.addEventListener('ford:forbidden', onForbidden);
+    return () => window.removeEventListener('ford:forbidden', onForbidden);
+  }, [showToast]);
   const p = { showToast };
   const screen = () => {
     switch(activeModule) {
@@ -79,7 +87,7 @@ const AppInner: React.FC = () => {
   };
   return (
     <>
-      <AppLayout showToast={showToast} user={user}>{screen()}</AppLayout>
+      <AppLayout showToast={showToast}>{screen()}</AppLayout>
       <ToastContainer toasts={toasts} />
     </>
   );

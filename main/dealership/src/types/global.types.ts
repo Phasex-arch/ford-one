@@ -19,9 +19,9 @@
 export type ClienteStatus   = 'ativo' | 'inativo' | 'potencial';
 export type ClienteSegmento = 'Premium' | 'VIP' | 'Família' | 'Executivo' | 'Padrão';
 export type LeadUrgencia    = 'urgente' | 'alta' | 'media' | 'baixa';
-export type TecnicoStatus   = 'livre' | 'ocupado' | 'pausa';
+export type TecnicoStatus   = 'livre' | 'ocupado' | 'pausa' | 'ausente';
 export type EstoqueCondicao = 'novo' | 'seminovo';
-export type EstoqueSegmento = 'suv' | 'picape' | 'sedan';
+export type EstoqueSegmento = 'suv' | 'picape' | 'sedan' | 'hatch' | 'outro';
 export type MetaIndicador   = 'vendas' | 'receita' | 'leads' | 'nps' | 'sla' | 'conv';
 export type FinanciamentoStatus = 'aprovado' | 'analise' | 'pendente' | 'reprovado';
 export type OSStatus        = 'ok' | 'risco' | 'atrasado';
@@ -31,6 +31,8 @@ export type ModuleId =
   | 'receita' | 'avaliacao' | 'desempenho' | 'relatorios' | 'config';
 
 export interface Cliente {
+  /** UUID do backend — usado em PATCH/DELETE. `id` carrega o codigo exibido. */
+  uuid?: string;
   id: string;
   nome: string;
   tel: string;
@@ -75,6 +77,7 @@ export interface Veiculo {
 }
 
 export interface Estoque {
+  uuid?: string;
   id: string;
   modelo: string;
   versao: string;
@@ -93,6 +96,7 @@ export interface Estoque {
 }
 
 export interface Lead {
+  uuid?: string;
   id: string;
   cli: string;
   ini: string;
@@ -104,7 +108,12 @@ export interface Lead {
   ins: string;
 }
 
+export type OSSituacao = 'previstos' | 'andamento' | 'concluidos' | 'cancelados';
+
 export interface OrdemServico {
+  uuid?: string;
+  /** Aba a que a OS pertence, derivada do status do backend. */
+  situacao?: OSSituacao;
   num: string;
   c: string;
   v: string;
@@ -116,6 +125,7 @@ export interface OrdemServico {
 }
 
 export interface Financiamento {
+  uuid?: string;
   id: string;
   cli: string;
   ini: string;
@@ -130,6 +140,7 @@ export interface Financiamento {
 }
 
 export interface Avaliacao {
+  uuid?: string;
   c: string;
   nota: number;
   data: string;
@@ -138,6 +149,7 @@ export interface Avaliacao {
 }
 
 export interface Meta {
+  uuid?: string;
   id: string;
   titulo: string;
   periodo: string;
@@ -150,6 +162,7 @@ export interface Meta {
 }
 
 export interface Tecnico {
+  uuid?: string;
   nome: string;
   ini: string;
   esp: string;

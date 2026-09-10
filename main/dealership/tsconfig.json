@@ -26,5 +26,7 @@
     "ignoreDeprecations": "5.0"
   },
   "include": ["src"],
+  // *.check.ts roda no Node (npx tsx), fora do bundle do navegador.
+  "exclude": ["src/**/*.check.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

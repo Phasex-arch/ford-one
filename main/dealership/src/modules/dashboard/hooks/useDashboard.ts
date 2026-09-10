@@ -9,7 +9,7 @@
  * - getKpis: mapeia os dados do período selecionado para o formato KpiItem
  *   com ícone, label, valor formatado, delta e chave de identificação
  *
- * Os dados por período vêm de data/dashboard.data.ts (DASH_DATA).
+ * Os dados vêm de GET /dashboard?periodo=… e são normalizados para DashData.
  * Os valores são formatados com formatCurrency e formatNumber de shared/utils.
  */
 

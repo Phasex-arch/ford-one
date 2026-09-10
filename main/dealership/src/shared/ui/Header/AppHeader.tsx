@@ -35,14 +35,13 @@ import type { AuthenticatedUser } from "../../api/client";
 interface Props {
   onToggleSidebar: () => void;
   showToast: (msg: string, type?: ToastType) => void;
-  user: AuthenticatedUser | null;
 }
 
 const roleLabel = (role: AuthenticatedUser['role']): string =>
   role === 'ADMIN' ? 'Administrador' : role === 'GERENTE' ? 'Gerente' : 'Funcionário';
 
-export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast, user }) => {
-  const { navigate } = useApp();
+export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
+  const { navigate, user } = useApp();
   const { theme, setTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);

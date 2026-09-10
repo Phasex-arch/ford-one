@@ -42,6 +42,11 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
     clearToken();
     window.dispatchEvent(new CustomEvent('ford:unauthorized'));
   }
+  if (response.status === 403) {
+    window.dispatchEvent(new CustomEvent('ford:forbidden', {
+      detail: 'Seu perfil não tem permissão para esta ação.',
+    }));
+  }
   if (!response.ok) throw new ApiError(response.status, body?.message || 'Não foi possível concluir a solicitação.');
   return body?.data ?? body;
 }

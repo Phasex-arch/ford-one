@@ -25,26 +25,35 @@ import React, { useState } from 'react';
 import { useMetas } from './hooks/useMetas';
 import type { ToastType } from '../../shared/hooks/useToast';
 import type { MetaIndicador } from '../../types/global.types';
+import { useApp } from '../../shared/context/AppContext';
+import { can } from '../../shared/auth/can';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
 const RANKING = [{nome:'Ricardo Costa',ini:'RC',pct:94,vendas:8,rec:'R$ 412k'},{nome:'Patrícia Oliveira',ini:'PO',pct:78,vendas:6,rec:'R$ 287k'},{nome:'Lucas Mendes',ini:'LM',pct:71,vendas:5,rec:'R$ 241k'},{nome:'Amanda Rocha',ini:'AR',pct:43,vendas:3,rec:'R$ 128k'}];
 const RANK_CLS = ['gold','silver','bronze',''];
 
 export const MetasScreen: React.FC<Props> = ({ showToast }) => {
-  const { metas, modalOpen, setModalOpen, getStatus, fmtVal, addMeta } = useMetas(showToast);
+  const { loading, error, metas, modalOpen, setModalOpen, getStatus, fmtVal, addMeta } = useMetas(showToast);
   const [tipo, setTipo] = useState<MetaIndicador>('vendas');
   const [resp, setResp] = useState('');
   const [val, setVal] = useState('');
   const [per, setPer] = useState('');
+  const { user } = useApp();
 
   return (
     <section className="module active" id="mod-metas">
       <div className="mod-header">
         <div><h1>Metas</h1><p className="mod-sub">Acompanhamento de metas e performance</p></div>
         <div className="mod-actions">
-          <button className="btn-prim" onClick={()=>setModalOpen(true)}><i className="ph-bold ph-plus"/> Nova Meta</button>
+          {can(user, 'metas:write') &&
+            <button className="btn-prim" onClick={()=>setModalOpen(true)}><i className="ph-bold ph-plus"/> Nova Meta</button>}
         </div>
       </div>
+
+      {loading && <p className="mod-sub">Carregando metas...</p>}
+      {error && <p className="mod-sub" role="alert">{error}</p>}
+      {!loading && !error && metas.length === 0 &&
+        <p className="mod-sub">Nenhuma meta cadastrada.</p>}
 
       <div id="metasContent">
         <div className="metas-row">

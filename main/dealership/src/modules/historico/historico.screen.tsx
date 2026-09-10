@@ -21,7 +21,6 @@ import React from 'react';
 import { useHistorico } from './hooks/useHistorico';
 import { VehicleModal } from './components/VehicleModal/VehicleModal';
 import { useApp } from '../../shared/context/AppContext';
-import { CLIENTES } from '../../data/clientes.data';
 import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
 import { cap } from '../../shared/utils/formatters';
 import { formatCurrency } from '../../shared/utils/formatters';
@@ -32,20 +31,19 @@ interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
   const { navigate, accessLog, clearHistory, logAccess, logVehicleAccess } = useApp();
-  const { selectedId, selectedCliente, veiculos, openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen, voltar } = useHistorico();
+  const { clientes, selectedId, selectedCliente, veiculos, openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen, voltar } = useHistorico();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const goHistorico = (id: string) => {
-    logAccess(id);
-    window.dispatchEvent(new CustomEvent('ford:selectCliente', { detail: id }));
+  const goHistorico = (cliente: { id: string; nome: string; ini: string }) => {
+    logAccess(cliente);
+    window.dispatchEvent(new CustomEvent('ford:selectCliente', { detail: cliente.id }));
   };
 
   const handleOpenVehicle = (cid: string, vid: string) => {
-    const c = CLIENTES.find(x => x.id === cid);
-    const veicsC = (window as any).__veiculos?.[cid] || [];
-    if (c) {
-      const v = veicsC.find((x: any) => x.id === vid);
-      if (v) logVehicleAccess(vid, v.modelo + ' ' + v.versao.split(' ')[0], c.nome.split(' ').slice(0,2).join(' '), cid);
+    const c = clientes.find(x => x.id === cid);
+    const v = veiculos.find(x => x.id === vid);
+    if (c && v) {
+      logVehicleAccess(vid, `${v.modelo} ${v.versao.split(' ')[0]}`, c.nome.split(' ').slice(0, 2).join(' '), cid);
     }
     openVehicleModal(cid, vid);
   };
@@ -70,7 +68,7 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
           {accessLog.clientes.length === 0
             ? <span className="chip-empty">Nenhum cliente acessado hoje.</span>
             : accessLog.clientes.map(a => (
-              <div key={a.id} className="chip" onClick={() => goHistorico(a.id)} style={{cursor:'pointer'}}>
+              <div key={a.id} className="chip" onClick={() => goHistorico(a)} style={{cursor:'pointer'}}>
                 <div className="chip-av">{a.ini}</div>
                 <span>{a.nome}</span>
                 <span className="chip-t">{a.hora}</span>
