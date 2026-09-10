@@ -2,6 +2,9 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string;
+  /** Credenciais de demonstração, opcionais — ver concessionaria-login.screen.tsx. */
+  readonly VITE_DEMO_EMAIL?: string;
+  readonly VITE_DEMO_SENHA?: string;
   readonly VITE_DEALERSHIP_URL?: string;
 }
 

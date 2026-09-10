@@ -40,14 +40,18 @@ export const fetchEstoque = async (): Promise<Estoque[]> =>
 export const fetchLeads = async (): Promise<Lead[]> =>
   (await apiRequest<LeadApi[]>(`/leads?limit=${LIST_LIMIT}`)).map(toLead);
 
-/** POST /clientes exige codigo/telefone/iniciais/segmento e rejeita campos extras. */
+/**
+ * POST /clientes exige telefone/iniciais/segmento e rejeita campos extras.
+ * `codigo` não vai mais no corpo: é chave de negócio e quem gera a sequência é o
+ * servidor — duas abas abertas geravam o mesmo `C${Date.now()}` e colidiam no
+ * @unique. `ltv`/`veiculosCount` são derivados e também não são aceitos na criação.
+ */
 export const createCliente = async (
   dados: Pick<Cliente, 'nome' | 'tel' | 'email' | 'status' | 'seg'>,
 ): Promise<Cliente> =>
   toCliente(await apiRequest<ClienteApi>('/clientes', {
     method: 'POST',
     body: JSON.stringify({
-      codigo: `C${Date.now().toString().slice(-6)}`,
       nome: dados.nome,
       telefone: dados.tel,
       email: dados.email,
@@ -72,14 +76,16 @@ export const fetchAvaliacoes = async (): Promise<Avaliacao[]> =>
 export const fetchTecnicos = async (): Promise<Tecnico[]> =>
   (await apiRequest<TecnicoApi[]>(`/tecnicos?limit=${LIST_LIMIT}`)).map(toTecnico);
 
-/** POST /servicos — `numero` é obrigatório e único; prioridade começa em OK. */
+/**
+ * POST /servicos — `numero` é gerado pelo servidor (sequência #49xx), então não
+ * é enviado daqui. O chamador usa o número que volta na resposta.
+ */
 export const createServico = async (
-  dados: Pick<OrdemServico, 'num' | 'c' | 'v' | 't' | 'tech' | 'prazo' | 'val'>,
+  dados: Pick<OrdemServico, 'c' | 'v' | 't' | 'tech' | 'prazo' | 'val'>,
 ): Promise<OrdemServico> =>
   toServico(await apiRequest<ServicoApi>('/servicos', {
     method: 'POST',
     body: JSON.stringify({
-      numero: dados.num,
       cliente: dados.c,
       veiculo: dados.v,
       tipo: dados.t,
@@ -118,18 +124,19 @@ export const moveServico = async (uuid: string, destino: OSSituacao): Promise<Or
 export const deleteServico = (uuid: string): Promise<unknown> =>
   apiRequest(`/servicos/${uuid}`, { method: 'DELETE' });
 
-/** POST /metas — `codigo` é único; unidade e lowerIsBetter derivam do indicador. */
+/**
+ * POST /metas — `codigo` é gerado pelo servidor; `atual` (o realizado) é derivado
+ * e nasce em 0, então não é enviado. unidade e lowerIsBetter derivam do indicador.
+ */
 export const createMeta = async (
   dados: Pick<Meta, 'titulo' | 'periodo' | 'indicador' | 'alvo' | 'unidade' | 'responsavel' | 'lowerIsBetter'>,
 ): Promise<Meta> =>
   toMeta(await apiRequest<MetaApi>('/metas', {
     method: 'POST',
     body: JSON.stringify({
-      codigo: `M${Date.now().toString().slice(-6)}`,
       titulo: dados.titulo,
       periodo: dados.periodo,
       indicador: dados.indicador,
-      atual: 0,
       alvo: dados.alvo,
       unidade: dados.unidade,
       responsavel: dados.responsavel,
@@ -137,14 +144,17 @@ export const createMeta = async (
     }),
   }));
 
-/** POST /financiamentos — status inicial PENDENTE. */
+/**
+ * POST /financiamentos — `codigo` é gerado pelo servidor, e o servidor recalcula
+ * a parcela pela tabela Price: `parcela` fora da tolerância de 1% volta 400.
+ * Status inicial PENDENTE.
+ */
 export const createFinanciamento = async (
   dados: Pick<Financiamento, 'cli' | 'ini' | 'veiculo' | 'valor' | 'entrada' | 'prazo' | 'taxa' | 'parcela' | 'data'>,
 ): Promise<Financiamento> =>
   toFinanciamento(await apiRequest<FinanciamentoApi>('/financiamentos', {
     method: 'POST',
     body: JSON.stringify({
-      codigo: `F${Date.now().toString().slice(-6)}`,
       clienteNome: dados.cli,
       iniciais: dados.ini,
       veiculo: dados.veiculo,

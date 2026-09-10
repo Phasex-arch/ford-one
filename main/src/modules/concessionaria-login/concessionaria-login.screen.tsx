@@ -5,6 +5,13 @@ import { ROUTES } from '../../shared/constants/routes';
 import styles from './styles/concessionaria-login.module.scss';
 
 /**
+ * Credenciais de demonstração, opcionais e definidas em tempo de build.
+ * Ausentes (o caso de produção), o bloco de dica não aparece.
+ */
+const demoEmail = import.meta.env.VITE_DEMO_EMAIL as string | undefined;
+const demoSenha = import.meta.env.VITE_DEMO_SENHA as string | undefined;
+
+/**
  * Tela de login da concessionária — corresponde ao concessionaria.html original.
  */
 export function ConcessionariaLoginScreen() {
@@ -114,28 +121,39 @@ export function ConcessionariaLoginScreen() {
             Acesso seguro — Ford Smart Ecosystem
           </p>
 
-          {/* Credenciais visíveis */}
-          <div className={styles.credentialsHint}>
-            <div className={styles.credentialsTitle}>
-              <i className="fa-solid fa-key" />
-              Credenciais de acesso
-            </div>
-            {[
-              { label: 'Usuário', value: 'ford.phasex@ford.com.br', fill: () => { clearErrors(); setUsername('ford.phasex@ford.com.br'); } },
-              { label: 'Senha',   value: 'FordPhasex@2026',          fill: () => { clearErrors(); setPassword('FordPhasex@2026'); } },
-            ].map(({ label, value, fill }) => (
-              <div key={label} className={styles.credentialsRow}>
-                <span className={styles.credentialsLabel}>{label}</span>
-                <span
-                  className={styles.credentialsValue}
-                  title="Clique para preencher"
-                  onClick={fill}
-                >
-                  {value}
-                </span>
+          {/* Credenciais de demonstração.
+
+              Antes, este bloco oferecia em um clique
+              `ford.phasex@ford.com.br` / `FordPhasex@2026` — um colaborador que
+              o seed nunca cria. Quem seguia a própria interface tomava 401.
+
+              Agora vem de variáveis de build: num ambiente de demonstração
+              defina VITE_DEMO_EMAIL e VITE_DEMO_SENHA com credenciais que
+              existam de fato; sem elas, o bloco não é renderizado e o build de
+              produção não embarca senha nenhuma. */}
+          {demoEmail && demoSenha && (
+            <div className={styles.credentialsHint}>
+              <div className={styles.credentialsTitle}>
+                <i className="fa-solid fa-key" />
+                Credenciais de demonstração
               </div>
-            ))}
-          </div>
+              {[
+                { label: 'Usuário', value: demoEmail, fill: () => { clearErrors(); setUsername(demoEmail); } },
+                { label: 'Senha',   value: demoSenha, fill: () => { clearErrors(); setPassword(demoSenha); } },
+              ].map(({ label, value, fill }) => (
+                <div key={label} className={styles.credentialsRow}>
+                  <span className={styles.credentialsLabel}>{label}</span>
+                  <span
+                    className={styles.credentialsValue}
+                    title="Clique para preencher"
+                    onClick={fill}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

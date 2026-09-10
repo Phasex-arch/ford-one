@@ -8,8 +8,14 @@ RUN npm ci
 COPY . .
 ARG VITE_API_BASE_URL=http://localhost:3000/api
 ARG VITE_DEALERSHIP_URL=http://localhost:8081
+# Credenciais de demonstração: vazias por padrão, de propósito. Sem elas a tela
+# de login não renderiza o bloco de dica e o bundle não embarca senha nenhuma.
+ARG VITE_DEMO_EMAIL=
+ARG VITE_DEMO_SENHA=
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV VITE_DEALERSHIP_URL=${VITE_DEALERSHIP_URL}
+ENV VITE_DEMO_EMAIL=${VITE_DEMO_EMAIL}
+ENV VITE_DEMO_SENHA=${VITE_DEMO_SENHA}
 
 RUN npm run build
 

@@ -84,13 +84,14 @@ export function useServicos(showToast: (m:string,t?:ToastType)=>void) {
   },[store, tab, recarregar, showToast, falhou]);
 
   const criarOS = useCallback((dados: Omit<OrdemServico,'num'|'pc'>) => {
-    // O backend exige `numero` único; a sequência segue o padrão #48xx da oficina.
-    const num = '#' + (4900 + servicos.length + 1);
-    createServico({ num, ...dados })
-      .then(() => recarregar())
-      .then(() => { setNovaOSOpen(false); showToast(`OS ${num} criada!`,'success'); })
+    // O `numero` é gerado pelo servidor, numa sequência protegida pelo @unique —
+    // antes saía daqui como `#' + (4900 + servicos.length + 1)`, que colidia com
+    // duas abas abertas. O toast cita o número que voltou, não um palpite.
+    createServico(dados)
+      .then(async (criada) => { await recarregar(); return criada; })
+      .then((criada) => { setNovaOSOpen(false); showToast(`OS ${criada.num} criada!`,'success'); })
       .catch(e => falhou(e, 'Erro ao criar OS.'));
-  },[servicos.length, recarregar, showToast, falhou]);
+  },[recarregar, showToast, falhou]);
 
   return { tab, setTab, list, detailIdx, setDetailIdx, editIdx, setEditIdx,
            deleteIdx, setDeleteIdx, novaOSOpen, setNovaOSOpen,

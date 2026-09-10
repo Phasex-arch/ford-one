@@ -10,6 +10,11 @@ const base = process.env.VITE_BASE ?? '/';
 export default defineConfig({
   plugins: [react()],
   base,
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.spec.{ts,tsx}'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

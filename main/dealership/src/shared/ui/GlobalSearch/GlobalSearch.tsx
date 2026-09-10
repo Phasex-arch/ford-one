@@ -8,7 +8,8 @@
  *   /leads) além dos módulos principais
  * - Filtra por nome, e-mail ou descrição com mínimo de 2 caracteres
  * - Limita a 7 resultados para não sobrecarregar a UI
- * - Realça o termo pesquisado nos resultados com <mark>
+ * - Realça o termo pesquisado nos resultados com <mark> (nós React, nunca HTML
+ *   cru: o nome pode vir de POST /api/public/leads, sem autenticação)
  * - Navega para o módulo correto ao clicar no resultado
  * - Abre modal de detalhe do item via CustomEvent (ford:selectCliente,
  *   ford:openEstoque, ford:openLead) com delay para o módulo montar
@@ -79,10 +80,28 @@ export const GlobalSearch: React.FC = () => {
     inputRef.current?.blur();
   };
 
-  const highlight = (text: string) => {
+  /**
+   * P0-2: realce sem `dangerouslySetInnerHTML`. O texto vem da API e pode conter
+   * tags (o nome de um lead é definido por qualquer pessoa, sem autenticação),
+   * então ele é devolvido como nós React — o trecho que casa com a busca dentro
+   * de <mark>, o resto como texto literal, que o React já escapa.
+   */
+  const highlight = (text: string): React.ReactNode => {
     if (!query) return text;
     const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(re, '<mark style="background:var(--ford-light);color:var(--ford-vivid);border-radius:2px">$1</mark>');
+    // `split` com grupo de captura alterna: índice par = texto, ímpar = casamento.
+    return text.split(re).map((parte, i) =>
+      i % 2 === 1 ? (
+        <mark
+          key={i}
+          style={{ background: 'var(--ford-light)', color: 'var(--ford-vivid)', borderRadius: 2 }}
+        >
+          {parte}
+        </mark>
+      ) : (
+        parte
+      ),
+    );
   };
 
   return (
@@ -104,7 +123,7 @@ export const GlobalSearch: React.FC = () => {
             <div key={i} className="sri" onClick={() => doSearch(i)}>
               <span className="sri-tag">{h.type}</span>
               <div>
-                <strong dangerouslySetInnerHTML={{ __html: highlight(h.label) }} />
+                <strong>{highlight(h.label)}</strong>
                 <small>{h.sub}</small>
               </div>
             </div>
