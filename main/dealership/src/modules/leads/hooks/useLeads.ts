@@ -14,15 +14,18 @@
  *   (status=AGENDADO) — substitui o antigo leadSchedule local do AppContext,
  *   que nunca persistia de verdade
  * - reloadAgendamentos(): recarrega o mapa após agendar/cancelar
+ * - assumirLead(id, showToast): PATCH responsavelId = usuário logado — o botão
+ *   "Assumir lead" só mostrava um toast antes, sem gravar nada
  *
  * Escuta o CustomEvent 'ford:openLead' para abrir modal via busca global.
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { fetchLeads, fetchLeadById, fetchLeadsStats, type LeadsStats } from '../services/leads.service';
+import { fetchLeads, fetchLeadById, fetchLeadsStats, assumirLead as assumirLeadApi, type LeadsStats } from '../services/leads.service';
 import { fetchAgendamentosDeLeads, type LeadAgendamento } from '../../agenda/services/agenda.service';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
 import type { Lead, LeadUrgencia } from '../../../types/global.types';
+import type { ToastType } from '../../../shared/hooks/useToast';
 
 const PAGE_SIZE = 20;
 const EMPTY_STATS: LeadsStats = { total: 0, urgentes: 0, pipeline: 0, ticketMedio: 0 };
@@ -41,7 +44,7 @@ export function useLeads() {
 
   useEffect(() => { setPage(1); }, [urgFilter]);
 
-  useEffect(() => {
+  const reload = useCallback(() => {
     setLoading(true);
     setError('');
     fetchLeads({ page, limit: PAGE_SIZE, urgencia: urgFilter })
@@ -49,6 +52,8 @@ export function useLeads() {
       .catch(e => { setError(friendlyApiMessage(e)); setLeads([]); setPagination(null); })
       .finally(() => setLoading(false));
   }, [page, urgFilter]);
+
+  useEffect(() => { reload(); }, [reload]);
 
   useEffect(() => {
     fetchLeadsStats().then(setPipeline).catch(() => setPipeline(EMPTY_STATS));
@@ -75,9 +80,16 @@ export function useLeads() {
     fetchLeadById(modalId).then(setLead).catch(() => setLead(null));
   }, [modalId, leads]);
 
+  const assumirLead = useCallback((id: string, responsavelId: string, showToast: (m: string, t?: ToastType) => void) => {
+    assumirLeadApi(id, responsavelId).then(() => {
+      showToast('Lead assumido!', 'success');
+      reload();
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  }, [reload]);
+
   return {
     leads, urgFilter, setUrgFilter, modalId, setModalId, lead, pipeline,
-    leadAgendamentos, reloadAgendamentos,
+    leadAgendamentos, reloadAgendamentos, assumirLead,
     page, setPage, pagination, loading, error,
   };
 }

@@ -68,6 +68,14 @@ export async function fetchLeadById(id: string): Promise<Lead> {
   return toLead(item);
 }
 
+export async function assumirLead(id: string, responsavelId: string): Promise<Lead> {
+  const item = await apiRequest<LeadApi>(`/leads/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ responsavelId }),
+  });
+  return toLead(item);
+}
+
 export interface LeadsStats {
   total: number;
   urgentes: number;

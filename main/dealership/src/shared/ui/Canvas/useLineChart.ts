@@ -39,7 +39,7 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
     const ctx = el.getContext('2d'); if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const P = { t:18, r:18, b:26, l:44 };
+    const P = { t:18, r:18, b:32, l:44 };
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
     const all = cfg.sets.flatMap(s => s.data);
     if (cfg.labels.length === 0 || all.length === 0) {
@@ -63,7 +63,7 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
       ctx.fillText(Math.round(mx - i / 4 * (mx - mn)) + (cfg.unit || ''), P.l - 6, y + 3.5);
     }
     ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
-    cfg.labels.forEach((l, i) => ctx.fillText(l, tx(i), H - P.b + 13));
+    cfg.labels.forEach((l, i) => ctx.fillText(l, tx(i), H - P.b + 19));
 
     cfg.sets.forEach(ds => {
       const pts = ds.data.map((v, i) => [tx(i), ty(v)] as [number, number]);

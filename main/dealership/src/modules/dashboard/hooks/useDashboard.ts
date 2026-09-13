@@ -40,6 +40,7 @@ interface DashboardApiResponse {
   series?: {
     labels: string[];
     revenue: number[];
+    target: number[];
     conversion: number[];
   };
 }
@@ -65,7 +66,7 @@ function normalizeDashboard(response: DashboardApiResponse): DashData {
     estq: kpis.estoque ?? 0,
     deltas: response.deltas ?? DELTAS_VAZIOS,
     alertas: response.alertas ?? ALERTAS_VAZIOS,
-    revenue: series ? { labels: series.labels, actual: series.revenue } : undefined,
+    revenue: series ? { labels: series.labels, actual: series.revenue, target: series.target } : undefined,
     conversion: series ? { labels: series.labels, values: series.conversion } : undefined,
   };
 }

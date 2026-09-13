@@ -35,6 +35,7 @@ const TABS: OSTab[] = ['previstos', 'andamento', 'concluidos'];
 const TAB_LABELS = { previstos: 'Previstos', andamento: 'Em Andamento', concluidos: 'Concluídos' };
 const STATUS_LABEL: Record<OSTab, string> = { previstos: 'Previsto', andamento: 'Em andamento', concluidos: 'Concluído' };
 const BADGE_CLS: Record<OSTab, string> = { previstos: 'os-badge-previstos', andamento: 'os-badge-andamento', concluidos: 'os-badge-concluidos' };
+const PRIORIDADE_LABEL: Record<'OK'|'RISCO'|'ATRASADO', string> = { OK: 'No prazo', RISCO: 'Em risco', ATRASADO: 'Atrasado' };
 
 const gerarNumero = () => '#' + Math.floor(1000 + Math.random() * 9000) + String(Date.now()).slice(-2);
 
@@ -49,7 +50,9 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
   } = useServicos(showToast);
 
   const [editForm, setEditForm] = useState<UpdateServicoInput>({});
-  const [novaForm, setNovaForm] = useState({ c: '', v: '', t: '', tech: '', prazo: '', valor: 0 });
+  const [novaForm, setNovaForm] = useState<{ c: string; v: string; t: string; tech: string; prazo: string; valor: number; prioridade: 'OK'|'RISCO'|'ATRASADO' }>(
+    { c: '', v: '', t: '', tech: '', prazo: '', valor: 0, prioridade: 'OK' }
+  );
 
   const detail = detailIdx !== null ? list[detailIdx] : null;
   const editItem = editIdx !== null ? list[editIdx] : null;
@@ -125,6 +128,7 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   <div><div className="mf-lbl">Técnico</div><div className="mf-val">{detail.tech}</div></div>
                   <div><div className="mf-lbl">Tipo</div><div className="mf-val">{detail.t}</div></div>
                   <div><div className="mf-lbl">Prazo</div><div className="mf-val">{detail.prazo}</div></div>
+                  <div><div className="mf-lbl">Prioridade</div><div className={`mf-val os-prazo ${detail.pc}`} style={{display:'inline-flex',width:'fit-content'}}>{PRIORIDADE_LABEL[detail.pc.toUpperCase() as 'OK'|'RISCO'|'ATRASADO']}</div></div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {tab !== 'concluidos' && <button className="btn-prim" onClick={() => { if (detailIdx !== null) setEditIdx(detailIdx); setDetailIdx(null); }}><i className="ph-bold ph-pencil-simple" /> Editar</button>}
@@ -156,6 +160,9 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   <label>Prazo<input type="text" defaultValue={editItem.prazo} onChange={e => setEditForm(p => ({ ...p, prazo: e.target.value }))} /></label>
                   <label>Valor (R$)<input type="number" defaultValue={editItem.val} onChange={e => setEditForm(p => ({ ...p, valor: Number(e.target.value) }))} /></label>
                 </div>
+                <label>Prioridade do prazo<select defaultValue={editItem.pc.toUpperCase()} onChange={e => setEditForm(p => ({ ...p, prioridade: e.target.value as 'OK'|'RISCO'|'ATRASADO' }))}>
+                  <option value="OK">No prazo</option><option value="RISCO">Em risco</option><option value="ATRASADO">Atrasado</option>
+                </select></label>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                 <button className="btn-sec" onClick={() => setEditIdx(null)}>Cancelar</button>
@@ -191,6 +198,9 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   <label>Prazo<input type="text" placeholder="Ex.: Hoje, 14:00" value={novaForm.prazo} onChange={e => setNovaForm(p => ({ ...p, prazo: e.target.value }))} /></label>
                   <label>Valor (R$)<input type="number" value={novaForm.valor} onChange={e => setNovaForm(p => ({ ...p, valor: Number(e.target.value) }))} /></label>
                 </div>
+                <label>Prioridade do prazo<select value={novaForm.prioridade} onChange={e => setNovaForm(p => ({ ...p, prioridade: e.target.value as 'OK'|'RISCO'|'ATRASADO' }))}>
+                  <option value="OK">No prazo</option><option value="RISCO">Em risco</option><option value="ATRASADO">Atrasado</option>
+                </select></label>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                 <button className="btn-sec" onClick={() => setNovaOSOpen(false)}>Cancelar</button>
@@ -199,8 +209,9 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   criarOS({
                     numero: gerarNumero(), cliente: novaForm.c, veiculo: novaForm.v, tipo: novaForm.t,
                     tecnico: novaForm.tech || 'A designar', prazo: novaForm.prazo || 'A definir', valor: novaForm.valor,
+                    prioridade: novaForm.prioridade,
                   });
-                  setNovaForm({ c: '', v: '', t: '', tech: '', prazo: '', valor: 0 });
+                  setNovaForm({ c: '', v: '', t: '', tech: '', prazo: '', valor: 0, prioridade: 'OK' });
                 }}>Criar OS</button>
               </div>
             </div>

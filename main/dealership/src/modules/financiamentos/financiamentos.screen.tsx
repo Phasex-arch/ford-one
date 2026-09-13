@@ -139,7 +139,7 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
               )}
               <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:16}}>
                 <button className="btn-sec" onClick={()=>setSimOpen(false)}>Cancelar</button>
-                <button className="btn-prim" onClick={saveFinSim}>Salvar Simulação</button>
+                <button className="btn-prim" onClick={()=>saveFinSim(user?.id)}>Salvar Simulação</button>
               </div>
             </div>
           </div>

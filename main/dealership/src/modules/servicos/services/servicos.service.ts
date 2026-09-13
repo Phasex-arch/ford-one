@@ -66,6 +66,7 @@ export interface CreateServicoInput {
   tecnico: string;
   prazo: string;
   valor: number;
+  prioridade?: 'OK' | 'RISCO' | 'ATRASADO';
 }
 
 export async function createServico(input: CreateServicoInput): Promise<OrdemServico> {

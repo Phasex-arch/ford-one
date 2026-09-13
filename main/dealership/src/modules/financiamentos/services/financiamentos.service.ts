@@ -63,6 +63,7 @@ export interface CreateFinanciamentoInput {
   taxa: number;
   parcela: number;
   data: string;
+  responsavelId?: string;
 }
 
 export async function createFinanciamento(input: CreateFinanciamentoInput): Promise<Financiamento> {

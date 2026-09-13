@@ -25,8 +25,15 @@ import { fetchFinanciamentos, createFinanciamento } from '../services/financiame
 import type { Financiamento } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
+import { MONTHS } from '../../../shared/utils/dates';
 
 const PAGE_SIZE = 20;
+
+/** "Mar 2026" — mesmo formato usado pelos contratos históricos (data/seed). */
+const mesAnoAtual = (): string => {
+  const d = new Date();
+  return `${MONTHS[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`;
+};
 
 export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void) {
   const [financiamentos, setFinanciamentos] = useState<Financiamento[]>([]);
@@ -63,15 +70,16 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
     return Math.round(fin * (t * Math.pow(1 + t, prazo)) / (Math.pow(1 + t, prazo) - 1));
   };
 
-  const saveFinSim = () => {
+  const saveFinSim = (responsavelId?: string) => {
     if (!simCli || !simVei) { showToast('Preencha cliente e veículo.', 'warning'); return; }
     const parcela = calcParcela();
     const iniciais = simCli.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
-    const data = new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+    const data = mesAnoAtual();
     createFinanciamento({
       codigo: 'F' + Date.now().toString().slice(-8),
       clienteNome: simCli, iniciais, veiculo: simVei,
       valor: simValor, entrada: simEntrada, prazo: simPrazo, taxa: simTaxa, parcela, data,
+      responsavelId,
     }).then(() => {
       setSimOpen(false);
       setPage(1);

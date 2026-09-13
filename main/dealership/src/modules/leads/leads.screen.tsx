@@ -47,10 +47,10 @@ const formatBooking = (dataHora: string): string => {
 export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
   const {
     leads, urgFilter, setUrgFilter, modalId, setModalId, lead, pipeline,
-    leadAgendamentos, reloadAgendamentos,
+    leadAgendamentos, reloadAgendamentos, assumirLead,
     setPage, pagination, loading, error,
   } = useLeads();
-  const { navigate } = useApp();
+  const { navigate, user } = useApp();
   const [schedLeadId, setSchedLeadId] = useState<string|null>(null);
   const [schedDay, setSchedDay] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState(-1);
@@ -100,7 +100,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
 
   return (
     <section className="module active" id="mod-leads">
-      <div className="mod-header">
+      <div className="mod-header" style={{marginBottom:12}}>
         <div><h1>Leads Inteligentes</h1><p className="mod-sub">Pipeline de oportunidades com IA</p></div>
         <div className="mod-actions">
           <button className="btn-sec" onClick={()=>navigate('relatorios')}><i className="ph-bold ph-arrow-square-out"/> Exportar</button>
@@ -114,7 +114,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
         <div className="pipeline-item"><div className="pipeline-val" style={{color:'var(--green)'}}>{formatCurrency(pipeline.ticketMedio,true)}</div><div className="pipeline-lbl">Ticket Médio</div></div>
       </div>
 
-      <div className="filter-bar" style={{marginBottom:16}}>
+      <div className="filter-bar" style={{marginBottom:12}}>
         <select value={urgFilter} onChange={e=>setUrgFilter(e.target.value as LeadUrgencia|'')}>
           <option value="">Todos os leads</option>
           <option value="urgente">Urgente</option>
@@ -210,7 +210,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
                   {isBooked(lead.id)
                     ? <button className="btn-danger" onClick={()=>{cancelSchedule(lead.id);setModalId(null);}}>Cancelar agendamento</button>
                     : <button className="btn-sec" onClick={()=>{setModalId(null);setSchedLeadId(lead.id);setSchedDay(0);setSelectedSlot(-1);}}>Agendar visita</button>}
-                  <button className="btn-prim" onClick={()=>{showToast('Lead assumido!','success');setModalId(null);}}>Assumir lead</button>
+                  <button className="btn-prim" onClick={()=>{if(user)assumirLead(lead.id,user.id,showToast);setModalId(null);}}>Assumir lead</button>
                 </div>
               </div>
             </div>

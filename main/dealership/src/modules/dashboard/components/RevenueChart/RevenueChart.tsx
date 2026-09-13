@@ -23,11 +23,14 @@ interface Props { period: string; data: DashData | null; }
 export const DashCharts: React.FC<Props> = ({ period, data }) => {
   const revenue = data?.revenue;
   const conversion = data?.conversion;
+  // unit:'k' só faz sentido se o valor já estiver em milhares — o eixo Y
+  // apenas concatena o número com o sufixo, sem dividir nada (ver mesmo
+  // comentário em receita.screen.tsx).
   useLineChart('revenueChart', {
     labels: revenue?.labels || [],
     sets: [
-      { data:revenue?.actual || [], color:'#1700f4', fill:true },
-      { data:revenue?.target || [], color:'#F59E0B', dashed:true },
+      { data: (revenue?.actual || []).map(v => Math.round(v / 1000)), color:'#1700f4', fill:true },
+      { data: (revenue?.target || []).map(v => Math.round(v / 1000)), color:'#F59E0B', dashed:true },
     ],
     unit: 'k',
   }, [period, data]);
