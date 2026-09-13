@@ -113,10 +113,10 @@ export function ContactSection() {
                     className={errors.interesse ? styles.inputError : ''}
                   >
                     <option value="">Selecione seu interesse</option>
-                    <option value="comprar">Comprar veículo</option>
-                    <option value="manutencao">Manutenção</option>
-                    <option value="troca">Troca</option>
-                    <option value="tecnologia">Tecnologia Ford One</option>
+                    <option value="Comprar veículo">Comprar veículo</option>
+                    <option value="Manutenção">Manutenção</option>
+                    <option value="Troca">Troca</option>
+                    <option value="Tecnologia Ford One">Tecnologia Ford One</option>
                   </select>
                   {errors.interesse && <span className={styles.fieldError}>{errors.interesse}</span>}
                 </div>

@@ -12,15 +12,19 @@
  * - Abre modal de detalhe do item via CustomEvent (ford:selectCliente,
  *   ford:openEstoque, ford:openLead) com delay para o módulo montar
  * - Fecha o dropdown ao perder foco (blur com delay de 200ms)
+ *
+ * Fonte dos dados: clientes, estoque e leads vêm da API real (mesmos services
+ * usados pelas telas de cada módulo), carregados uma vez ao montar o header e
+ * reaproveitados a cada tecla digitada — sem depender de catálogos estáticos.
  */
 
-import React, { useState, useRef } from 'react';
-import { CLIENTES } from '../../../data/clientes.data';
-import { ESTOQUE } from '../../../data/estoque.data';
-import { LEADS } from '../../../data/leads.data';
+import React, { useState, useRef, useEffect } from 'react';
+import { fetchClientes } from '../../../modules/clientes/services/clientes.service';
+import { fetchEstoque } from '../../../modules/estoque/services/estoque.service';
+import { fetchLeads } from '../../../modules/leads/services/leads.service';
 import { formatCurrency } from '../../utils/formatters';
 import { useApp } from '../../context/AppContext';
-import type { ModuleId } from '../../../types/global.types';
+import type { Cliente, Estoque, Lead, ModuleId } from '../../../types/global.types';
 
 interface SearchItem { type: string; label: string; sub: string; action: () => void; }
 
@@ -30,21 +34,30 @@ export const GlobalSearch: React.FC = () => {
   const [hits, setHits] = useState<SearchItem[]>([]);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [estoque, setEstoque] = useState<Estoque[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+
+  useEffect(() => {
+    fetchClientes({ page: 1, limit: 100 }).then(res => setClientes(res.data)).catch(() => undefined);
+    fetchEstoque({ page: 1, limit: 100 }).then(res => setEstoque(res.data)).catch(() => undefined);
+    fetchLeads({ page: 1, limit: 100 }).then(res => setLeads(res.data)).catch(() => undefined);
+  }, []);
 
   const buildIndex = (): SearchItem[] => [
-    ...CLIENTES.map(c => ({ type:'Cliente', label:c.nome, sub:c.email,
-      action: () => { logAccess(c.id); navigate('historico'); setTimeout(() => {
+    ...clientes.map(c => ({ type:'Cliente', label:c.nome, sub:c.email,
+      action: () => { logAccess({ id: c.id, nome: c.nome, ini: c.ini }); navigate('historico'); setTimeout(() => {
         const ev = new CustomEvent('ford:selectCliente', { detail: c.id });
         window.dispatchEvent(ev);
       }, 120); }
     })),
-    ...ESTOQUE.map(e => ({ type:'Estoque', label:`${e.modelo} ${e.versao}`, sub:formatCurrency(e.preco),
+    ...estoque.map(e => ({ type:'Estoque', label:`${e.modelo} ${e.versao}`, sub:formatCurrency(e.preco),
       action: () => { navigate('estoque'); setTimeout(() => {
         const ev = new CustomEvent('ford:openEstoque', { detail: e.id });
         window.dispatchEvent(ev);
       }, 180); }
     })),
-    ...LEADS.map(l => ({ type:'Lead', label:l.cli, sub:l.nec,
+    ...leads.map(l => ({ type:'Lead', label:l.cli, sub:l.nec,
       action: () => { navigate('leads'); setTimeout(() => {
         const ev = new CustomEvent('ford:openLead', { detail: l.id });
         window.dispatchEvent(ev);

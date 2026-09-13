@@ -23,6 +23,8 @@
 import React from 'react';
 import { useFinanciamentos } from './hooks/useFinanciamentos';
 import { formatCurrency } from '../../shared/utils/formatters';
+import { useApp } from '../../shared/context/AppContext';
+import { PaginationBar } from '../../shared/components/PaginationBar/PaginationBar';
 import type { ToastType } from '../../shared/hooks/useToast';
 import type { FinanciamentoStatus } from '../../types/global.types';
 
@@ -36,7 +38,10 @@ const STATUS_MAP: Record<FinanciamentoStatus,{bg:string;c:string;lbl:string}> = 
 };
 
 export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
-  const { financiamentos, simOpen, setSimOpen, contratoId, setContratoId, contrato,
+  const { user } = useApp();
+  const canSimular = user?.role === 'ADMIN' || user?.role === 'GERENTE';
+  const { financiamentos, pagination, page, setPage, loading, error,
+          simOpen, setSimOpen, contratoId, setContratoId, contrato,
           simVei, setSimVei, simCli, setSimCli, simValor, setSimValor, simEntrada, setSimEntrada,
           simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim } = useFinanciamentos(showToast);
 
@@ -52,17 +57,19 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
       <div className="mod-header">
         <div><h1>Financiamentos</h1><p className="mod-sub">Simulações e contratos ativos</p></div>
         <div className="mod-actions">
-          <button className="btn-prim" onClick={()=>setSimOpen(true)}><i className="ph-bold ph-plus"/> Nova Simulação</button>
+          {canSimular && <button className="btn-prim" onClick={()=>setSimOpen(true)}><i className="ph-bold ph-plus"/> Nova Simulação</button>}
         </div>
       </div>
+
+      {loading && <p className="mod-sub">Carregando financiamentos...</p>}
+      {error && <p className="mod-sub" style={{color:'var(--red)'}}>{error}</p>}
 
       <div id="finContent">
         <div className="kpi-grid" style={{marginBottom:18}}>
           {[
-            {lbl:'Carteira Total',val:formatCurrency(totalCarteira),ic:'ic-green',ph:'ph-money'},
-            {lbl:'Contratos Ativos',val:String(aprovados),ic:'ic-blue',ph:'ph-file-text'},
-            {lbl:'Em Análise',val:String(emAnalise),ic:'ic-orange',ph:'ph-clock'},
-            {lbl:'Taxa Média',val:'1.54% a.m.',ic:'ic-purple',ph:'ph-percent'},
+            {lbl:'Carteira Total (página)',val:formatCurrency(totalCarteira),ic:'ic-green',ph:'ph-money'},
+            {lbl:'Contratos Ativos (página)',val:String(aprovados),ic:'ic-blue',ph:'ph-file-text'},
+            {lbl:'Em Análise (página)',val:String(emAnalise),ic:'ic-orange',ph:'ph-clock'},
           ].map(k=>(
             <div key={k.lbl} className="kpi-card">
               <div className={`kpi-ic ${k.ic}`}><i className={`ph-bold ${k.ph}`} style={{fontSize:17}}/></div>
@@ -97,6 +104,10 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
             );
           })}
         </div>
+        {pagination && (
+          <PaginationBar page={page} totalPages={pagination.totalPages} total={pagination.total}
+            hasPrev={pagination.hasPrev} hasNext={pagination.hasNext} onChange={setPage} />
+        )}
       </div>
 
       {/* Simulação Modal */}
@@ -141,7 +152,7 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
           <div className="modal-box modal-sm">
             <button className="modal-x" onClick={()=>setContratoId(null)}><i className="ph-bold ph-x"/></button>
             <div style={{padding:22}}>
-              <h3 style={{fontSize:20,fontWeight:700,color:'var(--c-text)',marginBottom:16,paddingBottom:12,borderBottom:'1px solid var(--c-border)'}}>Contrato {contrato.id}</h3>
+              <h3 style={{fontSize:20,fontWeight:700,color:'var(--c-text)',marginBottom:16,paddingBottom:12,borderBottom:'1px solid var(--c-border)'}}>Contrato {contrato.codigo}</h3>
               <div style={{display:'flex',flexDirection:'column',gap:7}}>
                 {[['Cliente',contrato.cli],['Veículo',contrato.veiculo],['Status',STATUS_MAP[contrato.status]?.lbl],
                   ['Valor',formatCurrency(contrato.valor)],['Entrada',formatCurrency(contrato.entrada)],
@@ -154,7 +165,7 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
                 ))}
               </div>
               <div style={{display:'flex',gap:8,marginTop:16}}>
-                <button className="btn-prim" style={{flex:1}} onClick={()=>{setContratoId(null);showToast('Contrato enviado por e-mail.','success');}}>Enviar por e-mail</button>
+                <button className="btn-sec" style={{flex:1}} onClick={()=>setContratoId(null)}>Fechar</button>
               </div>
             </div>
           </div>

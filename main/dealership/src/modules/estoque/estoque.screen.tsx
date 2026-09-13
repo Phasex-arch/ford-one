@@ -17,27 +17,33 @@
  * - onFinSimFromEstoque → abre simulador de financiamento com veículo pré-preenchido
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useEstoque } from './hooks/useEstoque';
 import { EstoqueCard } from './components/EstoqueCard/EstoqueCard';
 import { EstoqueModal } from './components/EstoqueModal/EstoqueModal';
-import { getEstoque } from './services/estoque.service';
+import { EditEstoqueModal } from './components/EditEstoqueModal/EditEstoqueModal';
+import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
+import { PaginationBar } from '../../shared/components/PaginationBar/PaginationBar';
 import type { ToastType } from '../../shared/hooks/useToast';
 import { useApp } from '../../shared/context/AppContext';
+import { AddEstoqueModal } from './components/AddEstoqueModal/AddEstoqueModal';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; onFinSimFromEstoque:(id:string)=>void; }
 
 export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque }) => {
-  const { estoque, filters, updateFilter, modalId, setModalId } = useEstoque();
-  const { navigate } = useApp();
+  const {
+    estoque, filters, updateFilter, modalId, setModalId, modalItem, reload,
+    setPage, pagination, loading, error,
+    editingEstoque, setEditingEstoque, salvarEdicaoEstoque,
+    deleteTarget, setDeleteTarget, confirmarExclusaoEstoque,
+  } = useEstoque();
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const { navigate, user } = useApp();
+  const canAddEstoque = user?.role === 'ADMIN' || user?.role === 'GERENTE';
+  const canEditEstoque = user?.role === 'ADMIN' || user?.role === 'GERENTE';
+  const canDeleteEstoque = user?.role === 'ADMIN';
 
-  useEffect(() => {
-    const h = (e: Event) => setModalId((e as CustomEvent<string>).detail);
-    window.addEventListener('ford:openEstoque', h);
-    return () => window.removeEventListener('ford:openEstoque', h);
-  }, [setModalId]);
-
-  const subtitle = `${estoque.length} veículos encontrados`;
+  const subtitle = pagination ? `${pagination.total} veículo${pagination.total === 1 ? '' : 's'} encontrado${pagination.total === 1 ? '' : 's'}` : 'Carregando...';
 
   return (
     <section className="module active" id="mod-estoque">
@@ -47,7 +53,12 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
           <button className="btn-sec" onClick={()=>showToast('Importando planilha...','info')}>
             <i className="ph-bold ph-arrow-square-in"/> Importar planilha
           </button>
-          <button className="btn-prim" onClick={()=>showToast('Funcionalidade em breve','info')}>
+          <button
+            className="btn-prim"
+            onClick={()=>setAddModalOpen(true)}
+            disabled={!canAddEstoque}
+            title={canAddEstoque ? undefined : 'Apenas ADMIN ou GERENTE podem adicionar veículos ao estoque.'}
+          >
             <i className="ph-bold ph-plus"/> Adicionar veículo
           </button>
         </div>
@@ -75,16 +86,58 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
         </button>
       </div>
 
-      <div className="estoque-grid" id="estoqueGrid">
-        {estoque.map(e=><EstoqueCard key={e.id} item={e} onClick={()=>setModalId(e.id)}/>)}
-      </div>
+      {error && <p className="mod-sub" style={{ color: 'var(--red)' }}>{error}</p>}
+      {loading ? (
+        <p className="mod-sub">Carregando estoque...</p>
+      ) : estoque.length === 0 ? (
+        <p className="mod-sub">Nenhum veículo encontrado{filters.query || filters.cond || filters.seg ? ' para esse filtro.' : '.'}</p>
+      ) : (
+        <div className="estoque-grid" id="estoqueGrid">
+          {estoque.map(e=><EstoqueCard key={e.id} item={e} onClick={()=>setModalId(e.id)}/>)}
+        </div>
+      )}
+      {pagination && (
+        <PaginationBar
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          total={pagination.total}
+          hasPrev={pagination.hasPrev}
+          hasNext={pagination.hasNext}
+          onChange={setPage}
+        />
+      )}
 
       <EstoqueModal
         isOpen={!!modalId}
         onClose={()=>setModalId(null)}
-        item={modalId ? getEstoque(modalId) : undefined}
+        item={modalItem}
         showToast={showToast}
         onFinSim={onFinSimFromEstoque}
+        onEditar={item => { setModalId(null); setEditingEstoque(item); }}
+        onExcluir={item => { setModalId(null); setDeleteTarget(item); }}
+        canEdit={canEditEstoque}
+        canDelete={canDeleteEstoque}
+      />
+      <AddEstoqueModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onCreated={reload}
+        showToast={showToast}
+      />
+      <EditEstoqueModal
+        isOpen={!!editingEstoque}
+        item={editingEstoque}
+        onClose={() => setEditingEstoque(null)}
+        onSave={dados => salvarEdicaoEstoque(dados, showToast)}
+      />
+      <ConfirmModal
+        id="estoqueDeleteModal"
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => confirmarExclusaoEstoque(showToast)}
+        title={`Excluir ${deleteTarget?.modelo ?? 'item'}`}
+        message="Esta ação não pode ser desfeita. A unidade será removida permanentemente do estoque."
+        confirmLabel="Excluir"
       />
     </section>
   );

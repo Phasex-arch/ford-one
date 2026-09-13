@@ -13,8 +13,6 @@
  * AppContext via navigate(ModuleId), mantendo tudo em SPA sem URLs por rota.
  */
 import React from 'react';
-import { useEffect } from 'react';
-import { apiRequest, clearToken, getToken, type AuthenticatedUser } from '../shared/api/client';
 import { AppProvider, useApp } from '../shared/context/AppContext';
 import { AppLayout } from '../shared/ui/Layout/AppLayout';
 import { ToastContainer } from '../shared/components/Toast/Toast';
@@ -39,24 +37,8 @@ import { ConfiguracoesScreen }  from '../modules/configuracoes/configuracoes.scr
 import '../styles/globals.scss';
 
 const AppInner: React.FC = () => {
-  const { activeModule } = useApp();
+  const { activeModule, user } = useApp();
   const { toasts, showToast } = useToast();
-  const [user, setUser] = React.useState<AuthenticatedUser | null>(null);
-  useEffect(() => {
-    const portalUrl = import.meta.env.VITE_PORTAL_URL
-      || (import.meta.env.DEV ? 'http://localhost:5173' : 'http://localhost:8080');
-    const redirect = () => {
-      clearToken();
-      window.location.href = `${portalUrl.replace(/\/$/, '')}/concessionaria`;
-    };
-    window.addEventListener('ford:unauthorized', redirect);
-    if (!getToken()) {
-      redirect();
-      return () => window.removeEventListener('ford:unauthorized', redirect);
-    }
-    apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
-    return () => window.removeEventListener('ford:unauthorized', redirect);
-  }, []);
   const p = { showToast };
   const screen = () => {
     switch(activeModule) {

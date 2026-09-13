@@ -8,6 +8,7 @@
  * 2. Especificações: motorização, transmissão, condição, status, KM, unidades
  * 3. Opcionais: tags verdes com cada opcional incluído
  * 4. Precificação: valor sugerido + botões "Simular financiamento" e "Reservar"
+ * 5. Ações administrativas: Editar (ADMIN/GERENTE) e Excluir (ADMIN)
  *
  * O botão "Simular financiamento" fecha este modal e chama onFinSim(id)
  * para abrir o simulador de financiamento com o veículo pré-selecionado.
@@ -18,6 +19,10 @@
  * - item        → objeto Estoque ou undefined
  * - showToast   → para feedback de reserva
  * - onFinSim    → callback para abrir simulador de financiamento
+ * - onEditar    → abre o modal de edição para este item (undefined = oculta o botão)
+ * - onExcluir   → abre a confirmação de exclusão para este item (undefined = oculta o botão)
+ * - canEdit     → se o usuário logado pode editar (ADMIN/GERENTE)
+ * - canDelete   → se o usuário logado pode excluir (ADMIN)
  */
 
 import React from 'react';
@@ -25,9 +30,12 @@ import type { Estoque } from '../../../../types/global.types';
 import { formatCurrency, cap } from '../../../../shared/utils/formatters';
 import type { ToastType } from '../../../../shared/hooks/useToast';
 
-interface Props { isOpen:boolean; onClose:()=>void; item:Estoque|undefined; showToast:(m:string,t?:ToastType)=>void; onFinSim:(id:string)=>void; }
+interface Props {
+  isOpen:boolean; onClose:()=>void; item:Estoque|undefined; showToast:(m:string,t?:ToastType)=>void; onFinSim:(id:string)=>void;
+  onEditar?: (item: Estoque) => void; onExcluir?: (item: Estoque) => void; canEdit?: boolean; canDelete?: boolean;
+}
 
-export const EstoqueModal: React.FC<Props> = ({ isOpen, onClose, item:e, showToast, onFinSim }) => {
+export const EstoqueModal: React.FC<Props> = ({ isOpen, onClose, item:e, showToast, onFinSim, onEditar, onExcluir, canEdit, canDelete }) => {
   if(!e) return null;
   return (
     <div className={`modal-ov${isOpen?' open':''}`} id="estoqueModal" onClick={ev=>{if(ev.target===ev.currentTarget)onClose();}}>
@@ -60,6 +68,33 @@ export const EstoqueModal: React.FC<Props> = ({ isOpen, onClose, item:e, showToa
               </div>
             </div>
           </div>
+          {(onEditar || onExcluir) && (
+            <div className="m-sec" style={{marginBottom:0}}>
+              <div className="m-sec-title">Ações administrativas</div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                {onEditar && (
+                  <button
+                    className="btn-prim"
+                    disabled={!canEdit}
+                    title={canEdit ? undefined : 'Apenas ADMIN ou GERENTE podem editar itens do estoque.'}
+                    onClick={()=>onEditar(e)}
+                  >
+                    <i className="ph-bold ph-pencil-simple"/> Editar
+                  </button>
+                )}
+                {onExcluir && (
+                  <button
+                    className="btn-danger-out"
+                    disabled={!canDelete}
+                    title={canDelete ? undefined : 'Apenas ADMIN pode excluir itens do estoque.'}
+                    onClick={()=>onExcluir(e)}
+                  >
+                    <i className="ph-bold ph-trash"/> Excluir
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -6,65 +6,74 @@
  * Estado centralizado:
  * - activeModule    → ID do módulo atualmente visível na área principal
  * - accessLog       → Registro de clientes e veículos acessados no dia corrente
- * - leadSchedule    → Agendamentos de leads indexados por ID de lead
  *
  * Ações expostas:
  * - navigate(mod)           → Troca o módulo ativo e rola para o topo
- * - logAccess(cid)          → Registra acesso a um cliente (sem duplicatas)
+ * - logAccess(cliente)      → Registra acesso a um cliente (sem duplicatas)
  * - logVehicleAccess(...)   → Registra acesso a um veículo específico
  * - clearHistory()          → Limpa todo o log de acessos do dia
- * - setLeadSchedule(...)    → Atualiza o mapa de agendamentos de leads
+ *
+ * Agendamentos de lead (Leads → "Agendar") são dados reais de
+ * GET/POST /api/agendamentos, buscados no próprio módulo de leads — não
+ * vivem mais neste contexto (eram um mapa local em memória, nunca persistido).
+ *
+ * logAccess recebe os dados de exibição (id/nome/iniciais) de quem chama, em vez de
+ * resolvê-los internamente — o cliente já foi carregado da API por quem disparou o
+ * acesso, então o contexto não precisa (e não deve) depender de nenhum catálogo estático.
  *
  * Uso: envolver a árvore com <AppProvider> e consumir com useApp() nos filhos.
  */
 
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { AccessLogItem, VehicleLogItem, ModuleId } from '../../types/global.types';
 import { nowStr } from '../utils/dates';
-import { CLIENTES } from '../../data/clientes.data';
-
-interface LeadScheduleEntry { dayOffset: number; slotIdx: number; }
+import { apiRequest, clearToken, getToken, type AuthenticatedUser } from '../api/client';
 
 interface AppState {
   activeModule: ModuleId;
   accessLog: { clientes: AccessLogItem[]; veiculos: VehicleLogItem[] };
-  leadSchedule: Record<string, LeadScheduleEntry>;
+  user: AuthenticatedUser | null;
   navigate: (mod: ModuleId) => void;
-  logAccess: (cid: string) => void;
+  logAccess: (cliente: Pick<AccessLogItem, 'id' | 'nome' | 'ini'>) => void;
   logVehicleAccess: (vid: string, modelo: string, cliName: string, cid: string) => void;
   clearHistory: () => void;
-  setLeadSchedule: React.Dispatch<React.SetStateAction<Record<string, LeadScheduleEntry>>>;
 }
 
 const AppContext = createContext<AppState | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [activeModule, setActiveModule] = useState<ModuleId>('dashboard');
-  const [accessLog, setAccessLog] = useState({
-    clientes: [
-      { id:'C001', nome:'Carlos Eduardo Mendes', ini:'CM', hora:'09:14' },
-      { id:'C007', nome:'Paulo Ricardo Almeida', ini:'PA', hora:'10:32' },
-      { id:'C002', nome:'Ana Paula Rodrigues',   ini:'AR', hora:'11:05' },
-    ] as AccessLogItem[],
-    veiculos: [
-      { id:'VC001A', cid:'C001', modelo:'Ford Bronco Sport Badlands', cli:'Carlos Mendes',  hora:'09:16' },
-      { id:'VC007A', cid:'C007', modelo:'Ford Bronco Sport Wildtrak', cli:'Paulo Almeida',  hora:'10:35' },
-      { id:'VC002A', cid:'C002', modelo:'Ford Territory Titanium',    cli:'Ana Rodrigues',  hora:'11:07' },
-    ] as VehicleLogItem[],
+  const [accessLog, setAccessLog] = useState<{ clientes: AccessLogItem[]; veiculos: VehicleLogItem[] }>({
+    clientes: [],
+    veiculos: [],
   });
-  const [leadSchedule, setLeadSchedule] = useState<Record<string, LeadScheduleEntry>>({});
+  const [user, setUser] = useState<AuthenticatedUser | null>(null);
+
+  useEffect(() => {
+    const portalUrl = import.meta.env.VITE_PORTAL_URL
+      || (import.meta.env.DEV ? 'http://localhost:5173' : 'http://localhost:8080');
+    const redirect = () => {
+      clearToken();
+      window.location.href = `${portalUrl.replace(/\/$/, '')}/concessionaria`;
+    };
+    window.addEventListener('ford:unauthorized', redirect);
+    if (!getToken()) {
+      redirect();
+      return () => window.removeEventListener('ford:unauthorized', redirect);
+    }
+    apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
+    return () => window.removeEventListener('ford:unauthorized', redirect);
+  }, []);
 
   const navigate = useCallback((mod: ModuleId) => {
     setActiveModule(mod);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const logAccess = useCallback((cid: string) => {
+  const logAccess = useCallback((cliente: Pick<AccessLogItem, 'id' | 'nome' | 'ini'>) => {
     setAccessLog(prev => {
-      if (prev.clientes.find(x => x.id === cid)) return prev;
-      const c = CLIENTES.find(x => x.id === cid);
-      if (!c) return prev;
-      return { ...prev, clientes: [...prev.clientes, { id: cid, nome: c.nome, ini: c.ini, hora: nowStr() }] };
+      if (prev.clientes.find(x => x.id === cliente.id)) return prev;
+      return { ...prev, clientes: [...prev.clientes, { ...cliente, hora: nowStr() }] };
     });
   }, []);
 
@@ -80,7 +89,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AppContext.Provider value={{ activeModule, accessLog, leadSchedule, navigate, logAccess, logVehicleAccess, clearHistory, setLeadSchedule }}>
+    <AppContext.Provider value={{ activeModule, accessLog, user, navigate, logAccess, logVehicleAccess, clearHistory }}>
       {children}
     </AppContext.Provider>
   );

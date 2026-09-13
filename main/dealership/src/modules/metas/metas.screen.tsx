@@ -1,15 +1,18 @@
 /**
  * @file metas.screen.tsx
  * @module metas
- * @description Tela de Metas — acompanhamento de indicadores e ranking de consultores.
+ * @description Tela de Metas — acompanhamento de indicadores comerciais.
+ * Dados reais de GET /api/metas, com paginação.
  *
  * Composição:
- * - Header com botão Nova Meta
+ * - Header com botão Nova Meta (ADMIN/GERENTE, espelhando a regra do backend)
  * - Grid de MetaCards: cada card exibe indicador, valores (realizado vs alvo),
  *   barra de progresso colorida por status e responsável
- * - Ranking de Consultores: 4 posições com medalha (ouro/prata/bronze),
- *   vendas, receita e barra de performance
  * - Modal Nova Meta: tipo de indicador, responsável, valor alvo e período
+ *
+ * O antigo "Ranking de Consultores" foi removido — era uma lista de 4 nomes
+ * fixos sem nenhuma fonte real (não existe atribuição de venda por consultor
+ * no schema atual).
  *
  * Status visual:
  * - exceeded (≥100%)  → verde
@@ -23,15 +26,17 @@
 
 import React, { useState } from 'react';
 import { useMetas } from './hooks/useMetas';
+import { useApp } from '../../shared/context/AppContext';
+import { PaginationBar } from '../../shared/components/PaginationBar/PaginationBar';
 import type { ToastType } from '../../shared/hooks/useToast';
 import type { MetaIndicador } from '../../types/global.types';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
-const RANKING = [{nome:'Ricardo Costa',ini:'RC',pct:94,vendas:8,rec:'R$ 412k'},{nome:'Patrícia Oliveira',ini:'PO',pct:78,vendas:6,rec:'R$ 287k'},{nome:'Lucas Mendes',ini:'LM',pct:71,vendas:5,rec:'R$ 241k'},{nome:'Amanda Rocha',ini:'AR',pct:43,vendas:3,rec:'R$ 128k'}];
-const RANK_CLS = ['gold','silver','bronze',''];
 
 export const MetasScreen: React.FC<Props> = ({ showToast }) => {
-  const { metas, modalOpen, setModalOpen, getStatus, fmtVal, addMeta } = useMetas(showToast);
+  const { user } = useApp();
+  const canCriar = user?.role === 'ADMIN' || user?.role === 'GERENTE';
+  const { metas, pagination, page, setPage, loading, error, modalOpen, setModalOpen, getStatus, fmtVal, addMeta } = useMetas(showToast);
   const [tipo, setTipo] = useState<MetaIndicador>('vendas');
   const [resp, setResp] = useState('');
   const [val, setVal] = useState('');
@@ -42,9 +47,13 @@ export const MetasScreen: React.FC<Props> = ({ showToast }) => {
       <div className="mod-header">
         <div><h1>Metas</h1><p className="mod-sub">Acompanhamento de metas e performance</p></div>
         <div className="mod-actions">
-          <button className="btn-prim" onClick={()=>setModalOpen(true)}><i className="ph-bold ph-plus"/> Nova Meta</button>
+          {canCriar && <button className="btn-prim" onClick={()=>setModalOpen(true)}><i className="ph-bold ph-plus"/> Nova Meta</button>}
         </div>
       </div>
+
+      {loading && <p className="mod-sub">Carregando metas...</p>}
+      {error && <p className="mod-sub" style={{color:'var(--red)'}}>{error}</p>}
+      {!loading && !error && metas.length === 0 && <p className="mod-sub">Nenhuma meta cadastrada.</p>}
 
       <div id="metasContent">
         <div className="metas-row">
@@ -70,17 +79,10 @@ export const MetasScreen: React.FC<Props> = ({ showToast }) => {
           })}
         </div>
 
-        <div className="metas-ranking" style={{marginTop:20}}>
-          <div className="metas-ranking-head"><i className="ph-bold ph-medal"/> Ranking de Consultores — Abril/2026</div>
-          {RANKING.map((r,i)=>(
-            <div key={r.nome} className="rank-row">
-              <div className={`rank-pos ${RANK_CLS[i]}`}>{i+1}</div>
-              <div className="cli-av" style={{flexShrink:0}}>{r.ini}</div>
-              <div style={{flex:1,minWidth:0}}><div className="rank-name">{r.nome}</div><div className="rank-sub">{r.vendas} vendas · {r.rec}</div></div>
-              <div className="rank-bar-wrap"><div className="rank-bar-track"><div className="rank-bar-fill" style={{width:`${r.pct}%`}}/></div><div className="rank-pct">{r.pct}%</div></div>
-            </div>
-          ))}
-        </div>
+        {pagination && (
+          <PaginationBar page={page} totalPages={pagination.totalPages} total={pagination.total}
+            hasPrev={pagination.hasPrev} hasNext={pagination.hasNext} onChange={setPage} />
+        )}
       </div>
 
       {modalOpen && (

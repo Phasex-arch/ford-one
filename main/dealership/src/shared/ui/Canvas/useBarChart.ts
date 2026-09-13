@@ -42,7 +42,10 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
       ctx.clearRect(0, 0, W, H);
       return;
     }
-    const mx = Math.max(...cfg.data) * 1.15;
+    // Math.max(...cfg.data) pode ser 0 quando toda a série é zero (ex.: nenhum
+    // lead convertido ainda) — sem o guard, v/mx vira 0/0 = NaN e quebra o
+    // createLinearGradient mais abaixo.
+    const mx = Math.max(...cfg.data) * 1.15 || 1;
     const bw = (pw / cfg.data.length) * .58;
     const gap = (pw / cfg.data.length) * .21;
 

@@ -47,8 +47,12 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
       return;
     }
     const mn = Math.min(...all) * .88; const mx = Math.max(...all) * 1.1;
+    // Quando todos os pontos são iguais (ex.: toda a série em zero), mx-mn
+    // vira 0 e (v-mn)/(mx-mn) dá NaN — usa 1 como divisor nesse caso, o que
+    // desenha uma linha reta em vez de quebrar o createLinearGradient.
+    const range = (mx - mn) || 1;
     const tx = (i: number) => P.l + i / (cfg.labels.length - 1) * pw;
-    const ty = (v: number) => P.t + ph - (v - mn) / (mx - mn) * ph;
+    const ty = (v: number) => P.t + ph - (v - mn) / range * ph;
 
     ctx.clearRect(0, 0, W, H);
     ctx.strokeStyle = cgrid(); ctx.lineWidth = 1;

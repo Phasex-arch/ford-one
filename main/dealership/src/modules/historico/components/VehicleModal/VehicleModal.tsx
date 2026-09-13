@@ -7,10 +7,12 @@
  * Seções exibidas:
  * 1. Hero: imagem (ou placeholder SVG) + nome, versão, ano, cor
  * 2. Cliente: dados resumidos do proprietário (quando disponível)
- * 3. Dados Gerais: modelo, ano, cor, KM, aquisição, status
- * 4. Dados Financeiros: custo acumulado, ticket médio, valor estimado
- * 5. Insights Comerciais: tags coloridas geradas por IA
- * 6. Linha do Tempo: histórico de serviços e aquisições em ordem cronológica
+ * 3. Dados Gerais: modelo, ano, cor, KM, aquisição, valor de aquisição, status
+ * 4. Linha do Tempo: aquisição e, se aplicável, venda/substituição
+ *
+ * Não exibe custo acumulado/ticket médio/valor estimado nem insights de IA —
+ * esses dados eram mockados sem fonte real; a API só sabe o valor pago na
+ * aquisição, então é isso que aparece.
  *
  * Props:
  * - isOpen    → visibilidade do modal
@@ -54,16 +56,9 @@ export const VehicleModal: React.FC<Props> = ({ isOpen, onClose, veiculo: v, cli
               <div><div className="mf-lbl">Cor</div><div className="mf-val">{v.cor}</div></div>
               <div><div className="mf-lbl">KM</div><div className="mf-val">{v.km} km</div></div>
               <div><div className="mf-lbl">Aquisição</div><div className="mf-val">{v.aq}</div></div>
+              <div><div className="mf-lbl">Valor de Aquisição</div><div className="mf-val" style={{color:'var(--ford-vivid)'}}>{formatCurrency(v.precoAquisicao)}</div></div>
               <div><div className="mf-lbl">Status</div><div className="mf-val"><span className={`pill ${statusCls}`}>{cap(v.status)}</span></div></div>
             </div></div>
-          <div className="m-sec"><div className="m-sec-title">Dados Financeiros</div>
-            <div className="m-grid three">
-              <div><div className="mf-lbl">Custo Acumulado</div><div className="mf-val">{v.fin.custo}</div></div>
-              <div><div className="mf-lbl">Ticket Médio</div><div className="mf-val">{v.fin.ticket}</div></div>
-              <div><div className="mf-lbl">Valor Estimado</div><div className="mf-val" style={{color:'var(--ford-vivid)'}}>{v.fin.est}</div></div>
-            </div></div>
-          <div className="m-sec"><div className="m-sec-title">Insights Comerciais</div>
-            {v.ins.map((s,i)=><span key={i} className={`itag ${['blue','green','orange'][i%3]}`}>{s}</span>)}</div>
           <div className="m-sec"><div className="m-sec-title">Linha do Tempo</div>
             <div className="timeline">
               {v.hist.map((h,i)=><div key={i} className="tl-item">

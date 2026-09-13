@@ -1,14 +1,30 @@
 /**
  * @file dashboard.data.ts
- * @description Dados mockados dos KPIs do Dashboard por período.
- * Quatro períodos: hoje, semana, mes, trimestre.
- * Cada período contém: leads, agendamentos, receita, conversão, SLA, nota e estoque.
- * Exporta também o tipo DashPeriod e a interface DashData.
- *
- * Em produção: substituir por chamada GET /api/dashboard?periodo=mes.
+ * @description Tipos do módulo Dashboard: período selecionável e o formato
+ * normalizado que useDashboard.ts monta a partir da resposta real de
+ * GET /api/dashboard?periodo=X (kpis.* + series.* para os gráficos de
+ * receita mensal e conversão de leads). Não há dado mockado aqui — os
+ * valores vêm sempre da API.
  */
 
 export type DashPeriod = 'hoje' | 'semana' | 'mes' | 'trimestre';
+
+export interface DashDeltas {
+  leads: number | null;
+  agendamentos: number | null;
+  receita: number | null;
+  conversao: number | null;
+  sla: number | null;
+  nota: number | null;
+  estoque: number | null;
+}
+
+export interface DashAlertas {
+  slaRisco: { quantidade: number } | null;
+  estoqueBaixo: { modelo: string; versao: string; quantidade: number } | null;
+  leadPrioritario: { cliente: string; veiculo: string; valor: number } | null;
+  metaAtingida: { titulo: string; atual: number; alvo: number; unidade: string } | null;
+}
 
 export interface DashData {
   leads: number;
@@ -18,13 +34,8 @@ export interface DashData {
   sla: number;
   nota: number;
   estq: number;
+  deltas: DashDeltas;
+  alertas: DashAlertas;
   revenue?: { labels: string[]; actual: number[]; target?: number[] };
   conversion?: { labels: string[]; values: number[] };
 }
-
-export const DASH_DATA: Record<DashPeriod, DashData> = {
-  hoje:      { leads:8,   ag:5,   rec:48200,   conv:36.4, sla:2.1, nota:4.8, estq:142 },
-  semana:    { leads:61,  ag:34,  rec:287000,  conv:33.8, sla:2.4, nota:4.8, estq:142 },
-  mes:       { leads:238, ag:158, rec:1248000, conv:34.2, sla:2.3, nota:4.8, estq:142 },
-  trimestre: { leads:712, ag:492, rec:3780000, conv:33.1, sla:2.4, nota:4.8, estq:142 },
-};
