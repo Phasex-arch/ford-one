@@ -32,9 +32,9 @@ export function useConcessionariaLogin() {
     }
 
     setState((prev) => ({ ...prev, loading: true }));
-    const ok = await authenticate({ username, password });
-
-    if (!ok) {
+    try {
+      await authenticate({ username, password });
+    } catch {
       setState({ loading: false, error: true, usernameError: true, passwordError: true });
       setPassword('');
     }

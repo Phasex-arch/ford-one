@@ -7,9 +7,11 @@
  * - Header da tela com seletor de período e botão Exportar
  * - Grid de KPIs (7 indicadores) gerados pelo useDashboard
  * - DashCharts: dois gráficos canvas (receita + conversão)
- * - Grade de 4 alertas operacionais com navegação direta
+ * - Grade de alertas operacionais montada a partir de GET /dashboard.alertas
+ *   (backend) — cada alerta só aparece se houver dado real por trás (ordem em
+ *   risco/atrasada, item de estoque baixo, lead urgente, meta batida); sem
+ *   nenhum alerta real, mostra estado vazio em vez de conteúdo fixo.
  *
- * Esta tela não contém lógica de negócio — toda lógica está em useDashboard.ts.
  * A navegação dos alertas usa navigate() do AppContext.
  */
 
@@ -20,11 +22,39 @@ import { AlertCard } from './components/AlertCard/AlertCard';
 import { DashCharts } from './components/RevenueChart/RevenueChart';
 import { useApp } from '../../shared/context/AppContext';
 import { todayLabel } from '../../shared/utils/dates';
+import { formatCurrency, formatNumber } from '../../shared/utils/formatters';
 import type { DashPeriod } from '../../data/dashboard.data';
 
+const formatMetaValor = (valor: number, unidade: string): string =>
+  unidade === 'R$' ? formatCurrency(valor) : `${formatNumber(valor)} ${unidade}`;
+
 export const DashboardScreen: React.FC = () => {
-  const { period, handlePeriodChange, kpis } = useDashboard();
+  const { period, handlePeriodChange, kpis, loading, error, data } = useDashboard();
   const { navigate } = useApp();
+  const alertas = data?.alertas;
+
+  const alertCards = [
+    alertas?.slaRisco && {
+      cls: 'ac-red', icon: 'ph-warning-circle', title: 'SLA em risco',
+      body: `${alertas.slaRisco.quantidade} ${alertas.slaRisco.quantidade === 1 ? 'ordem' : 'ordens'} de serviço em risco ou atrasada`,
+      link: 'Ver', onClick: () => navigate('servicos'),
+    },
+    alertas?.estoqueBaixo && {
+      cls: 'ac-orange', icon: 'ph-warning', title: 'Estoque baixo',
+      body: `${alertas.estoqueBaixo.modelo} ${alertas.estoqueBaixo.versao} com apenas ${alertas.estoqueBaixo.quantidade} ${alertas.estoqueBaixo.quantidade === 1 ? 'unidade' : 'unidades'}`,
+      link: 'Ver', onClick: () => navigate('estoque'),
+    },
+    alertas?.leadPrioritario && {
+      cls: 'ac-blue', icon: 'ph-lightning', title: 'Lead prioritário',
+      body: `${alertas.leadPrioritario.cliente} – ${alertas.leadPrioritario.veiculo} – ${formatCurrency(alertas.leadPrioritario.valor)}`,
+      link: 'Atender', onClick: () => navigate('leads'),
+    },
+    alertas?.metaAtingida && {
+      cls: 'ac-green', icon: 'ph-check-circle', title: 'Meta atingida',
+      body: `${alertas.metaAtingida.titulo}: ${formatMetaValor(alertas.metaAtingida.atual, alertas.metaAtingida.unidade)} de ${formatMetaValor(alertas.metaAtingida.alvo, alertas.metaAtingida.unidade)}`,
+      link: 'Detalhar', onClick: () => navigate('receita'),
+    },
+  ].filter((a): a is Exclude<typeof a, false | null | undefined> => Boolean(a));
 
   return (
     <section className="module active" id="mod-dashboard">
@@ -56,16 +86,21 @@ export const DashboardScreen: React.FC = () => {
           <KpiCard key={k.key} kpi={k} />
         ))}
       </div>
+      {loading && <p className="mod-sub">Carregando dados...</p>}
+      {error && <p className="mod-sub">{error}</p>}
 
-      <DashCharts period={period} />
+      <DashCharts period={period} data={data} />
 
       <h3 className="sec-title">Alertas Operacionais</h3>
-      <div className="alerts-grid">
-        <AlertCard cls="ac-red"    icon="ph-warning-circle" title="SLA em risco"       body="3 ordens ultrapassando prazo nas próximas 2h"    link="Ver"      onClick={() => navigate('servicos')} />
-        <AlertCard cls="ac-orange" icon="ph-warning"        title="Estoque baixo"      body="Maverick Hybrid com apenas 2 unidades"           link="Ver"      onClick={() => navigate('estoque')}  />
-        <AlertCard cls="ac-blue"   icon="ph-lightning"      title="Lead prioritário"   body="Carlos Silva – Ranger Storm – R$ 245.000"        link="Atender"  onClick={() => navigate('leads')}    />
-        <AlertCard cls="ac-green"  icon="ph-check-circle"   title="Meta atingida"      body="Receita de abril superou 105% da meta"           link="Detalhar" onClick={() => navigate('receita')}  />
-      </div>
+      {alertCards.length === 0
+        ? <p className="mod-sub">Nenhum alerta no momento.</p>
+        : (
+          <div className="alerts-grid">
+            {alertCards.map(a => (
+              <AlertCard key={a.title} cls={a.cls} icon={a.icon} title={a.title} body={a.body} link={a.link} onClick={a.onClick} />
+            ))}
+          </div>
+        )}
     </section>
   );
 };

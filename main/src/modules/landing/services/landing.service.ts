@@ -1,14 +1,18 @@
 import type { ContactFormData } from '../types/landing.types';
+import { apiRequest } from '../../../shared/api/client';
 
-/**
- * Simula envio do formulário de contato.
- * Em produção, substituir pelo endpoint real da API Ford.
- */
 export async function submitContactForm(data: ContactFormData): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.info('[Ford One] Formulário enviado:', data);
-      resolve();
-    }, 1400);
+  await apiRequest('/public/leads', {
+    method: 'POST',
+    body: JSON.stringify({
+      nome: data.nome,
+      email: data.email,
+      telefone: data.telefone,
+      veiculoInteresse: data.interesse,
+      mensagem: [
+        data.mensagem.trim() || 'Solicitou contato pelo portal Ford One.',
+        `Cidade: ${data.cidade}`,
+      ].join('\n'),
+    }),
   });
 }

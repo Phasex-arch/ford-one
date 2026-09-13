@@ -1,16 +1,22 @@
 /**
  * @file relatorios.screen.tsx
  * @module relatorios
- * @description Tela de Relatórios — catálogo de exportações gerenciais.
+ * @description Tela de Relatórios — exportação CSV real dos dados do sistema.
  *
  * Composição:
- * - Header com botão "Exportar Todos"
- * - Grid de RelCards: 10 relatórios disponíveis (Vendas, Clientes, DRE,
- *   Pipeline, NPS, Serviços, Giro de Estoque, Performance, Financiamentos, Metas)
- *   Cada card exibe: ícone colorido, título, descrição, data da última geração
- *   e botão de exportação individual
- * - Modal de exportação: 3 formatos disponíveis (PDF, Excel/CSV, Online)
- *   — ao clicar, dispara toast com nome do relatório e formato selecionado
+ * - Header com botão "Exportar Todos" (dispara os 6 downloads em sequência)
+ * - Grid de RelCards: só os 6 relatórios com dado real e completo hoje
+ *   (Clientes, Estoque, Leads, Financiamentos, Metas, Serviços) — o catálogo
+ *   original tinha 10, mas DRE Gerencial, NPS e Satisfação, Giro de Estoque
+ *   e Performance de Consultores não têm fonte de dado real o bastante pra
+ *   virar relatório exportável ainda, então saíram da lista em vez de ficar
+ *   um botão de exportar que não teria o que exportar de verdade
+ * - Cada card mostra a data do último export real (guardado no navegador,
+ *   local a cada usuário — não existe um registro central de exportações)
+ *
+ * O antigo modal de formato (PDF / Excel / Visualizar online) também saiu:
+ * só CSV foi implementado de verdade, então não fazia sentido oferecer
+ * opções que não geram nada.
  *
  * Props:
  * - showToast → feedback de exportação
@@ -18,73 +24,84 @@
 
 import React, { useState } from 'react';
 import type { ToastType } from '../../shared/hooks/useToast';
+import { exportarRelatorio, getUltimoExport, type RelatorioKey } from './services/relatorios.service';
+import { friendlyApiMessage } from '../../shared/api/client';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
 
-const RELS = [
-  {icon:'ic-blue',  ph:'ph-chart-bar',    titulo:'Relatório de Vendas',       desc:'Resumo mensal de vendas, ticket médio, metas e comparativo.',      ult:'21/04/2026'},
-  {icon:'ic-teal',  ph:'ph-users',        titulo:'Clientes',                  desc:'Base completa de clientes, LTV, segmentos e histórico.',             ult:'22/04/2026'},
-  {icon:'ic-green', ph:'ph-money',        titulo:'DRE Gerencial',             desc:'Demonstração de resultado com receita, custo e margem.',             ult:'01/04/2026'},
-  {icon:'ic-orange',ph:'ph-lightning',    titulo:'Pipeline de Leads',         desc:'Evolução dos leads por status, canal e consultor.',                  ult:'22/04/2026'},
-  {icon:'ic-purple',ph:'ph-star',         titulo:'NPS e Satisfação',          desc:'Análise de avaliações, NPS por consultor e período.',               ult:'15/04/2026'},
-  {icon:'ic-navy',  ph:'ph-wrench',       titulo:'Relatório de Serviços',     desc:'Ordens de serviço, SLA, técnicos e faturamento.',                   ult:'20/04/2026'},
-  {icon:'ic-gold',  ph:'ph-car',          titulo:'Giro de Estoque',           desc:'Tempo médio de permanência, modelos parados e reposição.',           ult:'18/04/2026'},
-  {icon:'ic-navy',  ph:'ph-ranking',      titulo:'Performance de Consultores',desc:'Ranking individual, metas, conversão e receita.',                   ult:'01/04/2026'},
-  {icon:'ic-green', ph:'ph-credit-card',  titulo:'Carteira de Financiamentos',desc:'Contratos ativos, taxas médias, parcelas e inadimplência.',         ult:'10/04/2026'},
-  {icon:'ic-gold',  ph:'ph-target',       titulo:'Metas e Performance',       desc:'Acompanhamento de metas mensais, anuais e ranking.',                ult:'21/04/2026'},
+const RELS: { key: RelatorioKey; icon:string; ph:string; titulo:string; desc:string }[] = [
+  { key:'clientes',       icon:'ic-teal',   ph:'ph-users',        titulo:'Clientes',                  desc:'Base completa de clientes, LTV, segmentos e status.' },
+  { key:'estoque',        icon:'ic-gold',   ph:'ph-car',          titulo:'Estoque',                   desc:'Veículos em estoque, condição, preço e quantidade.' },
+  { key:'leads',          icon:'ic-orange', ph:'ph-lightning',    titulo:'Pipeline de Leads',          desc:'Leads por urgência, veículo de interesse e valor estimado.' },
+  { key:'financiamentos', icon:'ic-green',  ph:'ph-credit-card',  titulo:'Carteira de Financiamentos', desc:'Contratos, status, taxas e parcelas.' },
+  { key:'metas',          icon:'ic-blue',   ph:'ph-target',       titulo:'Metas',                     desc:'Metas cadastradas, realizado, alvo e responsável.' },
+  { key:'servicos',       icon:'ic-navy',   ph:'ph-wrench',       titulo:'Ordens de Serviço',          desc:'Ordens de serviço, técnico, prioridade e valor.' },
 ];
 
-export const RelatoriosScreen: React.FC<Props> = ({ showToast }) => {
-  const [exportOpen, setExportOpen] = useState(false);
-  const [exportTitle, setExportTitle] = useState('');
+const fmtUltimo = (iso: string | null): string => {
+  if (!iso) return 'Nunca exportado';
+  return 'Últ.: ' + new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+};
 
-  const openExport = (titulo: string) => { setExportTitle(titulo); setExportOpen(true); };
+export const RelatoriosScreen: React.FC<Props> = ({ showToast }) => {
+  const [exportando, setExportando] = useState<RelatorioKey | 'todos' | null>(null);
+  const [, forceUpdate] = useState(0);
+
+  const exportar = async (key: RelatorioKey) => {
+    setExportando(key);
+    try {
+      await exportarRelatorio(key);
+      showToast(`${RELS.find(r=>r.key===key)?.titulo} exportado!`, 'success');
+      forceUpdate(n => n+1);
+    } catch (e) {
+      showToast(friendlyApiMessage(e), 'warning');
+    } finally {
+      setExportando(null);
+    }
+  };
+
+  const exportarTodos = async () => {
+    setExportando('todos');
+    try {
+      for (const r of RELS) {
+        await exportarRelatorio(r.key);
+        await new Promise(res => setTimeout(res, 250));
+      }
+      showToast('Todos os relatórios exportados!', 'success');
+      forceUpdate(n => n+1);
+    } catch (e) {
+      showToast(friendlyApiMessage(e), 'warning');
+    } finally {
+      setExportando(null);
+    }
+  };
 
   return (
     <section className="module active" id="mod-relatorios">
       <div className="mod-header">
-        <div><h1>Relatórios</h1><p className="mod-sub">Exportações gerenciais</p></div>
-        <div className="mod-actions"><button className="btn-prim" onClick={()=>openExport('Todos')}><i className="ph-bold ph-arrow-square-out"/> Exportar Todos</button></div>
+        <div><h1>Relatórios</h1><p className="mod-sub">Exportações em CSV</p></div>
+        <div className="mod-actions">
+          <button className="btn-prim" disabled={exportando!==null} onClick={exportarTodos}>
+            <i className="ph-bold ph-arrow-square-out"/> {exportando==='todos' ? 'Exportando...' : 'Exportar Todos'}
+          </button>
+        </div>
       </div>
-      <div style={{marginBottom:18}}><p style={{fontSize:'var(--fs1)',color:'var(--c-mid)'}}>Selecione um relatório para exportar.</p></div>
+      <div style={{marginBottom:18}}><p style={{fontSize:'var(--fs1)',color:'var(--c-mid)'}}>Selecione um relatório para exportar em CSV.</p></div>
       <div className="rel-grid" id="relatoriosContent">
         {RELS.map(r=>(
-          <div key={r.titulo} className="rel-card">
+          <div key={r.key} className="rel-card">
             <div className={`kpi-ic ${r.icon}`} style={{width:40,height:40,flexShrink:0}}><i className={`ph-bold ${r.ph}`} style={{fontSize:18}}/></div>
             <div style={{flex:1,minWidth:0}}><div className="rel-title">{r.titulo}</div><div className="rel-desc">{r.desc}</div></div>
             <div className="rel-footer">
-              <span className="rel-last">Ult.: {r.ult}</span>
-              <button className="rel-btn" onClick={()=>openExport(r.titulo)}><i className="ph-bold ph-arrow-square-out" style={{fontSize:11,marginRight:4}}/>Exportar</button>
+              <span className="rel-last">{fmtUltimo(getUltimoExport(r.key))}</span>
+              <button className="rel-btn" disabled={exportando!==null} onClick={()=>exportar(r.key)}>
+                <i className="ph-bold ph-arrow-square-out" style={{fontSize:11,marginRight:4}}/>
+                {exportando===r.key ? 'Exportando...' : 'Exportar'}
+              </button>
             </div>
           </div>
         ))}
       </div>
-
-      {exportOpen && (
-        <div className="modal-ov open" onClick={e=>{if(e.target===e.currentTarget)setExportOpen(false);}}>
-          <div className="modal-box modal-sm">
-            <button className="modal-x" onClick={()=>setExportOpen(false)}><i className="ph-bold ph-x"/></button>
-            <div style={{padding:24}}>
-              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18,paddingBottom:14,borderBottom:'1px solid var(--c-border)'}}>
-                <div className="kpi-ic ic-blue" style={{width:40,height:40,flexShrink:0}}><i className="ph-bold ph-file-text" style={{fontSize:18}}/></div>
-                <div><div style={{fontSize:16,fontWeight:700,color:'var(--c-text)'}}>Exportar — {exportTitle}</div><div style={{fontSize:'var(--fs0)',color:'var(--c-mid)'}}>Selecione o formato de exportação</div></div>
-              </div>
-              <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {[{icon:'ph-file-pdf',bg:'var(--red-bg)',c:'var(--red)',lbl:'PDF',sub:'Documento formatado para impressão'},
-                  {icon:'ph-microsoft-excel-logo',bg:'var(--green-bg)',c:'var(--green)',lbl:'Excel / CSV',sub:'Dados em planilha editável'},
-                  {icon:'ph-eye',bg:'var(--ford-light)',c:'var(--ford-vivid)',lbl:'Visualizar online',sub:'Abrir no navegador'}
-                ].map(opt=>(
-                  <button key={opt.lbl} className="export-opt-btn" onClick={()=>{setExportOpen(false);showToast(`Exportando ${exportTitle} em ${opt.lbl}...`,'info');}}>
-                    <div className="export-opt-icon" style={{background:opt.bg}}><i className={`ph-bold ${opt.icon}`} style={{color:opt.c}}/></div>
-                    <div><div style={{fontWeight:600,fontSize:'var(--fs2)'}}>{opt.lbl}</div><div style={{fontSize:'var(--fs0)',color:'var(--c-mid)'}}>{opt.sub}</div></div>
-                    <i className="ph-bold ph-arrow-right" style={{marginLeft:'auto',color:'var(--c-dim)'}}/>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

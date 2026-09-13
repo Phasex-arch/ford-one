@@ -53,15 +53,15 @@ export function ConcessionariaLoginScreen() {
             </div>
           )}
 
-          {/* Usuário */}
+          {/* Email */}
           <div className={styles.formGroup}>
-            <label htmlFor="username">Usuário</label>
+            <label htmlFor="username">Email</label>
             <div className={styles.inputWrap}>
               <i className="fa-solid fa-user" />
               <input
-                id="username" type="text"
-                placeholder="Digite seu usuário"
-                autoComplete="username"
+                id="username" type="email"
+                placeholder="Digite seu email"
+                autoComplete="email"
                 value={username}
                 onChange={(e) => { clearErrors(); setUsername(e.target.value); }}
                 onKeyDown={handleKeyDown}
@@ -121,8 +121,8 @@ export function ConcessionariaLoginScreen() {
               Credenciais de acesso
             </div>
             {[
-              { label: 'Usuário', value: 'Ford-PhaseX', fill: () => { clearErrors(); setUsername('Ford-PhaseX'); } },
-              { label: 'Senha',   value: 'Ford',        fill: () => { clearErrors(); setPassword('Ford'); } },
+              { label: 'Usuário', value: 'ford.phasex@ford.com.br', fill: () => { clearErrors(); setUsername('ford.phasex@ford.com.br'); } },
+              { label: 'Senha',   value: 'FordPhasex@2026',          fill: () => { clearErrors(); setPassword('FordPhasex@2026'); } },
             ].map(({ label, value, fill }) => (
               <div key={label} className={styles.credentialsRow}>
                 <span className={styles.credentialsLabel}>{label}</span>

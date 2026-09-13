@@ -19,7 +19,7 @@
 export type ClienteStatus   = 'ativo' | 'inativo' | 'potencial';
 export type ClienteSegmento = 'Premium' | 'VIP' | 'Família' | 'Executivo' | 'Padrão';
 export type LeadUrgencia    = 'urgente' | 'alta' | 'media' | 'baixa';
-export type TecnicoStatus   = 'livre' | 'ocupado' | 'pausa';
+export type TecnicoStatus   = 'livre' | 'ocupado' | 'pausa' | 'ausente';
 export type EstoqueCondicao = 'novo' | 'seminovo';
 export type EstoqueSegmento = 'suv' | 'picape' | 'sedan';
 export type MetaIndicador   = 'vendas' | 'receita' | 'leads' | 'nps' | 'sla' | 'conv';
@@ -50,12 +50,6 @@ export interface HistoricoItem {
   val: string;
 }
 
-export interface VeiculoFinanceiro {
-  custo: string;
-  ticket: string;
-  est: string;
-}
-
 export interface Veiculo {
   id: string;
   modelo: string;
@@ -64,14 +58,13 @@ export interface Veiculo {
   cor: string;
   km: string;
   aq: string;
+  precoAquisicao: number;
   saida: string | null;
   status: 'ativo' | 'vendido' | 'substituido';
   atual: boolean;
   ult: string;
   img: string | null;
   hist: HistoricoItem[];
-  fin: VeiculoFinanceiro;
-  ins: string[];
 }
 
 export interface Estoque {
@@ -101,10 +94,12 @@ export interface Lead {
   urg: LeadUrgencia;
   val: number;
   tel: string;
+  email: string | null;
   ins: string;
 }
 
 export interface OrdemServico {
+  id: string;
   num: string;
   c: string;
   v: string;
@@ -112,11 +107,12 @@ export interface OrdemServico {
   tech: string;
   prazo: string;
   pc: OSStatus;
-  val: string;
+  val: number;
 }
 
 export interface Financiamento {
   id: string;
+  codigo: string;
   cli: string;
   ini: string;
   veiculo: string;
@@ -130,6 +126,7 @@ export interface Financiamento {
 }
 
 export interface Avaliacao {
+  id: string;
   c: string;
   nota: number;
   data: string;
@@ -139,6 +136,7 @@ export interface Avaliacao {
 
 export interface Meta {
   id: string;
+  codigo: string;
   titulo: string;
   periodo: string;
   indicador: MetaIndicador;
@@ -150,6 +148,7 @@ export interface Meta {
 }
 
 export interface Tecnico {
+  id: string;
   nome: string;
   ini: string;
   esp: string;
@@ -157,6 +156,7 @@ export interface Tecnico {
 }
 
 export interface Appointment {
+  id: string;
   cli: string;
   type: string;
   tech: string;
