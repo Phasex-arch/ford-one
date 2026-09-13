@@ -13,12 +13,15 @@
  * - fmtVal(m, v) → formata o valor conforme o tipo de indicador
  *   (receita → moeda, % → sufixo, h → horas, demais → número)
  * - addMeta(tipo, resp, val, per) → valida e persiste via POST /api/metas
+ * - editTarget/setEditTarget/salvarEdicao → edição real via PATCH /api/metas/:id,
+ *   pra atualizar o "Realizado" (e demais campos) de uma meta já criada — sem
+ *   isso o valor ficava congelado no que foi definido na criação
  *
- * @param showToast → feedback de criação de meta
+ * @param showToast → feedback de criação/edição de meta
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { fetchMetas, createMeta } from '../services/metas.service';
+import { fetchMetas, createMeta, updateMeta, type UpdateMetaInput } from '../services/metas.service';
 import { formatCurrency, formatNumber } from '../../../shared/utils/formatters';
 import type { Meta, MetaIndicador } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
@@ -36,6 +39,7 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Meta | null>(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -55,8 +59,20 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
 
   useEffect(() => { reload(); }, [reload]);
 
+  /**
+   * Percentual de progresso, 0–100. Metas "lowerIsBetter" (ex: SLA) ainda sem
+   * nenhuma medição real (atual=0) não têm progresso calculável — tratar
+   * como "não iniciada" (0%) em vez de dividir por zero, que daria Infinity
+   * e mostraria a meta como "atingida" sem nenhum dado real por trás.
+   */
+  const computePct = (m: Meta): number => {
+    if (m.lowerIsBetter && m.atual === 0) return 0;
+    const raw = m.lowerIsBetter ? (m.alvo / m.atual * 100) : (m.atual / m.alvo * 100);
+    return Math.min(Math.round(raw), 100);
+  };
+
   const getStatus = (m: Meta) => {
-    const pct = m.lowerIsBetter ? (m.alvo / m.atual * 100) : (m.atual / m.alvo * 100);
+    const pct = computePct(m);
     if (pct >= 100) return { cls: 'exceeded', tag: 'tag-exceeded', label: 'Meta atingida' };
     if (pct >= 85) return { cls: 'on-track', tag: 'tag-on-track', label: 'No caminho' };
     if (pct >= 60) return { cls: 'at-risk', tag: 'tag-at-risk', label: 'Em risco' };
@@ -90,5 +106,18 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   }, [showToast, reload]);
 
-  return { metas, pagination, page, setPage, loading, error, modalOpen, setModalOpen, getStatus, fmtVal, addMeta };
+  const salvarEdicao = useCallback((dados: UpdateMetaInput) => {
+    if (!editTarget) return;
+    updateMeta(editTarget.id, dados).then(() => {
+      setEditTarget(null);
+      reload();
+      showToast('Meta atualizada!', 'success');
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  }, [editTarget, showToast, reload]);
+
+  return {
+    metas, pagination, page, setPage, loading, error, modalOpen, setModalOpen,
+    editTarget, setEditTarget, salvarEdicao,
+    getStatus, computePct, fmtVal, addMeta,
+  };
 }

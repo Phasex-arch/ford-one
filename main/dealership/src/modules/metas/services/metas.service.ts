@@ -66,3 +66,19 @@ export async function createMeta(input: CreateMetaInput): Promise<Meta> {
   });
   return toMeta(apiResponse);
 }
+
+export interface UpdateMetaInput {
+  titulo?: string;
+  periodo?: string;
+  atual?: number;
+  alvo?: number;
+  responsavel?: string;
+}
+
+export async function updateMeta(id: string, dados: UpdateMetaInput): Promise<Meta> {
+  const apiResponse = await apiRequest<MetaApi>(`/metas/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(dados),
+  });
+  return toMeta(apiResponse);
+}
