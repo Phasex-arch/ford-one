@@ -41,6 +41,9 @@ export interface CatalogVehicle {
   ano_modelo: number;
   categoria_principal: string;
   preco_inicial: number | null;
+  /** Aviso real de qualidade da extração do scraper (ficha técnica não
+   *  encontrada, dados vieram de um parse alternativo) — null quando limpo. */
+  observacao: string | null;
   motorizacao: {
     descricao: string;
     transmissao: string;

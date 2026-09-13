@@ -183,6 +183,11 @@ export const AddEstoqueModal: React.FC<Props> = ({
                         {mainImage(vehicle)
                           ? <img src={mainImage(vehicle)} alt={vehicle.modelo} loading="lazy" />
                           : <i className="ph-bold ph-car-profile" />}
+                        {vehicle.observacao && (
+                          <span className="cat-veh-warn" title="Dados extraídos exigem conferência manual">
+                            <i className="ph-bold ph-warning" />
+                          </span>
+                        )}
                       </div>
                       <div className="cat-veh-body">
                         <strong>{vehicle.modelo} {vehicle.versao}</strong>
@@ -254,6 +259,12 @@ export const AddEstoqueModal: React.FC<Props> = ({
                   <div><div className="mf-lbl">Ano</div><div className="mf-val">{selected.ano_modelo}</div></div>
                   <div><div className="mf-lbl">Motor</div><div className="mf-val">{selected.motorizacao.descricao || 'Não informado'}</div></div>
                 </div>
+                {selected.observacao && (
+                  <div className="cat-veh-alert">
+                    <i className="ph-bold ph-warning" />
+                    <span>{selected.observacao}</span>
+                  </div>
+                )}
               </div>
               <div className="m-sec">
                 <div className="m-sec-title">Dados comerciais</div>
