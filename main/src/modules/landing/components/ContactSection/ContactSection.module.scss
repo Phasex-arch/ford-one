@@ -100,6 +100,8 @@
   }
 
   select { color: rgba(255, 255, 255, 0.65); cursor: pointer; option { background: $ford-dark; } }
+
+  textarea { resize: none; }
 }
 
 .inputError { border-color: #e53e3e !important; }

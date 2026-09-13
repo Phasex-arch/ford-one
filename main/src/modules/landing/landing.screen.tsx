@@ -231,7 +231,7 @@ export function LandingScreen() {
       {/* CTA FINAL */}
       <section className="cta-final">
         <div className="cta-bg-wrap">
-          <img src="https://cdn.motor1.com/images/mgl/m691A/s3/ford-fusion-2019-br.jpg" />
+          <img src="https://cdn.motor1.com/images/mgl/m691A/s3/ford-fusion-2019-br.jpg" className="cta-bg-img" alt="" />
           <div className="cta-overlay" />
         </div>
         <div className="container cta-content">
