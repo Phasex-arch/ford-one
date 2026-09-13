@@ -4,54 +4,73 @@
  * @description Tela de Configurações do sistema Ford One.
  *
  * Seções:
- * 1. Dados da Concessionária  → formulário editável (nome, CNPJ, endereço, tel)
- * 2. Aparência                → seletor tema claro/escuro (persiste em localStorage)
- * 3. Integração Ford Ecosystem→ status das integrações (CRM, Financeira, Parts, Analytics)
- * 4. Segurança                → toggles (2FA, log auditoria, timeout, alertas)
- * 5. Metas Padrão             → campos configuráveis de metas base do sistema
- * 6. Documentação do Sistema  → botão para baixar o PDF de documentação técnica
- *                               Caminho: public/assets/document/ford-one-concessionaria.pdf
- *                               Exibe estado "Baixando..." durante o download simulado.
+ * 1. Dados da Concessionária  → real, GET/PATCH /api/configuracoes/concessionaria
+ *    (singleton — sempre existe uma linha, criada com valores padrão na
+ *    primeira leitura). Edição restrita a ADMIN/GERENTE, espelhando o backend.
+ * 2. Aparência                → seletor tema claro/escuro (persiste em localStorage) — real
+ * 3. Segurança                → status real, somente leitura: log de
+ *    auditoria (sempre ativo, é um interceptor global, não uma opção) e
+ *    expiração de sessão (valor real de JWT_EXPIRES_IN). Não existe 2FA nem
+ *    "alertas de acesso suspeito" no sistema — removidos, não fingidos.
+ * 4. Metas Padrão              → removida daqui: era um formulário desconectado
+ *    que não gravava nada e duplicava os mesmos valores já editáveis de
+ *    verdade na tela de Metas. Ficou um atalho pra lá.
+ * 5. Documentação do Sistema  → baixa o PDF só se ele realmente existir no
+ *    servidor (checagem HEAD antes) — antes sempre mostrava "sucesso" mesmo
+ *    com o arquivo ausente.
+ *
+ * A seção "Integração Ford Smart Ecosystem" (CRM, Financeira, Parts, Analytics)
+ * foi removida — eram nomes de integração inventados, sem nenhuma correspondência
+ * real no sistema.
  *
  * Props:
  * - showToast → feedback de salvamento de dados e alteração de tema
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../shared/hooks/useTheme';
+import { useConfiguracoes } from './hooks/useConfiguracoes';
+import { useApp } from '../../shared/context/AppContext';
 import type { ToastType } from '../../shared/hooks/useToast';
+import type { UpdateConcessionariaInput } from './services/configuracoes.service';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
+const PDF_URL = '/assets/document/ford-one-concessionaria.pdf';
+
 export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
   const { theme, setTheme } = useTheme();
+  const { user, navigate } = useApp();
+  const canEditarConcessionaria = user?.role === 'ADMIN' || user?.role === 'GERENTE';
+  const { concessionaria, seguranca, loading, error, salvando, salvarConcessionaria } = useConfiguracoes(showToast);
+  const [form, setForm] = useState<UpdateConcessionariaInput>({});
 
-  // ── Metas padrão (estado local controlado) ─────────────────────────────────
-  const [metaVendas,   setMetaVendas]   = useState(28);
-  const [metaReceita,  setMetaReceita]  = useState(1200000);
-  const [metaSla,      setMetaSla]      = useState(4);
-  const [metaNps,      setMetaNps]      = useState(70);
+  useEffect(() => {
+    if (concessionaria) setForm({
+      nome: concessionaria.nome, cnpj: concessionaria.cnpj,
+      endereco: concessionaria.endereco, telefone: concessionaria.telefone,
+    });
+  }, [concessionaria]);
 
-  // ── Download de documentação ────────────────────────────────────────────────
   const [baixando, setBaixando] = useState(false);
 
-  /**
-   * Inicia o download do PDF de documentação técnica do sistema.
-   * O arquivo deve estar em public/assets/document/ford-one-concessionaria.pdf.
-   * Exibe estado "Baixando..." por 1,5s antes de disparar o download via <a>.
-   */
-  const baixarDocumentacao = () => {
+  const baixarDocumentacao = async () => {
     setBaixando(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(PDF_URL, { method: 'HEAD' });
+      if (!res.ok) throw new Error('not-found');
       const link = document.createElement('a');
-      link.href = '/assets/document/ford-one-concessionaria.pdf';
+      link.href = PDF_URL;
       link.download = 'ford-one-concessionaria.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      setBaixando(false);
       showToast('Documentação baixada com sucesso!', 'success');
-    }, 1500);
+    } catch {
+      showToast('Documentação ainda não disponível — arquivo não encontrado no servidor.', 'warning');
+    } finally {
+      setBaixando(false);
+    }
   };
 
   return (
@@ -63,24 +82,40 @@ export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
         </div>
       </div>
 
+      {loading && <p className="mod-sub">Carregando configurações...</p>}
+      {error && <p className="mod-sub" style={{ color: 'var(--red)' }}>{error}</p>}
+
       <div className="config-grid">
 
         {/* ── Dados da Concessionária ──────────────────────────────────────── */}
         <div className="config-card">
           <h3>Concessionária</h3>
-          <div className="cfg-form">
-            <label>Nome<input type="text" defaultValue="Ford SP Centro"/></label>
-            <label>CNPJ<input type="text" defaultValue="12.345.678/0001-99"/></label>
-            <label>Endereço<input type="text" defaultValue="Av. Paulista, 1000 — São Paulo/SP"/></label>
-            <label>Telefone<input type="text" defaultValue="(11) 3000-4000"/></label>
-          </div>
-          <button
-            className="btn-prim"
-            style={{ marginTop: 12 }}
-            onClick={() => showToast('Dados da concessionária salvos!', 'success')}
-          >
-            Salvar dados
-          </button>
+          {concessionaria && (
+            <>
+              <div className="cfg-form">
+                <label>Nome<input type="text" value={form.nome ?? ''} disabled={!canEditarConcessionaria}
+                  onChange={e => setForm(p => ({ ...p, nome: e.target.value }))}/></label>
+                <label>CNPJ<input type="text" value={form.cnpj ?? ''} disabled={!canEditarConcessionaria}
+                  onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))}/></label>
+                <label>Endereço<input type="text" value={form.endereco ?? ''} disabled={!canEditarConcessionaria}
+                  onChange={e => setForm(p => ({ ...p, endereco: e.target.value }))}/></label>
+                <label>Telefone<input type="text" value={form.telefone ?? ''} disabled={!canEditarConcessionaria}
+                  onChange={e => setForm(p => ({ ...p, telefone: e.target.value }))}/></label>
+              </div>
+              {canEditarConcessionaria ? (
+                <button
+                  className="btn-prim"
+                  style={{ marginTop: 12 }}
+                  disabled={salvando}
+                  onClick={() => salvarConcessionaria(form)}
+                >
+                  {salvando ? 'Salvando...' : 'Salvar dados'}
+                </button>
+              ) : (
+                <p className="cfg-desc" style={{ marginTop: 12 }}>Só ADMIN ou GERENTE podem editar os dados da concessionária.</p>
+              )}
+            </>
+          )}
         </div>
 
         {/* ── Aparência ────────────────────────────────────────────────────── */}
@@ -113,73 +148,32 @@ export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
           </div>
         </div>
 
-        {/* ── Integração Ford Smart Ecosystem ─────────────────────────────── */}
-        <div className="config-card">
-          <h3>Integração Ford Smart Ecosystem</h3>
-          <div className="int-list">
-            {([
-              ['ok',   'Ford CRM Central'],
-              ['ok',   'Ford Financeira'],
-              ['ok',   'Ford Parts Online'],
-              ['warn', 'Ford Analytics (sync pendente)'],
-            ] as [string, string][]).map(([cls, label]) => (
-              <div key={label} className={`int-row ${cls}`}>
-                <i className={`ph-bold ${cls === 'ok' ? 'ph-check-circle' : 'ph-warning'}`}/>
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Segurança ────────────────────────────────────────────────────── */}
+        {/* ── Segurança (status real, somente leitura) ────────────────────── */}
         <div className="config-card">
           <h3>Segurança</h3>
-          <div className="toggle-list">
-            {([
-              ['Autenticação em 2 fatores',    true ],
-              ['Log de auditoria',              true ],
-              ['Timeout de sessão (30 min)',    true ],
-              ['Alertas de acesso suspeito',    false],
-            ] as [string, boolean][]).map(([lbl, chk]) => (
-              <label key={lbl} className="toggle-item">
-                <span>{lbl}</span>
-                <input
-                  type="checkbox"
-                  defaultChecked={chk}
-                  onChange={e => showToast(`"${lbl}" ${e.target.checked ? 'ativado' : 'desativado'}.`, 'info')}
-                />
-                <span className="tog-slider"/>
-              </label>
-            ))}
-          </div>
+          {seguranca && (
+            <div className="toggle-list">
+              <div className="toggle-item" style={{ cursor: 'default' }}>
+                <span>Log de auditoria</span>
+                <span className="cfg-desc" style={{ margin: 0, color: 'var(--green)', fontWeight: 600 }}>Sempre ativo</span>
+              </div>
+              <div className="toggle-item" style={{ cursor: 'default' }}>
+                <span>Sessão expira em</span>
+                <span className="cfg-desc" style={{ margin: 0, color: 'var(--c-text)', fontWeight: 600 }}>{seguranca.jwtExpiresIn}</span>
+              </div>
+            </div>
+          )}
+          <p className="cfg-desc" style={{ marginTop: 10 }}>
+            Autenticação em 2 fatores ainda não existe no sistema — não exibida aqui pra não sugerir uma proteção que não está ativa.
+          </p>
         </div>
 
-        {/* ── Metas Padrão ─────────────────────────────────────────────────── */}
+        {/* ── Atalho pra Metas ─────────────────────────────────────────────── */}
         <div className="config-card">
-          <h3>Metas Padrão</h3>
-          <div className="cfg-form">
-            <label>
-              Meta mensal de vendas (unid.)
-              <input type="number" value={metaVendas}  onChange={e => setMetaVendas(+e.target.value)}/>
-            </label>
-            <label>
-              Meta de receita (R$)
-              <input type="number" value={metaReceita} onChange={e => setMetaReceita(+e.target.value)}/>
-            </label>
-            <label>
-              SLA máximo (horas)
-              <input type="number" value={metaSla}     onChange={e => setMetaSla(+e.target.value)}/>
-            </label>
-            <label>
-              NPS mínimo
-              <input type="number" value={metaNps}     onChange={e => setMetaNps(+e.target.value)}/>
-            </label>
-          </div>
-          <button
-            className="btn-prim"
-            onClick={() => showToast('Metas padrão atualizadas!', 'success')}
-          >
-            Salvar metas
+          <h3>Metas</h3>
+          <p className="cfg-desc">As metas da concessionária (vendas, receita, SLA, NPS) são gerenciadas na tela de Metas.</p>
+          <button className="btn-sec" style={{ marginTop: 12 }} onClick={() => navigate('metas')}>
+            <i className="ph-bold ph-target"/> Ir para Metas
           </button>
         </div>
 
@@ -239,7 +233,7 @@ export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
                     border: '2px solid rgba(255,255,255,0.35)', borderTopColor: '#fff',
                     borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0,
                   }}/>
-                  Baixando...
+                  Verificando...
                 </>
               ) : (
                 <>

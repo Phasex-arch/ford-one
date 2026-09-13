@@ -7,12 +7,14 @@
  * - Logo Ford com fallback gracioso (onError oculta imagem quebrada)
  * - GlobalSearch → busca global com dropdown de resultados
  * - Status do sistema (ponto verde animado)
- * - Identificação da concessionária (Ford SP Centro)
- * - Botão de notificações com badge de contagem e dropdown
+ * - Identificação da concessionária (nome real, GET /api/configuracoes/concessionaria)
+ * - Botão de notificações com badge de contagem e dropdown — reaproveita os
+ *   4 alertas operacionais reais do Dashboard (useNotificacoes), sem dado fixo
  * - Botão de usuário com dropdown de ações
  *
  * Dropdowns (estado local via useState):
- * - notifDropdown: lista de notificações com marcar todas como lidas
+ * - notifDropdown: lista de notificações reais, com marcar todas como lidas
+ *   (lido/não-lido guardado em localStorage por conteúdo — ver useNotificacoes)
  * - userDropdown: menu do usuário com ações de perfil e logout
  *
  * Modais internos (ativados pelo userDropdown):
@@ -24,66 +26,114 @@
  * - showToast       → callback para disparar notificações toast
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { GlobalSearch } from "../GlobalSearch/GlobalSearch";
 import { useApp } from "../../context/AppContext";
 import { useTheme } from "../../hooks/useTheme";
+import { useNotificacoes } from "../../hooks/useNotificacoes";
 import type { ToastType } from "../../hooks/useToast";
+import { apiRequest, clearToken, friendlyApiMessage } from "../../api/client";
+import type { AuthenticatedUser } from "../../api/client";
+import { fetchConcessionaria } from "../../../modules/configuracoes/services/configuracoes.service";
 
 interface Props {
   onToggleSidebar: () => void;
   showToast: (msg: string, type?: ToastType) => void;
+  user: AuthenticatedUser | null;
 }
 
-export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
-  const { navigate } = useApp();
+const roleLabel = (role: AuthenticatedUser['role']): string =>
+  role === 'ADMIN' ? 'Administrador' : role === 'GERENTE' ? 'Gerente' : 'Funcionário';
+
+export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast, user }) => {
+  const { navigate, refreshUser } = useApp();
   const { theme, setTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const [notifBadge, setNotifBadge] = useState(4);
   const [profileOpen, setProfileOpen] = useState(false);
   const [senhaOpen, setSenhaOpen] = useState(false);
-  const [notifs, setNotifs] = useState([
-    {
-      id: 1,
-      unread: true,
-      title: "Lead urgente",
-      body: "Carlos Silva – interesse em Ranger Storm",
-      time: "há 5 min",
-      mod: "leads",
-    },
-    {
-      id: 2,
-      unread: true,
-      title: "Agendamento confirmado",
-      body: "Ana Rodrigues – revisão 50.000 km",
-      time: "há 22 min",
-      mod: "agenda",
-    },
-    {
-      id: 3,
-      unread: true,
-      title: "SLA em risco",
-      body: "OS #4821 – prazo em 2h",
-      time: "há 1h",
-      mod: "servicos",
-    },
-    {
-      id: 4,
-      unread: false,
-      title: "Meta atingida",
-      body: "Receita de abril superou 105%",
-      time: "há 3h",
-      mod: "metas",
-    },
-  ]);
+  const { notifs, unreadCount, markAllRead: markAllReadReal, reload: reloadNotifs } = useNotificacoes();
+  const [dealershipName, setDealershipName] = useState('Concessionária');
+
+  const [profileNome, setProfileNome] = useState('');
+  const [profileCargo, setProfileCargo] = useState('');
+  const [profileEmail, setProfileEmail] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [senhaSaving, setSenhaSaving] = useState(false);
+
+  useEffect(() => {
+    fetchConcessionaria().then(c => setDealershipName(c.nome)).catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    if (profileOpen) {
+      setProfileNome(user?.nome ?? '');
+      setProfileCargo(user?.cargo ?? '');
+      setProfileEmail(user?.email ?? '');
+    }
+  }, [profileOpen, user]);
+
+  useEffect(() => {
+    if (senhaOpen) {
+      setSenhaAtual('');
+      setNovaSenha('');
+      setConfirmarSenha('');
+    }
+  }, [senhaOpen]);
+
+  const saveProfile = async () => {
+    setProfileSaving(true);
+    try {
+      await apiRequest('/auth/me', {
+        method: 'PATCH',
+        body: JSON.stringify({ nome: profileNome, cargo: profileCargo, email: profileEmail }),
+      });
+      refreshUser();
+      setProfileOpen(false);
+      showToast('Perfil atualizado!', 'success');
+    } catch (err) {
+      showToast(friendlyApiMessage(err), 'error');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const savePassword = async () => {
+    if (novaSenha.length < 8) {
+      showToast('A nova senha precisa ter pelo menos 8 caracteres.', 'error');
+      return;
+    }
+    if (novaSenha !== confirmarSenha) {
+      showToast('A confirmação não confere com a nova senha.', 'error');
+      return;
+    }
+    setSenhaSaving(true);
+    try {
+      await apiRequest('/auth/change-password', {
+        method: 'PATCH',
+        body: JSON.stringify({ senhaAtual, novaSenha }),
+      });
+      setSenhaOpen(false);
+      showToast('Senha alterada com sucesso!', 'success');
+    } catch (err) {
+      showToast(friendlyApiMessage(err), 'error');
+    } finally {
+      setSenhaSaving(false);
+    }
+  };
 
   void theme;
   void setTheme;
+  const userName = user?.nome ?? 'Usuário';
+  const userRole = user ? roleLabel(user.role) : 'Carregando...';
+  const userInitials = userName.split(' ').map(part => part[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 
   const markAllRead = () => {
-    setNotifs((prev) => prev.map((n) => ({ ...n, unread: false })));
-    setNotifBadge(0);
+    markAllReadReal();
     showToast("Todas as notificações marcadas como lidas", "success");
   };
 
@@ -102,10 +152,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
       navigate("config");
     } else if (a === "sair") {
       showToast("Sessão encerrada. Até logo!", "info");
-      setTimeout(() => {
-        document.body.innerHTML =
-          '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#00095b;color:white;font-family:Inter,sans-serif;font-size:18px;letter-spacing:2px;font-weight:600">FORD ONE — SESSÃO ENCERRADA</div>';
-      }, 1200);
+      clearToken();
+      const portalUrl = import.meta.env.VITE_PORTAL_URL
+        || (import.meta.env.DEV ? "http://localhost:5173" : "http://localhost:8080");
+      window.location.href = `${portalUrl.replace(/\/$/, "")}/concessionaria`;
     }
   };
 
@@ -158,20 +208,23 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
           </div>
           <div className="header-dealership">
             <i className="ph-bold ph-buildings" />
-            <span className="dealer-label">Ford SP Centro</span>
+            <span className="dealer-label">{dealershipName}</span>
           </div>
           <button
             className="hdr-icon-btn"
             aria-label="Notificações"
             onClick={(e) => {
               e.stopPropagation();
-              setNotifOpen((p) => !p);
+              setNotifOpen((p) => {
+                if (!p) reloadNotifs();
+                return !p;
+              });
               setUserOpen(false);
             }}
           >
             <i className="ph-bold ph-bell" />
-            {notifBadge > 0 && (
-              <span className="notif-badge">{notifBadge}</span>
+            {unreadCount > 0 && (
+              <span className="notif-badge">{unreadCount}</span>
             )}
           </button>
           <button
@@ -183,10 +236,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
               setNotifOpen(false);
             }}
           >
-            <div className="user-av">NM</div>
+            <div className="user-av">{userInitials}</div>
             <div className="user-info-hdr">
-              <span className="user-nm">Nathan Morais</span>
-              <span className="user-rl">Gerente Comercial</span>
+              <span className="user-nm">{userName}</span>
+              <span className="user-rl">{userRole}</span>
             </div>
             <i className="ph-bold ph-caret-down user-chev" />
           </button>
@@ -209,21 +262,25 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
             </div>
           </div>
           <div id="notifList">
+            {notifs.length === 0 && (
+              <div style={{ padding: "18px 16px", fontSize: "var(--fs1)", color: "var(--c-mid)", textAlign: "center" }}>
+                Nenhum alerta no momento.
+              </div>
+            )}
             {notifs.map((n) => (
               <div
-                key={n.id}
+                key={n.key}
                 className={`notif-row${n.unread ? " unread" : ""}`}
                 style={{ cursor: "pointer" }}
                 onClick={() => {
                   setNotifOpen(false);
-                  navigate(n.mod as any);
+                  navigate(n.mod);
                 }}
               >
                 <div className={`ndot${n.unread ? "" : " read"}`} />
                 <div className="ncnt">
                   <strong>{n.title}</strong>
                   <p>{n.body}</p>
-                  <span>{n.time}</span>
                 </div>
               </div>
             ))}
@@ -236,10 +293,10 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="ud-top">
-            <div className="ud-av">NM</div>
+            <div className="ud-av">{userInitials}</div>
             <div>
-              <div className="ud-name">Nathan Morais</div>
-              <div className="ud-role">Gerente Comercial · Ford SP Centro</div>
+              <div className="ud-name">{userName}</div>
+              <div className="ud-role">{userRole} · {dealershipName}</div>
             </div>
           </div>
           <button className="ud-row" onClick={() => handleUdAction("perfil")}>
@@ -313,7 +370,7 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                     flexShrink: 0,
                   }}
                 >
-                  NM
+                  {userInitials}
                 </div>
                 <div>
                   <div
@@ -323,41 +380,38 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                       color: "var(--c-text)",
                     }}
                   >
-                    Nathan Morais
+                    {userName}
                   </div>
                   <div
                     style={{ fontSize: "var(--fs1)", color: "var(--c-mid)" }}
                   >
-                    Gerente Comercial · Ford SP Centro
+                    {userRole} · {dealershipName}
                   </div>
                 </div>
               </div>
               <div className="m-form">
                 <label>
                   Nome completo
-                  <input type="text" defaultValue="Nathan Morais" />
+                  <input
+                    type="text"
+                    value={profileNome}
+                    onChange={(e) => setProfileNome(e.target.value)}
+                  />
                 </label>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: 10,
-                  }}
-                >
-                  <label style={{ minWidth: 0 }}>
-                    Cargo
-                    <input type="text" defaultValue="Gerente Comercial" />
-                  </label>
-                  <label style={{ minWidth: 0 }}>
-                    Ramal
-                    <input type="text" defaultValue="(11) 3000-4001" />
-                  </label>
-                </div>
+                <label>
+                  Cargo
+                  <input
+                    type="text"
+                    value={profileCargo}
+                    onChange={(e) => setProfileCargo(e.target.value)}
+                  />
+                </label>
                 <label>
                   E-mail
                   <input
                     type="email"
-                    defaultValue="nathan.morais@fordspcentro.com.br"
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
                   />
                 </label>
               </div>
@@ -372,17 +426,16 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                 <button
                   className="btn-sec"
                   onClick={() => setProfileOpen(false)}
+                  disabled={profileSaving}
                 >
                   Cancelar
                 </button>
                 <button
                   className="btn-prim"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    showToast("Perfil atualizado!", "success");
-                  }}
+                  onClick={saveProfile}
+                  disabled={profileSaving}
                 >
-                  Salvar
+                  {profileSaving ? "Salvando..." : "Salvar"}
                 </button>
               </div>
             </div>
@@ -418,15 +471,30 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
               <div className="m-form" style={{ marginTop: 14 }}>
                 <label>
                   Senha atual
-                  <input type="password" placeholder="••••••••" />
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={senhaAtual}
+                    onChange={(e) => setSenhaAtual(e.target.value)}
+                  />
                 </label>
                 <label>
                   Nova senha
-                  <input type="password" placeholder="••••••••" />
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={novaSenha}
+                    onChange={(e) => setNovaSenha(e.target.value)}
+                  />
                 </label>
                 <label>
                   Confirmar nova senha
-                  <input type="password" placeholder="••••••••" />
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                  />
                 </label>
               </div>
               <div
@@ -437,17 +505,11 @@ export const AppHeader: React.FC<Props> = ({ onToggleSidebar, showToast }) => {
                   marginTop: 16,
                 }}
               >
-                <button className="btn-sec" onClick={() => setSenhaOpen(false)}>
+                <button className="btn-sec" onClick={() => setSenhaOpen(false)} disabled={senhaSaving}>
                   Cancelar
                 </button>
-                <button
-                  className="btn-prim"
-                  onClick={() => {
-                    setSenhaOpen(false);
-                    showToast("Senha alterada com sucesso!", "success");
-                  }}
-                >
-                  Salvar
+                <button className="btn-prim" onClick={savePassword} disabled={senhaSaving}>
+                  {senhaSaving ? "Salvando..." : "Salvar"}
                 </button>
               </div>
             </div>

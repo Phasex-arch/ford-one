@@ -1,30 +1,21 @@
 import type { LoginCredentials } from '../types/concessionaria-login.types';
-
-const VALID_USER = 'Ford-PhaseX';
-const VALID_PASS = 'Ford';
+import { apiRequest } from '../../../shared/api/client';
 
 /**
  * Redireciona para o dealership
  */
-const getRedirectUrl = (): string => {
-  // Em desenvolvimento, o dealership roda em outra porta
-  if (import.meta.env.DEV) {
-    return 'http://localhost:5174/';
-  }
-
-  // Em produção
-  return '/';
+const getRedirectUrl = (token: string): string => {
+  const dealershipUrl = import.meta.env.VITE_DEALERSHIP_URL
+    || (import.meta.env.DEV ? 'http://localhost:5174' : 'http://localhost:8081');
+  return `${dealershipUrl.replace(/\/$/, '')}/#access_token=${encodeURIComponent(token)}`;
 };
 
 export async function authenticate(credentials: LoginCredentials): Promise<boolean> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (credentials.username === VALID_USER && credentials.password === VALID_PASS) {
-        window.location.href = getRedirectUrl();
-        resolve(true);
-      } else {
-        resolve(false);
-      }
-    }, 900);
+  const result = await apiRequest<{ accessToken: string }>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: credentials.username, senha: credentials.password }),
   });
+  localStorage.setItem('ford_one_token', result.accessToken);
+  window.location.href = getRedirectUrl(result.accessToken);
+  return true;
 }

@@ -17,6 +17,7 @@ export function useContactForm() {
   const [errors, setErrors]   = useState<ContactFormErrors>({});
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const setField = (field: keyof ContactFormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -45,10 +46,16 @@ export function useContactForm() {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    await submitContactForm(form);
-    setLoading(false);
-    setSuccess(true);
+    setSubmitError('');
+    try {
+      await submitContactForm(form);
+      setSuccess(true);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Não foi possível enviar sua mensagem.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return { form, errors, success, loading, setField, handlePhoneInput, handleSubmit };
+  return { form, errors, success, loading, submitError, setField, handlePhoneInput, handleSubmit };
 }

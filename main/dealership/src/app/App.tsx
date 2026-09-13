@@ -37,7 +37,7 @@ import { ConfiguracoesScreen }  from '../modules/configuracoes/configuracoes.scr
 import '../styles/globals.scss';
 
 const AppInner: React.FC = () => {
-  const { activeModule } = useApp();
+  const { activeModule, user } = useApp();
   const { toasts, showToast } = useToast();
   const p = { showToast };
   const screen = () => {
@@ -61,7 +61,7 @@ const AppInner: React.FC = () => {
   };
   return (
     <>
-      <AppLayout showToast={showToast}>{screen()}</AppLayout>
+      <AppLayout showToast={showToast} user={user}>{screen()}</AppLayout>
       <ToastContainer toasts={toasts} />
     </>
   );

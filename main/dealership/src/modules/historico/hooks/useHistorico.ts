@@ -4,25 +4,31 @@
  * @description Hook de estado e lógica da tela de Histórico.
  *
  * Responsabilidades:
- * - Escuta o CustomEvent 'ford:selectCliente' disparado pelo GlobalSearch
- *   e pela tela de Clientes para abrir o histórico de um cliente específico
- * - Mantém o cliente selecionado e sua lista de veículos
+ * - Escuta o CustomEvent 'ford:selectCliente' disparado pela tela de Clientes,
+ *   pela busca global e pelos chips "Acessados Hoje" desta própria tela
+ * - Busca o cliente (GET /clientes/:id) e seus veículos
+ *   (GET /clientes/:id/veiculos) sempre que o id selecionado muda
  * - Controla abertura/fechamento do VehicleModal
  * - Fornece a função voltar() para retornar à listagem de clientes
  *
- * selectedCliente e veiculos são derivados de selectedId — sem duplicação de estado.
- * O VehicleModal acessa o veículo pelo selectedId + selectedVehicleId via service.
+ * selectedCliente e veiculos são buscados da API real — nada vem mais de
+ * data/clientes.data.ts ou data/veiculos.data.ts.
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { getVeiculosCliente } from '../services/historico.service';
-import { CLIENTES } from '../../../data/clientes.data';
+import { fetchVeiculosCliente } from '../services/historico.service';
+import { fetchClienteById } from '../../clientes/services/clientes.service';
+import { friendlyApiMessage } from '../../../shared/api/client';
 import type { Veiculo, Cliente } from '../../../types/global.types';
 
 export function useHistorico() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
+  const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
+  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -34,11 +40,22 @@ export function useHistorico() {
     return () => window.removeEventListener('ford:selectCliente', handler);
   }, []);
 
-  const selectedCliente: Cliente | undefined = selectedId
-    ? CLIENTES.find(c => c.id === selectedId)
-    : undefined;
-
-  const veiculos: Veiculo[] = selectedId ? getVeiculosCliente(selectedId) : [];
+  useEffect(() => {
+    if (!selectedId) { setSelectedCliente(null); setVeiculos([]); return; }
+    setLoading(true);
+    setError('');
+    Promise.all([fetchClienteById(selectedId), fetchVeiculosCliente(selectedId)])
+      .then(([cliente, veiculosCliente]) => {
+        setSelectedCliente(cliente);
+        setVeiculos(veiculosCliente);
+      })
+      .catch(e => {
+        setError(friendlyApiMessage(e));
+        setSelectedCliente(null);
+        setVeiculos([]);
+      })
+      .finally(() => setLoading(false));
+  }, [selectedId]);
 
   const openVehicleModal = useCallback((cid: string, vid: string) => {
     setSelectedId(cid);
@@ -46,8 +63,8 @@ export function useHistorico() {
     setVehicleModalOpen(true);
   }, []);
 
-  const selectedVeiculo: Veiculo | undefined = selectedId && selectedVehicleId
-    ? getVeiculosCliente(selectedId).find(v => v.id === selectedVehicleId)
+  const selectedVeiculo: Veiculo | undefined = selectedVehicleId
+    ? veiculos.find(v => v.id === selectedVehicleId)
     : undefined;
 
   const voltar = useCallback(() => {
@@ -55,7 +72,7 @@ export function useHistorico() {
   }, []);
 
   return {
-    selectedId, selectedCliente, veiculos,
+    selectedId, selectedCliente, veiculos, loading, error,
     openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen,
     voltar,
   };

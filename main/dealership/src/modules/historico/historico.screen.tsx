@@ -21,31 +21,32 @@ import React from 'react';
 import { useHistorico } from './hooks/useHistorico';
 import { VehicleModal } from './components/VehicleModal/VehicleModal';
 import { useApp } from '../../shared/context/AppContext';
-import { CLIENTES } from '../../data/clientes.data';
 import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
 import { cap } from '../../shared/utils/formatters';
 import { formatCurrency } from '../../shared/utils/formatters';
 import type { ToastType } from '../../shared/hooks/useToast';
+import type { AccessLogItem } from '../../types/global.types';
 import { useState } from 'react';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
   const { navigate, accessLog, clearHistory, logAccess, logVehicleAccess } = useApp();
-  const { selectedId, selectedCliente, veiculos, openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen, voltar } = useHistorico();
+  const {
+    selectedId, selectedCliente, veiculos, loading, error,
+    openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen, voltar,
+  } = useHistorico();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const goHistorico = (id: string) => {
-    logAccess(id);
-    window.dispatchEvent(new CustomEvent('ford:selectCliente', { detail: id }));
+  const goHistorico = (a: AccessLogItem) => {
+    logAccess(a);
+    window.dispatchEvent(new CustomEvent('ford:selectCliente', { detail: a.id }));
   };
 
   const handleOpenVehicle = (cid: string, vid: string) => {
-    const c = CLIENTES.find(x => x.id === cid);
-    const veicsC = (window as any).__veiculos?.[cid] || [];
-    if (c) {
-      const v = veicsC.find((x: any) => x.id === vid);
-      if (v) logVehicleAccess(vid, v.modelo + ' ' + v.versao.split(' ')[0], c.nome.split(' ').slice(0,2).join(' '), cid);
+    const v = veiculos.find(x => x.id === vid);
+    if (v && selectedCliente) {
+      logVehicleAccess(vid, `${v.modelo} ${v.versao.split(' ')[0]}`, selectedCliente.nome.split(' ').slice(0, 2).join(' '), cid);
     }
     openVehicleModal(cid, vid);
   };
@@ -70,7 +71,7 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
           {accessLog.clientes.length === 0
             ? <span className="chip-empty">Nenhum cliente acessado hoje.</span>
             : accessLog.clientes.map(a => (
-              <div key={a.id} className="chip" onClick={() => goHistorico(a.id)} style={{cursor:'pointer'}}>
+              <div key={a.id} className="chip" onClick={() => goHistorico(a)} style={{cursor:'pointer'}}>
                 <div className="chip-av">{a.ini}</div>
                 <span>{a.nome}</span>
                 <span className="chip-t">{a.hora}</span>
@@ -100,13 +101,18 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
         </div>
       </div>
 
-      {selectedId && selectedCliente && (
+      {selectedId && (
         <div id="histClientDetail">
           <div id="histBackBar" style={{marginBottom:16}}>
             <button className="btn-sec" onClick={() => { voltar(); navigate('clientes'); }} style={{gap:6}}>
               <i className="ph-bold ph-arrow-left"/> Voltar para Clientes
             </button>
           </div>
+          {loading && <p className="mod-sub">Carregando cliente...</p>}
+          {!loading && error && <p className="mod-sub" style={{color:'var(--red)'}}>{error}</p>}
+          {!loading && !error && !selectedCliente && <p className="mod-sub">Cliente não encontrado.</p>}
+          {!loading && selectedCliente && (
+          <>
           <div className="client-summary" id="clientSummary">
             <div className="csb-item"><div className="csb-lbl">Cliente</div><div className="csb-val" style={{fontSize:'var(--fs3)'}}>{selectedCliente.nome}</div></div>
             <div className="csb-item"><div className="csb-lbl">Status</div><div className="csb-val"><span className={`pill ${selectedCliente.status}`}>{cap(selectedCliente.status)}</span></div></div>
@@ -146,6 +152,8 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
               ))
             }
           </div>
+          </>
+          )}
         </div>
       )}
 
@@ -153,7 +161,7 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
         isOpen={vehicleModalOpen}
         onClose={() => setVehicleModalOpen(false)}
         veiculo={selectedVeiculo}
-        cliente={selectedCliente}
+        cliente={selectedCliente ?? undefined}
       />
 
       <ConfirmModal

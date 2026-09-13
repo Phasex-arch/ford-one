@@ -4,37 +4,68 @@
  * @description Hook de estado e lógica da tela de Leads Inteligentes.
  *
  * Gerencia:
- * - urgFilter: filtro de urgência ativo ('' = todos)
- * - leads: lista filtrada (memo por urgência)
- * - modalId: ID do lead com modal aberto
- * - pipeline: KPIs do pipeline (total, urgentes, valor total, ticket médio)
- * - leadSchedule: agendamentos do AppContext
+ * - urgFilter: filtro de urgência ativo ('' = todos) — mandado como query
+ *   string real pro backend, com paginação de verdade (sem filtrar em memória)
+ * - page/pagination/loading/error: paginação real e estado de carregamento
+ * - pipeline: KPIs do pipeline, vindos de um snapshot separado (fetchLeadsStats)
+ * - modalId/lead: lead com modal aberto — resolvido na página atual e, se não
+ *   encontrado (aberto via busca global), buscado por ID
+ * - leadAgendamentos: mapa leadId → agendamento ativo, de GET /api/agendamentos
+ *   (status=AGENDADO) — substitui o antigo leadSchedule local do AppContext,
+ *   que nunca persistia de verdade
+ * - reloadAgendamentos(): recarrega o mapa após agendar/cancelar
+ * - assumirLead(id, showToast): PATCH responsavelId = usuário logado — o botão
+ *   "Assumir lead" só mostrava um toast antes, sem gravar nada
  *
  * Escuta o CustomEvent 'ford:openLead' para abrir modal via busca global.
- * Os agendamentos de leads são persistidos no AppContext para sobreviver
- * à troca de módulo.
  */
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import { filterLeads } from '../services/leads.service';
-import { LEADS } from '../../../data/leads.data';
-import { useApp } from '../../../shared/context/AppContext';
-import { formatCurrency } from '../../../shared/utils/formatters';
-import type { LeadUrgencia } from '../../../types/global.types';
+import { useState, useCallback, useEffect } from 'react';
+import { fetchLeads, fetchLeadById, fetchLeadsStats, assumirLead as assumirLeadApi, type LeadsStats } from '../services/leads.service';
+import { fetchAgendamentosDeLeads, type LeadAgendamento } from '../../agenda/services/agenda.service';
+import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
+import type { Lead, LeadUrgencia } from '../../../types/global.types';
+import type { ToastType } from '../../../shared/hooks/useToast';
+
+const PAGE_SIZE = 20;
+const EMPTY_STATS: LeadsStats = { total: 0, urgentes: 0, pipeline: 0, ticketMedio: 0 };
 
 export function useLeads() {
   const [urgFilter, setUrgFilter] = useState<LeadUrgencia|''>('');
+  const [page, setPage] = useState(1);
   const [modalId, setModalId] = useState<string|null>(null);
-  const { leadSchedule } = useApp();
+  const [lead, setLead] = useState<Lead | null>(null);
+  const [leadAgendamentos, setLeadAgendamentos] = useState<Record<string, LeadAgendamento>>({});
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [pipeline, setPipeline] = useState<LeadsStats>(EMPTY_STATS);
 
-  const leads = useMemo(() => filterLeads(urgFilter), [urgFilter]);
+  useEffect(() => { setPage(1); }, [urgFilter]);
 
-  const pipeline = useMemo(() => ({
-    total: LEADS.length,
-    urgentes: LEADS.filter(l=>l.urg==='urgente').length,
-    pipeline: LEADS.reduce((s,l)=>s+l.val,0),
-    ticketMedio: Math.round(LEADS.reduce((s,l)=>s+l.val,0)/LEADS.length),
-  }), []);
+  const reload = useCallback(() => {
+    setLoading(true);
+    setError('');
+    fetchLeads({ page, limit: PAGE_SIZE, urgencia: urgFilter })
+      .then(res => { setLeads(res.data); setPagination(res.pagination); })
+      .catch(e => { setError(friendlyApiMessage(e)); setLeads([]); setPagination(null); })
+      .finally(() => setLoading(false));
+  }, [page, urgFilter]);
+
+  useEffect(() => { reload(); }, [reload]);
+
+  useEffect(() => {
+    fetchLeadsStats().then(setPipeline).catch(() => setPipeline(EMPTY_STATS));
+  }, [leads]);
+
+  const reloadAgendamentos = useCallback(() => {
+    fetchAgendamentosDeLeads()
+      .then(list => setLeadAgendamentos(Object.fromEntries(list.map(a => [a.leadId, a]))))
+      .catch(() => setLeadAgendamentos({}));
+  }, []);
+
+  useEffect(() => { reloadAgendamentos(); }, [reloadAgendamentos, leads]);
 
   useEffect(() => {
     const h = (e: Event) => setModalId((e as CustomEvent<string>).detail);
@@ -42,5 +73,23 @@ export function useLeads() {
     return () => window.removeEventListener('ford:openLead', h);
   }, []);
 
-  return { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline, leadSchedule, formatCurrency };
+  useEffect(() => {
+    if (!modalId) { setLead(null); return; }
+    const found = leads.find(l => l.id === modalId);
+    if (found) { setLead(found); return; }
+    fetchLeadById(modalId).then(setLead).catch(() => setLead(null));
+  }, [modalId, leads]);
+
+  const assumirLead = useCallback((id: string, responsavelId: string, showToast: (m: string, t?: ToastType) => void) => {
+    assumirLeadApi(id, responsavelId).then(() => {
+      showToast('Lead assumido!', 'success');
+      reload();
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  }, [reload]);
+
+  return {
+    leads, urgFilter, setUrgFilter, modalId, setModalId, lead, pipeline,
+    leadAgendamentos, reloadAgendamentos, assumirLead,
+    page, setPage, pagination, loading, error,
+  };
 }

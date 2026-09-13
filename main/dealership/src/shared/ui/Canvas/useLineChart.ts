@@ -39,12 +39,20 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
     const ctx = el.getContext('2d'); if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const P = { t:18, r:18, b:26, l:44 };
+    const P = { t:18, r:18, b:32, l:44 };
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
     const all = cfg.sets.flatMap(s => s.data);
+    if (cfg.labels.length === 0 || all.length === 0) {
+      ctx.clearRect(0, 0, W, H);
+      return;
+    }
     const mn = Math.min(...all) * .88; const mx = Math.max(...all) * 1.1;
+    // Quando todos os pontos são iguais (ex.: toda a série em zero), mx-mn
+    // vira 0 e (v-mn)/(mx-mn) dá NaN — usa 1 como divisor nesse caso, o que
+    // desenha uma linha reta em vez de quebrar o createLinearGradient.
+    const range = (mx - mn) || 1;
     const tx = (i: number) => P.l + i / (cfg.labels.length - 1) * pw;
-    const ty = (v: number) => P.t + ph - (v - mn) / (mx - mn) * ph;
+    const ty = (v: number) => P.t + ph - (v - mn) / range * ph;
 
     ctx.clearRect(0, 0, W, H);
     ctx.strokeStyle = cgrid(); ctx.lineWidth = 1;
@@ -55,10 +63,11 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
       ctx.fillText(Math.round(mx - i / 4 * (mx - mn)) + (cfg.unit || ''), P.l - 6, y + 3.5);
     }
     ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
-    cfg.labels.forEach((l, i) => ctx.fillText(l, tx(i), H - P.b + 13));
+    cfg.labels.forEach((l, i) => ctx.fillText(l, tx(i), H - P.b + 19));
 
     cfg.sets.forEach(ds => {
       const pts = ds.data.map((v, i) => [tx(i), ty(v)] as [number, number]);
+      if (pts.length === 0) return;
       if (ds.fill) {
         ctx.beginPath(); ctx.moveTo(pts[0][0], ty(mn));
         pts.forEach(([x, y]) => ctx.lineTo(x, y));

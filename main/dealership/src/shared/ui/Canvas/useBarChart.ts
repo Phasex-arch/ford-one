@@ -36,9 +36,16 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
     const ctx = el.getContext('2d'); if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const P = { t:18, r:18, b:26, l:44 };
+    const P = { t:18, r:18, b:32, l:44 };
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
-    const mx = Math.max(...cfg.data) * 1.15;
+    if (cfg.data.length === 0 || cfg.labels.length === 0) {
+      ctx.clearRect(0, 0, W, H);
+      return;
+    }
+    // Math.max(...cfg.data) pode ser 0 quando toda a série é zero (ex.: nenhum
+    // lead convertido ainda) — sem o guard, v/mx vira 0/0 = NaN e quebra o
+    // createLinearGradient mais abaixo.
+    const mx = Math.max(...cfg.data) * 1.15 || 1;
     const bw = (pw / cfg.data.length) * .58;
     const gap = (pw / cfg.data.length) * .21;
 
@@ -69,7 +76,7 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
         ctx.font = `${hov ? 'bold' : 'normal'} 10px Inter,sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(v + (cfg.unit || ''), x + bw / 2, y - 5);
-        ctx.fillText(cfg.labels[i], x + bw / 2, H - P.b + 13);
+        ctx.fillText(cfg.labels[i], x + bw / 2, H - P.b + 19);
       });
     };
     draw(-1);

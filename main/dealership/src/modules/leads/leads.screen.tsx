@@ -13,57 +13,94 @@
  *
  * Fluxo de agendamento:
  * 1. Clicar "Agendar" no card → abre modal de horários
- * 2. Selecionar slot → confirmar → salva em leadSchedule no AppContext
- * 3. Card exibe status agendado com horário + botão cancelar
+ * 2. Selecionar slot → confirmar → POST /api/agendamentos (vinculado ao lead)
+ * 3. Card exibe status agendado com horário + botão cancelar (PATCH status=CANCELADO)
  *
  * Props:
  * - showToast → feedback de ações (ligar, assumir, agendar, cancelar)
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLeads } from './hooks/useLeads';
-import { getLead } from './services/leads.service';
 import { formatCurrency, cap } from '../../shared/utils/formatters';
 import { useApp } from '../../shared/context/AppContext';
-import { TECNICOS, SLOT_HOURS } from '../../data/tecnicos.data';
-import type { LeadUrgencia } from '../../types/global.types';
+import { PaginationBar } from '../../shared/components/PaginationBar/PaginationBar';
+import { fetchTecnicos } from '../servicos/services/tecnico.service';
+import { fetchAgendamentosDia, createAgendamento, cancelarAgendamento } from '../agenda/services/agenda.service';
+import { SLOT_HOURS } from '../../shared/constants/agenda';
+import { friendlyApiMessage } from '../../shared/api/client';
+import type { LeadUrgencia, Tecnico } from '../../types/global.types';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
+const formatBooking = (dataHora: string): string => {
+  const d = new Date(dataHora);
+  const hora = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const alvo = new Date(d); alvo.setHours(0,0,0,0);
+  const diffDias = Math.round((alvo.getTime() - hoje.getTime()) / 86400000);
+  const dia = diffDias === 0 ? 'Hoje' : diffDias === 1 ? 'Amanhã' : diffDias > 1 ? `+${diffDias}d` : 'data passada';
+  return `${hora} (${dia})`;
+};
+
 export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
-  const { leads, urgFilter, setUrgFilter, modalId, setModalId, pipeline } = useLeads();
-  const { leadSchedule, setLeadSchedule, navigate } = useApp();
+  const {
+    leads, urgFilter, setUrgFilter, modalId, setModalId, lead, pipeline,
+    leadAgendamentos, reloadAgendamentos, assumirLead,
+    setPage, pagination, loading, error,
+  } = useLeads();
+  const { navigate, user } = useApp();
   const [schedLeadId, setSchedLeadId] = useState<string|null>(null);
   const [schedDay, setSchedDay] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState(-1);
+  const [tecnicos, setTecnicos] = useState<Tecnico[]>([]);
+  const [slotsTaken, setSlotsTaken] = useState<boolean[]>([]);
 
-  const slots = SLOT_HOURS.slice(0,18).map((h,i) => ({
-    hora: h, taken: [0,1,3,4,6,7,9,10,12,15,16].includes(i),
-  }));
+  useEffect(() => { fetchTecnicos().then(setTecnicos).catch(() => setTecnicos([])); }, []);
 
-  const lead = modalId ? getLead(modalId) : null;
-  const schedLead = schedLeadId ? getLead(schedLeadId) : null;
-  const isBooked = (id: string) => !!leadSchedule[id];
+  useEffect(() => {
+    if (!schedLeadId) { setSlotsTaken([]); return; }
+    const d = new Date(); d.setDate(d.getDate() + schedDay);
+    fetchAgendamentosDia(d)
+      .then(dia => setSlotsTaken(dia.map(sl => sl.apts.some(a => !a.cancelled))))
+      .catch(() => setSlotsTaken([]));
+  }, [schedLeadId, schedDay]);
 
-  const cancelSchedule = (id: string) => {
-    setLeadSchedule(p => { const n={...p}; delete n[id]; return n; });
-    showToast('Agendamento cancelado.','warning');
+  const slots = SLOT_HOURS.slice(0,18).map((h,i) => ({ hora: h, taken: slotsTaken[i] ?? false }));
+
+  const schedLead = schedLeadId ? leads.find(l => l.id === schedLeadId) : null;
+  const isBooked = (id: string) => !!leadAgendamentos[id];
+
+  const cancelSchedule = (leadId: string) => {
+    const ag = leadAgendamentos[leadId]; if (!ag) return;
+    cancelarAgendamento(ag.id).then(() => {
+      showToast('Agendamento cancelado.','warning');
+      reloadAgendamentos();
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
   const confirmSchedule = () => {
     if (selectedSlot < 0) { showToast('Selecione um horário.','warning'); return; }
-    if (!schedLeadId) return;
-    const l = getLead(schedLeadId); if (!l) return;
-    const tech = TECNICOS.find(t=>t.status==='livre')?.nome || TECNICOS[0].nome;
-    setLeadSchedule(p => ({...p, [schedLeadId]: { dayOffset: schedDay, slotIdx: selectedSlot }}));
-    showToast(`Agendado: ${l.cli} às ${slots[selectedSlot]?.hora} com ${tech}!`, 'success');
-    setSchedLeadId(null); setSelectedSlot(-1);
+    if (!schedLeadId || !schedLead) return;
+    const tech = tecnicos.find(t=>t.status==='livre')?.nome || tecnicos[0]?.nome || '';
+    const hora = SLOT_HOURS[selectedSlot];
+    const [h, m] = hora.split(':').map(Number);
+    const d = new Date(); d.setDate(d.getDate() + schedDay);
+    const dataHora = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m).toISOString();
+    createAgendamento({
+      cliente: schedLead.cli, servico: `Visita — ${schedLead.v}`,
+      tecnico: tech || undefined, dataHora, leadId: schedLeadId,
+    }).then(() => {
+      showToast(`Agendado: ${schedLead.cli} às ${hora}${tech ? ' com ' + tech : ''}!`, 'success');
+      setSchedLeadId(null); setSelectedSlot(-1);
+      reloadAgendamentos();
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
   return (
     <section className="module active" id="mod-leads">
-      <div className="mod-header">
+      <div className="mod-header" style={{marginBottom:12}}>
         <div><h1>Leads Inteligentes</h1><p className="mod-sub">Pipeline de oportunidades com IA</p></div>
         <div className="mod-actions">
           <button className="btn-sec" onClick={()=>navigate('relatorios')}><i className="ph-bold ph-arrow-square-out"/> Exportar</button>
@@ -77,7 +114,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
         <div className="pipeline-item"><div className="pipeline-val" style={{color:'var(--green)'}}>{formatCurrency(pipeline.ticketMedio,true)}</div><div className="pipeline-lbl">Ticket Médio</div></div>
       </div>
 
-      <div className="filter-bar" style={{marginBottom:16}}>
+      <div className="filter-bar" style={{marginBottom:12}}>
         <select value={urgFilter} onChange={e=>setUrgFilter(e.target.value as LeadUrgencia|'')}>
           <option value="">Todos os leads</option>
           <option value="urgente">Urgente</option>
@@ -87,14 +124,20 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
         </select>
       </div>
 
+      {error && <p className="mod-sub" style={{ color: 'var(--red)' }}>{error}</p>}
+      {loading ? (
+        <p className="mod-sub">Carregando leads...</p>
+      ) : leads.length === 0 ? (
+        <p className="mod-sub">Nenhum lead encontrado{urgFilter ? ' para esse filtro.' : '.'}</p>
+      ) : (
       <div className="leads-grid" id="leadsGrid">
         {leads.map(l => {
-          const bk = leadSchedule[l.id];
-          const bookLabel = bk ? `${slots[bk.slotIdx]?.hora||'–'} (${bk.dayOffset===0?'Hoje':bk.dayOffset===1?'Amanhã':'+'+bk.dayOffset+'d'})` : '';
+          const bk = leadAgendamentos[l.id];
+          const bookLabel = bk ? formatBooking(bk.dataHora) : '';
           return (
             <div key={l.id} className={`lead-card ${l.urg}`} onClick={()=>setModalId(l.id)} style={{cursor:'pointer'}}>
               <div className="lead-head">
-                <div className="lead-cli"><div className="cli-av">{l.ini}</div><div><div className="cli-name">{l.cli}</div><div className="cli-id">{l.id}</div></div></div>
+                <div className="lead-cli"><div className="cli-av">{l.ini}</div><div className="lead-cli-info"><div className="cli-name">{l.cli}</div><div className="cli-id">{l.id}</div></div></div>
                 <span className={`urg-tag ${l.urg}`}>{cap(l.urg)}</span>
               </div>
               <div className="lead-vbox"><div className="lead-vlbl">Interesse em</div><div className="lead-vname">{l.v}</div><div className="lead-nec">{l.nec}</div></div>
@@ -115,6 +158,17 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
           );
         })}
       </div>
+      )}
+      {pagination && (
+        <PaginationBar
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          total={pagination.total}
+          hasPrev={pagination.hasPrev}
+          hasNext={pagination.hasNext}
+          onChange={setPage}
+        />
+      )}
 
       {lead && (
         <div className={`modal-ov${modalId?' open':''}`} id="leadModal" onClick={e=>{if(e.target===e.currentTarget)setModalId(null);}}>
@@ -124,13 +178,20 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10,marginBottom:16}}>
                 <div style={{display:'flex',alignItems:'center',gap:11}}>
                   <div className="cli-av" style={{width:40,height:40,fontSize:'var(--fs3)'}}>{lead.ini}</div>
-                  <div><div style={{fontSize:20,fontWeight:700,color:'var(--c-text)'}}>{lead.cli}</div><div style={{fontSize:'var(--fs0)',color:'var(--c-mid)'}}>{lead.tel}</div></div>
+                  <div>
+                    <div style={{fontSize:20,fontWeight:700,color:'var(--c-text)'}}>{lead.cli}</div>
+                    <div style={{fontSize:'var(--fs0)',color:'var(--c-mid)'}}>{lead.tel}</div>
+                    {lead.email && (
+                      <a href={`mailto:${lead.email}`} style={{fontSize:'var(--fs0)',color:'var(--ford-vivid)'}}
+                        onClick={e=>e.stopPropagation()}>{lead.email}</a>
+                    )}
+                  </div>
                 </div>
                 <span className={`urg-tag ${lead.urg}`} style={{fontSize:'var(--fs1)',padding:'4px 12px'}}>{cap(lead.urg)}</span>
               </div>
-              {leadSchedule[lead.id] && (() => { const bk=leadSchedule[lead.id]; const hl=slots[bk.slotIdx]?.hora||'–'; const dl=bk.dayOffset===0?'Hoje':bk.dayOffset===1?'Amanhã':'+'+bk.dayOffset+' dias'; return (
-                <div style={{padding:'10px 13px',background:'var(--green-bg)',borderRadius:'var(--rsm)',borderLeft:'3px solid var(--green)',fontSize:'var(--fs1)',marginBottom:14,color:'var(--green)',fontWeight:600}}>Agendado — {hl} · {dl}</div>
-              );})()}
+              {leadAgendamentos[lead.id] && (
+                <div style={{padding:'10px 13px',background:'var(--green-bg)',borderRadius:'var(--rsm)',borderLeft:'3px solid var(--green)',fontSize:'var(--fs1)',marginBottom:14,color:'var(--green)',fontWeight:600}}>Agendado — {formatBooking(leadAgendamentos[lead.id].dataHora)}</div>
+              )}
             </div>
             <div className="m-body" style={{paddingTop:0}}>
               <div className="m-sec"><div className="m-sec-title">Oportunidade</div>
@@ -149,7 +210,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
                   {isBooked(lead.id)
                     ? <button className="btn-danger" onClick={()=>{cancelSchedule(lead.id);setModalId(null);}}>Cancelar agendamento</button>
                     : <button className="btn-sec" onClick={()=>{setModalId(null);setSchedLeadId(lead.id);setSchedDay(0);setSelectedSlot(-1);}}>Agendar visita</button>}
-                  <button className="btn-prim" onClick={()=>{showToast('Lead assumido!','success');setModalId(null);}}>Assumir lead</button>
+                  <button className="btn-prim" onClick={()=>{if(user)assumirLead(lead.id,user.id,showToast);setModalId(null);}}>Assumir lead</button>
                 </div>
               </div>
             </div>

@@ -21,15 +21,14 @@
 
 import React, { useState } from 'react';
 import { useAgenda } from './hooks/useAgenda';
-import { TECNICOS } from '../../data/tecnicos.data';
 import { cap } from '../../shared/utils/formatters';
 import type { ToastType } from '../../shared/hooks/useToast';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
 
 export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
-  const { slots, getDayTitle, active, total, pct, shiftDay, cancelApt,
-          schedOpen, setSchedOpen, selectedSlot, setSelectedSlot, confirmSchedule } = useAgenda(showToast);
+  const { slots, loading, getDayTitle, active, total, pct, shiftDay, cancelApt,
+          schedOpen, setSchedOpen, selectedSlot, setSelectedSlot, confirmSchedule, tecnicos: TECNICOS } = useAgenda(showToast);
   const [schedCli, setSchedCli] = useState('');
   const [schedServ, setSchedServ] = useState('');
   const [schedTech, setSchedTech] = useState('');
@@ -68,6 +67,7 @@ export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
             <span id="agendaDayTitle" style={{fontSize:"var(--fs3)",fontWeight:600,color:"var(--c-text)",flex:1,textAlign:"center"}}>{getDayTitle()}</span>
             <button className="icon-btn" onClick={()=>shiftDay(1)}><i className="ph-bold ph-caret-right"/></button>
           </div>
+          {loading && <p className="mod-sub">Carregando agenda...</p>}
           <div id="agendaSlots">
             {slots.map((sl,si)=>{
               const isEmpty = sl.apts.filter(a=>!a.cancelled).length === 0;
