@@ -60,6 +60,8 @@ public/assets/images/logo/icon_ford_one.png
 
 ## Credenciais (concessionaria)
 
-- **Usuário:** Ford-PhaseX
-- **Senha:** Ford
-- **Redirect:** `../ford-one-concessionaria/`
+Conta de demonstração — mesma exibida (clicável) na tela de login:
+
+- **Usuário:** ford.phasex@ford.com.br
+- **Senha:** FordPhasex@2026
+- **Redirect:** dealership (`VITE_DEALERSHIP_URL`), token via fragmento `#access_token=...`
