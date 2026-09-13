@@ -49,6 +49,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     veiculos: [],
   });
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
+  // Enquanto true, nenhuma tela filha é montada — evita que Dashboard/Estoque/etc.
+  // disparem suas próprias chamadas de API (e tomem 401) antes da troca do
+  // código (#code=...) por um token de verdade terminar.
+  const [booting, setBooting] = useState(true);
 
   useEffect(() => {
     const portalUrl = import.meta.env.VITE_PORTAL_URL
@@ -83,7 +87,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         redirect();
         return;
       }
-      apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
+      try {
+        setUser(await apiRequest<AuthenticatedUser>('/auth/me'));
+      } catch {
+        // 401 aqui já dispara 'ford:unauthorized' (tratado no client) e redireciona.
+      } finally {
+        setBooting(false);
+      }
     };
     boot();
 
@@ -119,7 +129,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider value={{ activeModule, accessLog, user, navigate, logAccess, logVehicleAccess, clearHistory, refreshUser }}>
-      {children}
+      {booting ? <div className="app-boot-loading" aria-label="Carregando" /> : children}
     </AppContext.Provider>
   );
 };

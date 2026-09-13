@@ -841,3 +841,7 @@ canvas{width:100%!important;display:block}
 }
 
 .fin-values>div{flex-shrink:0}
+
+.app-boot-loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--c-bg);z-index:9999}
+.app-boot-loading::after{content:"";width:34px;height:34px;border-radius:50%;border:3px solid var(--c-border);border-top-color:var(--ford-blue);animation:app-boot-spin .7s linear infinite}
+@keyframes app-boot-spin{to{transform:rotate(360deg)}}
