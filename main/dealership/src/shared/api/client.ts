@@ -15,15 +15,10 @@ export const friendlyApiMessage = (error: unknown): string =>
       ? error.message
       : 'Não foi possível concluir a solicitação.';
 
-export const getToken = () => {
-  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-  const fragmentToken = params.get('access_token');
-  if (fragmentToken) {
-    localStorage.setItem(TOKEN_KEY, fragmentToken);
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  }
-  return localStorage.getItem(TOKEN_KEY);
-};
+// A troca do código de uso único (#code=...) vindo do portal por um token
+// de verdade acontece no boot do AppContext (POST /auth/exchange), não
+// aqui — getToken() só lê o que já foi validado e guardado.
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (token: string) => localStorage.setItem(TOKEN_KEY, token);
 export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 

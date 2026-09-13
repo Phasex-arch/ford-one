@@ -27,7 +27,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { AccessLogItem, VehicleLogItem, ModuleId } from '../../types/global.types';
 import { nowStr } from '../utils/dates';
-import { apiRequest, clearToken, getToken, type AuthenticatedUser } from '../api/client';
+import { apiRequest, clearToken, getToken, setToken, type AuthenticatedUser } from '../api/client';
 
 interface AppState {
   activeModule: ModuleId;
@@ -58,11 +58,35 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       window.location.href = `${portalUrl.replace(/\/$/, '')}/concessionaria`;
     };
     window.addEventListener('ford:unauthorized', redirect);
-    if (!getToken()) {
-      redirect();
-      return () => window.removeEventListener('ford:unauthorized', redirect);
-    }
-    apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
+
+    const boot = async () => {
+      // O portal manda um código de uso único (#code=...) em vez do JWT direto.
+      // Trocamos aqui pelo token de verdade e limpamos o hash da URL antes de
+      // qualquer outra coisa, pra ele nunca ficar exposto no histórico.
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const code = hashParams.get('code');
+      if (code) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        try {
+          const { accessToken } = await apiRequest<{ accessToken: string }>('/auth/exchange', {
+            method: 'POST',
+            body: JSON.stringify({ code }),
+          });
+          setToken(accessToken);
+        } catch {
+          redirect();
+          return;
+        }
+      }
+
+      if (!getToken()) {
+        redirect();
+        return;
+      }
+      apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
+    };
+    boot();
+
     return () => window.removeEventListener('ford:unauthorized', redirect);
   }, []);
 
