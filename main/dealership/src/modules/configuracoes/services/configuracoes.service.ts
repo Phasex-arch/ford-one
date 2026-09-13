@@ -31,6 +31,15 @@ export interface SegurancaStatus {
   jwtExpiresIn: string;
 }
 
+export interface AuditLogEntry {
+  id: string;
+  userEmail: string | null;
+  action: string;
+  resource: string;
+  statusCode: number | null;
+  timestamp: string;
+}
+
 export async function fetchConcessionaria(): Promise<Concessionaria> {
   return apiRequest<Concessionaria>('/configuracoes/concessionaria');
 }
@@ -44,4 +53,10 @@ export async function updateConcessionaria(dados: UpdateConcessionariaInput): Pr
 
 export async function fetchSeguranca(): Promise<SegurancaStatus> {
   return apiRequest<SegurancaStatus>('/configuracoes/seguranca');
+}
+
+/** Só retorna algo pra ADMIN — GERENTE/FUNCIONARIO recebem 403 (esperado, tratado como "sem dado"). */
+export async function fetchAuditLogRecente(limit = 8): Promise<AuditLogEntry[]> {
+  const res = await apiRequest<{ data: AuditLogEntry[] }>(`/audit-log?page=1&limit=${limit}`);
+  return res.data;
 }

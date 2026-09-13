@@ -8,8 +8,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  fetchConcessionaria, updateConcessionaria, fetchSeguranca,
-  type Concessionaria, type UpdateConcessionariaInput, type SegurancaStatus,
+  fetchConcessionaria, updateConcessionaria, fetchSeguranca, fetchAuditLogRecente,
+  type Concessionaria, type UpdateConcessionariaInput, type SegurancaStatus, type AuditLogEntry,
 } from '../services/configuracoes.service';
 import { friendlyApiMessage } from '../../../shared/api/client';
 import type { ToastType } from '../../../shared/hooks/useToast';
@@ -17,6 +17,7 @@ import type { ToastType } from '../../../shared/hooks/useToast';
 export function useConfiguracoes(showToast: (m: string, t?: ToastType) => void) {
   const [concessionaria, setConcessionaria] = useState<Concessionaria | null>(null);
   const [seguranca, setSeguranca] = useState<SegurancaStatus | null>(null);
+  const [auditLog, setAuditLog] = useState<AuditLogEntry[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [salvando, setSalvando] = useState(false);
@@ -28,6 +29,8 @@ export function useConfiguracoes(showToast: (m: string, t?: ToastType) => void) 
       .then(([c, s]) => { setConcessionaria(c); setSeguranca(s); })
       .catch(e => setError(friendlyApiMessage(e)))
       .finally(() => setLoading(false));
+    // Auditoria é só ADMIN (403 pros outros papéis) — falha silenciosa vira "sem dado", não erro de tela.
+    fetchAuditLogRecente().then(setAuditLog).catch(() => setAuditLog(null));
   }, []);
 
   useEffect(() => { reload(); }, [reload]);
@@ -41,5 +44,5 @@ export function useConfiguracoes(showToast: (m: string, t?: ToastType) => void) 
       .finally(() => setSalvando(false));
   }, [showToast]);
 
-  return { concessionaria, seguranca, loading, error, salvando, salvarConcessionaria };
+  return { concessionaria, seguranca, auditLog, loading, error, salvando, salvarConcessionaria };
 }
