@@ -37,6 +37,7 @@ interface AppState {
   logAccess: (cliente: Pick<AccessLogItem, 'id' | 'nome' | 'ini'>) => void;
   logVehicleAccess: (vid: string, modelo: string, cliName: string, cid: string) => void;
   clearHistory: () => void;
+  refreshUser: () => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -65,6 +66,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener('ford:unauthorized', redirect);
   }, []);
 
+  const refreshUser = useCallback(() => {
+    apiRequest<AuthenticatedUser>('/auth/me').then(setUser).catch(() => undefined);
+  }, []);
+
   const navigate = useCallback((mod: ModuleId) => {
     setActiveModule(mod);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -89,7 +94,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AppContext.Provider value={{ activeModule, accessLog, user, navigate, logAccess, logVehicleAccess, clearHistory }}>
+    <AppContext.Provider value={{ activeModule, accessLog, user, navigate, logAccess, logVehicleAccess, clearHistory, refreshUser }}>
       {children}
     </AppContext.Provider>
   );

@@ -46,6 +46,8 @@ export interface AuthenticatedUser {
   nome: string;
   email: string;
   role: 'ADMIN' | 'GERENTE' | 'FUNCIONARIO';
+  telefone?: string;
+  cargo?: string;
 }
 
 const extractMessage = (body: unknown): string | undefined => {
