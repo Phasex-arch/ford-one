@@ -114,28 +114,33 @@ export function ConcessionariaLoginScreen() {
             Acesso seguro — Ford Smart Ecosystem
           </p>
 
-          {/* Credenciais visíveis */}
-          <div className={styles.credentialsHint}>
-            <div className={styles.credentialsTitle}>
-              <i className="fa-solid fa-key" />
-              Credenciais de acesso
-            </div>
-            {[
-              { label: 'Usuário', value: 'ford.phasex@ford.com.br', fill: () => { clearErrors(); setUsername('ford.phasex@ford.com.br'); } },
-              { label: 'Senha',   value: 'FordPhasex@2026',          fill: () => { clearErrors(); setPassword('FordPhasex@2026'); } },
-            ].map(({ label, value, fill }) => (
-              <div key={label} className={styles.credentialsRow}>
-                <span className={styles.credentialsLabel}>{label}</span>
-                <span
-                  className={styles.credentialsValue}
-                  title="Clique para preencher"
-                  onClick={fill}
-                >
-                  {value}
-                </span>
+          {/* Credenciais visíveis — só em desenvolvimento local (agiliza teste
+              manual); nunca entra no bundle de produção (import.meta.env.DEV
+              é substituído estaticamente pelo Vite, código morto é removido
+              no build). Nunca expor credencial real numa página pública. */}
+          {import.meta.env.DEV && (
+            <div className={styles.credentialsHint}>
+              <div className={styles.credentialsTitle}>
+                <i className="fa-solid fa-key" />
+                Credenciais de acesso (dev)
               </div>
-            ))}
-          </div>
+              {[
+                { label: 'Usuário', value: 'ford.phasex@ford.com.br', fill: () => { clearErrors(); setUsername('ford.phasex@ford.com.br'); } },
+                { label: 'Senha',   value: 'FordPhasex@2026',          fill: () => { clearErrors(); setPassword('FordPhasex@2026'); } },
+              ].map(({ label, value, fill }) => (
+                <div key={label} className={styles.credentialsRow}>
+                  <span className={styles.credentialsLabel}>{label}</span>
+                  <span
+                    className={styles.credentialsValue}
+                    title="Clique para preencher"
+                    onClick={fill}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
