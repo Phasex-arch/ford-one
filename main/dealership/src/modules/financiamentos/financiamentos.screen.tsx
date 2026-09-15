@@ -6,27 +6,30 @@
  * Composição:
  * - Header com botão Nova Simulação
  * - KPI Grid: Carteira Total, Contratos Ativos, Em Análise, Taxa Média
- * - Grid de FinCards: cada card exibe cliente, veículo, valores, status e
- *   botão "Ver contrato" que abre o modal de detalhes
+ * - Três seções, espelhando o processo real de financiamento de veículo:
+ *   "Simulações em Andamento" (Pendente/Em Análise, com Aprovar/Reprovar pra
+ *   ADMIN/GERENTE), "Contratos Ativos" (Aprovado — a carteira de verdade) e
+ *   "Reprovados" (histórico, recolhido por padrão).
  * - Modal Simulação: formulário completo com cálculo automático em tempo real
  *   (exibe parcela, financiado, total pago e total em juros)
- * - Modal Contrato: todos os detalhes do contrato selecionado com opção de
- *   enviar por e-mail (simulado via toast)
+ * - Modal Contrato: todos os detalhes do contrato selecionado, com Excluir
+ *   pra ADMIN
  *
  * Status visual dos contratos:
  * aprovado → verde | analise → laranja | pendente → azul Ford | reprovado → vermelho
  *
  * Props:
- * - showToast → feedback de simulação salva e envio de contrato
+ * - showToast → feedback de simulação salva, decisão e exclusão
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useFinanciamentos } from './hooks/useFinanciamentos';
 import { formatCurrency } from '../../shared/utils/formatters';
 import { useApp } from '../../shared/context/AppContext';
 import { PaginationBar } from '../../shared/components/PaginationBar/PaginationBar';
+import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
 import type { ToastType } from '../../shared/hooks/useToast';
-import type { FinanciamentoStatus } from '../../types/global.types';
+import type { Financiamento, FinanciamentoStatus } from '../../types/global.types';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; }
 
@@ -40,17 +43,55 @@ const STATUS_MAP: Record<FinanciamentoStatus,{bg:string;c:string;lbl:string}> = 
 export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
   const { user } = useApp();
   const canSimular = user?.role === 'ADMIN' || user?.role === 'GERENTE';
+  // Mesma regra do backend pro PATCH de status — só quem pode simular pode decidir.
+  const canDecidir = canSimular;
   const { financiamentos, pagination, page, setPage, loading, error,
           simOpen, setSimOpen, contratoId, setContratoId, contrato,
           simVei, setSimVei, simCli, setSimCli, simValor, setSimValor, simEntrada, setSimEntrada,
-          simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim } = useFinanciamentos(showToast);
+          simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim,
+          deleteTarget, setDeleteTarget, confirmarExclusao, decidir,
+          emAndamento, contratosAtivos, reprovados } = useFinanciamentos(showToast);
+  const canExcluir = user?.role === 'ADMIN';
+  const [showReprovados, setShowReprovados] = useState(false);
 
-  const totalCarteira = financiamentos.filter(f=>f.status==='aprovado').reduce((s,f)=>s+f.valor,0);
-  const aprovados = financiamentos.filter(f=>f.status==='aprovado').length;
-  const emAnalise = financiamentos.filter(f=>f.status==='analise').length;
+  const totalCarteira = contratosAtivos.reduce((s,f)=>s+f.valor,0);
   const parcela = calcParcela();
   const financiado = simValor-simEntrada;
   const totalPago = simEntrada+(parcela*simPrazo);
+
+  const FinCard = ({ f }: { f: Financiamento }) => {
+    const st = STATUS_MAP[f.status] || STATUS_MAP.pendente;
+    const emDecisao = f.status === 'pendente' || f.status === 'analise';
+    return (
+      <div className="fin-card">
+        <div className="fin-card-head">
+          <div><div className="fin-client">{f.cli}</div><div className="fin-veiculo">{f.veiculo}</div></div>
+          <div className={`fin-status-tag ${f.status}`} style={{background:st.bg,color:st.c}}>{st.lbl}</div>
+        </div>
+        <div className="fin-values">
+          <div><div className="fin-val-lbl">Valor</div><div className="fin-val-num highlight">{formatCurrency(f.valor)}</div></div>
+          <div><div className="fin-val-lbl">Entrada</div><div className="fin-val-num">{formatCurrency(f.entrada)}</div></div>
+          <div><div className="fin-val-lbl">Parcela / Prazo</div><div className="fin-val-num">{formatCurrency(f.parcela)}<span style={{fontSize:10,fontWeight:500,color:'var(--c-dim)',marginLeft:3}}>{f.prazo}x</span></div></div>
+        </div>
+        <div className="fin-footer">
+          <span>Taxa: {f.taxa}% a.m. · {f.data}</span>
+          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+            {emDecisao && canDecidir && (
+              <>
+                <button className="icon-btn" title="Aprovar" style={{color:'var(--green)'}} onClick={()=>decidir(f.id,'aprovado',f.cli)}>
+                  <i className="ph-bold ph-check"/>
+                </button>
+                <button className="icon-btn" title="Reprovar" style={{color:'var(--red)'}} onClick={()=>decidir(f.id,'reprovado',f.cli)}>
+                  <i className="ph-bold ph-x"/>
+                </button>
+              </>
+            )}
+            <button className="btn-tbl" onClick={()=>setContratoId(f.id)}>Ver contrato</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <section className="module active" id="mod-financiamentos">
@@ -68,8 +109,8 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
         <div className="kpi-grid" style={{marginBottom:18}}>
           {[
             {lbl:'Carteira Total (página)',val:formatCurrency(totalCarteira),ic:'ic-green',ph:'ph-money'},
-            {lbl:'Contratos Ativos (página)',val:String(aprovados),ic:'ic-blue',ph:'ph-file-text'},
-            {lbl:'Em Análise (página)',val:String(emAnalise),ic:'ic-orange',ph:'ph-clock'},
+            {lbl:'Contratos Ativos (página)',val:String(contratosAtivos.length),ic:'ic-blue',ph:'ph-file-text'},
+            {lbl:'Em Análise (página)',val:String(emAndamento.length),ic:'ic-orange',ph:'ph-clock'},
           ].map(k=>(
             <div key={k.lbl} className="kpi-card">
               <div className={`kpi-ic ${k.ic}`}><i className={`ph-bold ${k.ph}`} style={{fontSize:17}}/></div>
@@ -78,32 +119,41 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
           ))}
         </div>
 
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-          <h3 className="sec-title" style={{marginBottom:0}}>Contratos e Simulações</h3>
-        </div>
+        <h3 className="sec-title">Simulações em Andamento</h3>
+        {emAndamento.length === 0 ? (
+          <p className="mod-sub" style={{marginBottom:20}}>Nenhuma simulação aguardando decisão nesta página.</p>
+        ) : (
+          <div className="fin-grid" style={{marginBottom:28}}>
+            {emAndamento.map(f => <FinCard key={f.id} f={f} />)}
+          </div>
+        )}
 
-        <div className="fin-grid">
-          {financiamentos.map(f=>{
-            const st=STATUS_MAP[f.status]||STATUS_MAP.pendente;
-            return (
-              <div key={f.id} className="fin-card">
-                <div className="fin-card-head">
-                  <div><div className="fin-client">{f.cli}</div><div className="fin-veiculo">{f.veiculo}</div></div>
-                  <div className={`fin-status-tag ${f.status}`} style={{background:st.bg,color:st.c}}>{st.lbl}</div>
-                </div>
-                <div className="fin-values">
-                  <div><div className="fin-val-lbl">Valor</div><div className="fin-val-num highlight">{formatCurrency(f.valor)}</div></div>
-                  <div><div className="fin-val-lbl">Entrada</div><div className="fin-val-num">{formatCurrency(f.entrada)}</div></div>
-                  <div><div className="fin-val-lbl">Parcela / Prazo</div><div className="fin-val-num">{formatCurrency(f.parcela)}<span style={{fontSize:10,fontWeight:500,color:'var(--c-dim)',marginLeft:3}}>{f.prazo}x</span></div></div>
-                </div>
-                <div className="fin-footer">
-                  <span>Taxa: {f.taxa}% a.m. · {f.data}</span>
-                  <button className="btn-tbl" onClick={()=>setContratoId(f.id)}>Ver contrato</button>
-                </div>
+        <h3 className="sec-title">Contratos Ativos</h3>
+        {contratosAtivos.length === 0 ? (
+          <p className="mod-sub" style={{marginBottom:20}}>Nenhum contrato aprovado nesta página.</p>
+        ) : (
+          <div className="fin-grid" style={{marginBottom:28}}>
+            {contratosAtivos.map(f => <FinCard key={f.id} f={f} />)}
+          </div>
+        )}
+
+        {reprovados.length > 0 && (
+          <>
+            <button
+              className="btn-sec"
+              style={{marginBottom:12}}
+              onClick={()=>setShowReprovados(v=>!v)}
+            >
+              <i className={`ph-bold ${showReprovados ? 'ph-caret-up' : 'ph-caret-down'}`}/> Reprovados ({reprovados.length})
+            </button>
+            {showReprovados && (
+              <div className="fin-grid" style={{marginBottom:20}}>
+                {reprovados.map(f => <FinCard key={f.id} f={f} />)}
               </div>
-            );
-          })}
-        </div>
+            )}
+          </>
+        )}
+
         {pagination && (
           <PaginationBar page={page} totalPages={pagination.totalPages} total={pagination.total}
             hasPrev={pagination.hasPrev} hasNext={pagination.hasNext} onChange={setPage} />
@@ -166,11 +216,26 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
               </div>
               <div style={{display:'flex',gap:8,marginTop:16}}>
                 <button className="btn-sec" style={{flex:1}} onClick={()=>setContratoId(null)}>Fechar</button>
+                {canExcluir && (
+                  <button className="btn-danger" onClick={()=>setDeleteTarget(contrato)}>
+                    <i className="ph-bold ph-trash"/> Excluir
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        id="finSimDeleteModal"
+        isOpen={!!deleteTarget}
+        onClose={()=>setDeleteTarget(null)}
+        onConfirm={confirmarExclusao}
+        title={`Excluir simulação de ${deleteTarget?.cli ?? ''}`}
+        message="Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+      />
     </section>
   );
 };

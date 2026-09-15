@@ -17,6 +17,7 @@
 
 import React, { useEffect, useState } from 'react';
 import type { Cliente, ClienteStatus, ClienteSegmento } from '../../../../types/global.types';
+import { formatTelefone } from '../../../../shared/utils/formatters';
 
 interface Props {
   isOpen: boolean;
@@ -55,7 +56,7 @@ export const NovoClienteModal: React.FC<Props> = ({ isOpen, onClose, onSave, cli
           <form className="m-form" style={{ marginTop:14 }} onSubmit={handleSave}>
             <label>Nome completo<input required minLength={3} type="text" id="ncNome" placeholder="Nome completo do cliente" value={form.nome} onChange={e => up('nome', e.target.value)} /></label>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-              <label>Telefone<input required minLength={8} type="tel" id="ncTel" placeholder="(11) 9xxxx-xxxx" value={form.tel} onChange={e => up('tel', e.target.value)} /></label>
+              <label>Telefone<input required minLength={14} maxLength={15} type="tel" id="ncTel" placeholder="(11) 9xxxx-xxxx" value={form.tel} onChange={e => up('tel', formatTelefone(e.target.value))} /></label>
               <label>E-mail<input required type="email" id="ncEmail" placeholder="email@exemplo.com" value={form.email} onChange={e => up('email', e.target.value)} /></label>
             </div>
             <label>Segmento

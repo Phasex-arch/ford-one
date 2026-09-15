@@ -15,13 +15,20 @@
  * onde PV = valor financiado, i = taxa mensal, n = prazo em meses.
  *
  * - saveFinSim → valida, calcula parcela, persiste via POST /api/financiamentos
- *   como novo contrato 'pendente' e recarrega a lista
+ *   (nasce como 'analise' — default do schema) e recarrega a lista
+ * - emAndamento/contratosAtivos/reprovados → a mesma página de resultados
+ *   agrupada por status, espelhando o processo real de financiamento de
+ *   veículo: simulação/proposta em análise → banco aprova (vira contrato
+ *   ativo, conta como carteira/receita) ou reprova (só fica de histórico).
+ * - aprovar/reprovar → PATCH de status (ADMIN/GERENTE no backend)
  *
  * @param showToast → feedback de salvamento da simulação
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { fetchFinanciamentos, createFinanciamento } from '../services/financiamentos.service';
+import {
+  fetchFinanciamentos, createFinanciamento, deleteFinanciamento, updateFinanciamentoStatus,
+} from '../services/financiamentos.service';
 import type { Financiamento } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
@@ -46,6 +53,7 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
   const [simVei, setSimVei] = useState(''); const [simCli, setSimCli] = useState('');
   const [simValor, setSimValor] = useState(199900); const [simEntrada, setSimEntrada] = useState(40000);
   const [simPrazo, setSimPrazo] = useState(48); const [simTaxa, setSimTaxa] = useState(1.49);
+  const [deleteTarget, setDeleteTarget] = useState<Financiamento | null>(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -88,10 +96,39 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
+  const confirmarExclusao = () => {
+    if (!deleteTarget) return;
+    deleteFinanciamento(deleteTarget.id).then(() => {
+      setDeleteTarget(null);
+      setContratoId(null);
+      reload();
+      showToast(`Simulação de ${deleteTarget.cli} excluída.`, 'success');
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  };
+
+  const decidir = (id: string, status: 'aprovado' | 'reprovado', cli: string) => {
+    updateFinanciamentoStatus(id, status).then(() => {
+      reload();
+      showToast(
+        status === 'aprovado' ? `Financiamento de ${cli} aprovado — virou contrato ativo!` : `Financiamento de ${cli} reprovado.`,
+        status === 'aprovado' ? 'success' : 'warning',
+      );
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  };
+
   const contrato = contratoId ? financiamentos.find(f => f.id === contratoId) : null;
+
+  // Agrupamento por status — mesmo processo de financiamento de veículo no
+  // mundo real: PENDENTE/ANALISE = proposta em decisão, APROVADO = contrato
+  // ativo (carteira de verdade), REPROVADO = encerrado sem sucesso.
+  const emAndamento = financiamentos.filter(f => f.status === 'pendente' || f.status === 'analise');
+  const contratosAtivos = financiamentos.filter(f => f.status === 'aprovado');
+  const reprovados = financiamentos.filter(f => f.status === 'reprovado');
 
   return { financiamentos, pagination, page, setPage, loading, error,
            simOpen, setSimOpen, contratoId, setContratoId, contrato,
            simVei, setSimVei, simCli, setSimCli, simValor, setSimValor, simEntrada, setSimEntrada,
-           simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim };
+           simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim,
+           deleteTarget, setDeleteTarget, confirmarExclusao, decidir,
+           emAndamento, contratosAtivos, reprovados };
 }

@@ -73,3 +73,24 @@ export async function createFinanciamento(input: CreateFinanciamentoInput): Prom
   });
   return toFinanciamento(apiResponse);
 }
+
+/** DELETE /financiamentos/:uuid — restrito a ADMIN no backend. */
+export async function deleteFinanciamento(id: string): Promise<void> {
+  await apiRequest<void>(`/financiamentos/${id}`, { method: 'DELETE' });
+}
+
+/**
+ * PATCH /financiamentos/:uuid — restrito a ADMIN/GERENTE no backend. Move a
+ * simulação pra Aprovado (vira contrato ativo) ou Reprovado (encerra sem
+ * sucesso), espelhando a decisão do banco/financeira no mundo real.
+ */
+export async function updateFinanciamentoStatus(
+  id: string,
+  status: Extract<FinanciamentoStatus, 'aprovado' | 'reprovado'>,
+): Promise<Financiamento> {
+  const apiResponse = await apiRequest<FinanciamentoApi>(`/financiamentos/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: status.toUpperCase() }),
+  });
+  return toFinanciamento(apiResponse);
+}
