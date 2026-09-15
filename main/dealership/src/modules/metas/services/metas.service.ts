@@ -18,6 +18,7 @@ interface MetaApi {
   alvo: number;
   unidade: string;
   responsavel: string;
+  responsavelId: string | null;
   lowerIsBetter: boolean;
 }
 
@@ -31,6 +32,7 @@ const toMeta = (item: MetaApi): Meta => ({
   alvo: item.alvo,
   unidade: item.unidade,
   responsavel: item.responsavel,
+  responsavelId: item.responsavelId,
   lowerIsBetter: item.lowerIsBetter,
 });
 
@@ -56,6 +58,7 @@ export interface CreateMetaInput {
   alvo: number;
   unidade: string;
   responsavel: string;
+  responsavelId?: string | null;
   lowerIsBetter?: boolean;
 }
 
@@ -73,6 +76,7 @@ export interface UpdateMetaInput {
   atual?: number;
   alvo?: number;
   responsavel?: string;
+  responsavelId?: string | null;
 }
 
 export async function updateMeta(id: string, dados: UpdateMetaInput): Promise<Meta> {
