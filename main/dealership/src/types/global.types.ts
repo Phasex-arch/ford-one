@@ -144,6 +144,7 @@ export interface Meta {
   alvo: number;
   unidade: string;
   responsavel: string;
+  responsavelId: string | null;
   lowerIsBetter: boolean;
 }
 

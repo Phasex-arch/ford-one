@@ -12,16 +12,21 @@
  *   baseado no percentual atingido, respeitando lowerIsBetter (ex: SLA)
  * - fmtVal(m, v) → formata o valor conforme o tipo de indicador
  *   (receita → moeda, % → sufixo, h → horas, demais → número)
- * - addMeta(tipo, resp, val, per) → valida e persiste via POST /api/metas
+ * - addMeta(tipo, resp, val, per, responsavelId) → valida e persiste via
+ *   POST /api/metas
  * - editTarget/setEditTarget/salvarEdicao → edição real via PATCH /api/metas/:id,
  *   pra atualizar o "Realizado" (e demais campos) de uma meta já criada — sem
  *   isso o valor ficava congelado no que foi definido na criação
+ * - colaboradores → lista real pro seletor de responsável (ADMIN/GERENTE/
+ *   FUNCIONARIO ativos) — sem responsável selecionado, a meta é de
+ *   loja/equipe inteira (responsavelId null)
  *
  * @param showToast → feedback de criação/edição de meta
  */
 
 import { useState, useCallback, useEffect } from 'react';
 import { fetchMetas, createMeta, updateMeta, type UpdateMetaInput } from '../services/metas.service';
+import { fetchColaboradores, type Colaborador } from '../../configuracoes/services/colaboradores.service';
 import { formatCurrency, formatNumber } from '../../../shared/utils/formatters';
 import type { Meta, MetaIndicador } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
@@ -40,6 +45,13 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Meta | null>(null);
+  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+
+  useEffect(() => {
+    fetchColaboradores({ page: 1, limit: 100 })
+      .then(res => setColaboradores(res.data.filter(c => c.ativo)))
+      .catch(() => setColaboradores([]));
+  }, []);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -86,7 +98,7 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
     return formatNumber(v) + ' ' + m.unidade;
   };
 
-  const addMeta = useCallback((tipo: MetaIndicador, resp: string, val: number, per: string) => {
+  const addMeta = useCallback((tipo: MetaIndicador, resp: string, val: number, per: string, responsavelId: string | null) => {
     if (!resp || !val || !per) { showToast('Preencha todos os campos.', 'warning'); return; }
     createMeta({
       codigo: 'M' + Date.now().toString().slice(-8),
@@ -97,6 +109,7 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
       alvo: val,
       unidade: UNIDADES[tipo] || '',
       responsavel: resp,
+      responsavelId,
       lowerIsBetter: tipo === 'sla',
     }).then(() => {
       setModalOpen(false);
@@ -118,6 +131,6 @@ export function useMetas(showToast: (m: string, t?: ToastType) => void) {
   return {
     metas, pagination, page, setPage, loading, error, modalOpen, setModalOpen,
     editTarget, setEditTarget, salvarEdicao,
-    getStatus, computePct, fmtVal, addMeta,
+    getStatus, computePct, fmtVal, addMeta, colaboradores,
   };
 }

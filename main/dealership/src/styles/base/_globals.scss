@@ -473,26 +473,30 @@ canvas{width:100%!important;display:block}
 .aval-modal-val{font-size:var(--fs1);font-weight:700;color:var(--c-text);text-align:right}
 
 /* ── METAS ── */
-.metas-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
-.meta-card{background:var(--c-card);border-radius:var(--r);padding:16px 18px;border:1px solid var(--c-border);box-shadow:var(--sh0);transition:var(--tr);flex:0 0 auto;width:max-content;min-width:160px;max-width:100%}
-.meta-card:hover{box-shadow:var(--sh1);transform:translateY(-1px)}
-.meta-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:6px}
-.meta-title{font-size:var(--fs1);font-weight:700;color:var(--c-text);white-space:nowrap}
-.meta-period{font-size:10px;color:var(--c-dim);background:var(--c-bg);padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.meta-values{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;gap:6px}
-.meta-atual{font-size:17px;font-weight:700;color:var(--c-text);line-height:1;white-space:nowrap}
+// Grid uniforme (não mais "width:max-content" — cards de conteúdo curto
+// ficavam minúsculos e os de conteúdo longo esticavam, layout serrilhado).
+.metas-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:20px}
+.meta-card{background:var(--c-card);border-radius:var(--r);padding:18px 20px;border:1px solid var(--c-border);box-shadow:var(--sh0);transition:var(--tr);display:flex;flex-direction:column;gap:12px}
+.meta-card:hover{box-shadow:var(--sh1);transform:translateY(-2px)}
+.meta-header{display:flex;align-items:flex-start;gap:10px}
+.meta-header-body{flex:1;min-width:0}
+.meta-title{font-size:var(--fs1);font-weight:700;color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta-resp{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--c-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta-resp i{font-size:11px;flex-shrink:0}
+.meta-period{font-size:10px;color:var(--c-dim);background:var(--c-bg);padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.meta-values{display:flex;justify-content:space-between;align-items:flex-end;gap:6px}
+.meta-atual{font-size:19px;font-weight:700;color:var(--c-text);line-height:1;white-space:nowrap}
 .meta-alvo{font-size:var(--fs0);color:var(--c-dim);text-align:right;white-space:nowrap}
-.meta-alvo span{font-weight:700;color:var(--c-mid);white-space:nowrap;display:block}
-.meta-bar-wrap{margin-bottom:8px}
-.meta-bar-track{height:6px;background:var(--c-bg);border-radius:4px;overflow:hidden}
+.meta-alvo span{font-weight:700;color:var(--c-mid);white-space:nowrap;display:block;margin-top:2px}
+.meta-bar-track{height:7px;background:var(--c-bg);border-radius:4px;overflow:hidden}
 .meta-bar-fill{height:100%;border-radius:4px;transition:width .8s ease}
 .meta-bar-fill.on-track{background:linear-gradient(90deg,var(--ford-vivid),var(--green))}
 .meta-bar-fill.at-risk{background:linear-gradient(90deg,var(--orange),var(--gold))}
 .meta-bar-fill.exceeded{background:linear-gradient(90deg,var(--green),#059669)}
 .meta-bar-fill.behind{background:linear-gradient(90deg,var(--red),var(--orange))}
 .meta-footer{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.meta-pct{font-size:var(--fs0);font-weight:700;white-space:nowrap}
-.meta-status-tag{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.meta-pct{font-size:var(--fs1);font-weight:700;white-space:nowrap}
+.meta-status-tag{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .tag-exceeded{background:var(--green-bg);color:var(--green)}
 .tag-on-track{background:var(--ford-light);color:var(--ford-vivid)}
 .tag-at-risk{background:var(--orange-bg);color:var(--gold)}
@@ -845,3 +849,16 @@ canvas{width:100%!important;display:block}
 .app-boot-loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--c-bg);z-index:9999}
 .app-boot-loading::after{content:"";width:34px;height:34px;border-radius:50%;border:3px solid var(--c-border);border-top-color:var(--ford-blue);animation:app-boot-spin .7s linear infinite}
 @keyframes app-boot-spin{to{transform:rotate(360deg)}}
+
+// Fixa de verdade na parte de baixo da viewport (acima da faixa de rodapé
+// fixa do app, var(--bh)) — sempre visível, mesmo com pouco conteúdo na tela
+// (sticky não "gruda" se não sobrar espaço de rolagem, ficava largada no meio
+// da página). Acompanha o recuo da sidebar (expandida/recolhida/mobile). O
+// spacer reserva a altura equivalente na página, já que um elemento fixed
+// não ocupa espaço no fluxo normal — sem ele, o último card da lista ficaria
+// escondido atrás da barra ao rolar até o fim.
+.pagination-spacer{height:58px}
+.pagination-bar{position:fixed;left:calc(var(--sw) + 20px);right:16px;bottom:calc(var(--bh) + 14px);z-index:60;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:10px 14px;background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--r);box-shadow:var(--sh2);transition:left .22s ease}
+.app-layout.sidebar-collapsed .pagination-bar{left:calc(var(--si) + 20px)}
+.pagination-info{font-size:var(--fs0);color:var(--c-dim)}
+@media(max-width:768px){.pagination-bar{left:16px}}
