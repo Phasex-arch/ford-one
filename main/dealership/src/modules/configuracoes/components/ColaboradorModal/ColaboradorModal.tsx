@@ -18,6 +18,7 @@
 
 import React, { useEffect, useState } from 'react';
 import type { Colaborador, ColaboradorRole } from '../../services/colaboradores.service';
+import { formatTelefone } from '../../../../shared/utils/formatters';
 
 interface FormState {
   nome: string;
@@ -99,7 +100,7 @@ export const ColaboradorModal: React.FC<Props> = ({ isOpen, onClose, onSave, col
                     </label>
                   )}
                   <label>Telefone
-                    <input required minLength={8} type="tel" placeholder="(11) 90000-0000" value={form.telefone} onChange={e => up('telefone', e.target.value)} />
+                    <input required minLength={14} maxLength={15} type="tel" placeholder="(11) 90000-0000" value={form.telefone} onChange={e => up('telefone', formatTelefone(e.target.value))} />
                   </label>
                 </div>
                 <label>E-mail

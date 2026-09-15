@@ -10,6 +10,7 @@
  * - parseCurrency(str)  → Extrai número de string monetária formatada
  * - formatNumber(n)     → Formata número com separador de milhar pt-BR
  * - getIniciais(nome)   → Retorna as duas primeiras iniciais de um nome completo
+ * - formatTelefone(v)   → Aplica máscara de telefone BR conforme o usuário digita
  */
 
 /** Capitaliza o primeiro caractere. */
@@ -34,3 +35,17 @@ export const formatNumber = (n: number): string =>
 /** Retorna as iniciais de um nome (máx. 2 letras). */
 export const getIniciais = (nome: string): string =>
   nome.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+
+/**
+ * Máscara de telefone BR conforme o usuário digita — filtra qualquer
+ * caractere não numérico e formata como (XX) XXXX-XXXX (fixo, 10 dígitos)
+ * ou (XX) XXXXX-XXXX (celular, 11 dígitos).
+ */
+export const formatTelefone = (value: string): string => {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length === 0) return '';
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+};

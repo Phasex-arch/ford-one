@@ -1,14 +1,24 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useConcessionariaLogin } from './hooks/useConcessionariaLogin';
 import { useAnimatedRingsBackground } from './hooks/useAnimatedLoginBackground';
 import { ROUTES } from '../../shared/constants/routes';
 import styles from './styles/concessionaria-login.module.scss';
 
+// As 3 contas de exemplo criadas pelo seed (prisma/seed.ts) — mesma senha em
+// todo ambiente pra ADMIN varia por ADMIN_SENHA; aqui é o valor de produção.
+const DEMO_ACCOUNTS = [
+  { tab: 'Admin', email: 'admin@ford.com.br', senha: '3htHjrs8CpFo8ZfKpvr1JNsM' },
+  { tab: 'Gerente', email: 'ricardo.costa@ford.com.br', senha: 'GerenteFord@2026' },
+  { tab: 'Funcionário', email: 'patricia.oliveira@ford.com.br', senha: 'FuncFord@2026' },
+] as const;
+
 /**
  * Tela de login da concessionária — corresponde ao concessionaria.html original.
  */
 export function ConcessionariaLoginScreen() {
   useAnimatedRingsBackground('bg');
+  const [demoTab, setDemoTab] = useState(0);
 
   const {
     username, setUsername,
@@ -114,19 +124,35 @@ export function ConcessionariaLoginScreen() {
             Acesso seguro — Ford Smart Ecosystem
           </p>
 
-          {/* Credenciais visíveis — só em desenvolvimento local (agiliza teste
-              manual); nunca entra no bundle de produção (import.meta.env.DEV
-              é substituído estaticamente pelo Vite, código morto é removido
-              no build). Nunca expor credencial real numa página pública. */}
-          {import.meta.env.DEV && (
+          {/* Credenciais visíveis — em dev sempre aparece (agiliza teste
+              manual); em produção só se VITE_SHOW_DEMO_CREDENTIALS=true
+              estiver setado no build (ligar só durante a janela de
+              demonstração e desligar depois — nunca deixar permanente numa
+              página pública). import.meta.env.DEV vira `false` estaticamente
+              no build de produção e o bloco morto é removido pelo Vite. */}
+          {(import.meta.env.DEV || import.meta.env.VITE_SHOW_DEMO_CREDENTIALS === 'true') && (
             <div className={styles.credentialsHint}>
               <div className={styles.credentialsTitle}>
                 <i className="fa-solid fa-key" />
-                Credenciais de acesso (dev)
+                Credenciais de acesso (demo)
               </div>
+
+              <div className={styles.credentialsTabs}>
+                {DEMO_ACCOUNTS.map((acc, i) => (
+                  <button
+                    key={acc.tab}
+                    type="button"
+                    className={`${styles.credentialsTab} ${i === demoTab ? styles.active : ''}`}
+                    onClick={() => setDemoTab(i)}
+                  >
+                    {acc.tab}
+                  </button>
+                ))}
+              </div>
+
               {[
-                { label: 'Usuário', value: 'ford.phasex@ford.com.br', fill: () => { clearErrors(); setUsername('ford.phasex@ford.com.br'); } },
-                { label: 'Senha',   value: 'FordPhasex@2026',          fill: () => { clearErrors(); setPassword('FordPhasex@2026'); } },
+                { label: 'Usuário', value: DEMO_ACCOUNTS[demoTab].email, fill: () => { clearErrors(); setUsername(DEMO_ACCOUNTS[demoTab].email); } },
+                { label: 'Senha',   value: DEMO_ACCOUNTS[demoTab].senha, fill: () => { clearErrors(); setPassword(DEMO_ACCOUNTS[demoTab].senha); } },
               ].map(({ label, value, fill }) => (
                 <div key={label} className={styles.credentialsRow}>
                   <span className={styles.credentialsLabel}>{label}</span>

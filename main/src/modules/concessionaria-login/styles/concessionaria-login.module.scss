@@ -83,5 +83,27 @@
 .credentialsHint { margin-top: 20px; background: rgba(23,0,244,0.1); border: 1px solid rgba(23,0,244,0.3); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
 .credentialsTitle { font-family: $font-display; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px; }
 .credentialsRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.credentialsLabel { font-family: $font-display; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
-.credentialsValue { font-family: monospace; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 4px 10px; cursor: pointer; transition: background 0.2s, color 0.2s; user-select: all; &:hover { background: rgba(23,0,244,0.2); color: $ford-white; } }
+.credentialsLabel { flex-shrink: 0; font-family: $font-display; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+// Largura fixa (cabe a maior credencial real, "patricia.oliveira@ford.com.br")
+// pra trocar de aba não esticar/encolher o card — texto mais curto só fica
+// mais folgado dentro da mesma caixa, nunca menor que ela.
+.credentialsValue { font-family: monospace; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 4px 10px; cursor: pointer; transition: background 0.2s, color 0.2s; user-select: all; width: 215px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; &:hover { background: rgba(23,0,244,0.2); color: $ford-white; } }
+
+.credentialsTabs { display: flex; gap: 4px; margin-bottom: 4px; }
+.credentialsTab {
+  flex: 1;
+  font-family: $font-display;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 6px 4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  &:hover { color: rgba(255,255,255,0.7); }
+  &.active { background: rgba(23,0,244,0.25); border-color: rgba(23,0,244,0.5); color: $ford-white; }
+}

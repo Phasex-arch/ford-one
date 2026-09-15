@@ -3,6 +3,9 @@
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string;
   readonly VITE_DEALERSHIP_URL?: string;
+  /** Liga a caixa de credenciais de demo na tela de login em produção — só
+   * durante a janela de demonstração, nunca deixar permanente. */
+  readonly VITE_SHOW_DEMO_CREDENTIALS?: string;
 }
 
 interface ImportMeta {

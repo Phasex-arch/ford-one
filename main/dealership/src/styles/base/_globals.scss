@@ -546,7 +546,7 @@ canvas{width:100%!important;display:block}
 
 /* ── CONFIG ── */
 .cfg-tabs{display:flex;gap:22px;border-bottom:1px solid var(--c-border);margin-bottom:20px;overflow-x:auto}
-.cfg-tab{display:flex;align-items:center;gap:7px;padding:10px 2px;font-size:var(--fs1);font-weight:600;color:var(--c-mid);border-bottom:2px solid transparent;position:relative;top:1px;white-space:nowrap;flex-shrink:0;transition:color .18s ease,border-color .18s ease}
+.cfg-tab{display:flex;align-items:center;gap:7px;padding:10px 2px;font-size:var(--fs1);font-weight:600;color:var(--c-mid);border-bottom:2px solid transparent;position:relative;top:1px;white-space:nowrap;flex-shrink:0;cursor:pointer;transition:color .18s ease,border-color .18s ease}
 .cfg-tab:hover{color:var(--c-text)}
 .cfg-tab i{font-size:14px;color:var(--c-dim);transition:color .18s ease}
 .cfg-tab.active{color:var(--ford-blue);border-bottom-color:var(--ford-vivid)}

@@ -8,8 +8,13 @@ RUN npm ci
 COPY . .
 ARG VITE_API_BASE_URL=http://localhost:3000/api
 ARG VITE_DEALERSHIP_URL=http://localhost:8081
+# Container local só — nunca chega na Cloudflare Pages (build separado, sem
+# Docker). Default "true" aqui é conveniência pra testar localmente; a
+# demonstração de verdade liga isso via env var só no painel do Cloudflare.
+ARG VITE_SHOW_DEMO_CREDENTIALS=true
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV VITE_DEALERSHIP_URL=${VITE_DEALERSHIP_URL}
+ENV VITE_SHOW_DEMO_CREDENTIALS=${VITE_SHOW_DEMO_CREDENTIALS}
 
 RUN npm run build
 
