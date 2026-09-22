@@ -14,14 +14,14 @@ export function Header() {
   return (
     <header id="header" className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.inner}>
-        <a href="#" className={styles.logo}>
-          <img src="assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
+        <Link to={ROUTES.HOME} className={styles.logo}>
+          <img src="/assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
           <div className={styles.logoDivider} />
           <div className={styles.logoText}>
             <span className={styles.logoTitle}>FORD ONE</span>
             <span className={styles.logoSub}>PORTAL FORD</span>
           </div>
-        </a>
+        </Link>
 
         <nav className={`${styles.nav} ${open ? styles.open : ''}`} id="nav">
           {[

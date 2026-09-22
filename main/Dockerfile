@@ -12,9 +12,17 @@ ARG VITE_DEALERSHIP_URL=http://localhost:8081
 # Docker). Default "true" aqui é conveniência pra testar localmente; a
 # demonstração de verdade liga isso via env var só no painel do Cloudflare.
 ARG VITE_SHOW_DEMO_CREDENTIALS=true
+# Sem default hardcoded — vêm do .env local (mesmas ADMIN_SENHA/GERENTE_SENHA/
+# FUNCIONARIO_SENHA já usadas pro seed), nunca de um valor fixo no código.
+ARG VITE_DEMO_ADMIN_SENHA=
+ARG VITE_DEMO_GERENTE_SENHA=
+ARG VITE_DEMO_FUNCIONARIO_SENHA=
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV VITE_DEALERSHIP_URL=${VITE_DEALERSHIP_URL}
 ENV VITE_SHOW_DEMO_CREDENTIALS=${VITE_SHOW_DEMO_CREDENTIALS}
+ENV VITE_DEMO_ADMIN_SENHA=${VITE_DEMO_ADMIN_SENHA}
+ENV VITE_DEMO_GERENTE_SENHA=${VITE_DEMO_GERENTE_SENHA}
+ENV VITE_DEMO_FUNCIONARIO_SENHA=${VITE_DEMO_FUNCIONARIO_SENHA}
 
 RUN npm run build
 

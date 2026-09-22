@@ -33,18 +33,6 @@ export function ContactSection() {
                 </div>
               ))}
             </div>
-            <div className={styles.socialRow}>
-              {[
-                { icon: 'fa-brands fa-instagram',  label: 'Instagram' },
-                { icon: 'fa-brands fa-facebook-f', label: 'Facebook' },
-                { icon: 'fa-brands fa-linkedin-in', label: 'LinkedIn' },
-                { icon: 'fa-brands fa-youtube',    label: 'YouTube' },
-              ].map(({ icon, label }) => (
-                <a key={label} href="#" className={styles.socialBtn} aria-label={label}>
-                  <i className={icon} />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Formulário */}
@@ -104,21 +92,33 @@ export function ContactSection() {
                   </div>
                 </div>
 
-                <div className={`${styles.group} ${styles.full}`}>
-                  <label htmlFor="interesse">Interesse *</label>
-                  <select
-                    id="interesse"
-                    value={form.interesse}
-                    onChange={(e) => setField('interesse', e.target.value)}
-                    className={errors.interesse ? styles.inputError : ''}
-                  >
-                    <option value="">Selecione seu interesse</option>
-                    <option value="Comprar veículo">Comprar veículo</option>
-                    <option value="Manutenção">Manutenção</option>
-                    <option value="Troca">Troca</option>
-                    <option value="Tecnologia Ford One">Tecnologia Ford One</option>
-                  </select>
-                  {errors.interesse && <span className={styles.fieldError}>{errors.interesse}</span>}
+                <div className={styles.row}>
+                  <div className={styles.group}>
+                    <label htmlFor="interesse">Interesse *</label>
+                    <select
+                      id="interesse"
+                      value={form.interesse}
+                      onChange={(e) => setField('interesse', e.target.value)}
+                      className={errors.interesse ? styles.inputError : ''}
+                    >
+                      <option value="">Selecione seu interesse</option>
+                      <option value="Comprar veículo">Comprar veículo</option>
+                      <option value="Manutenção">Manutenção</option>
+                      <option value="Troca">Troca</option>
+                      <option value="Tecnologia Ford One">Tecnologia Ford One</option>
+                    </select>
+                    {errors.interesse && <span className={styles.fieldError}>{errors.interesse}</span>}
+                  </div>
+                  <div className={styles.group}>
+                    <label htmlFor="veiculo">Veículo de interesse *</label>
+                    <input
+                      id="veiculo" type="text" placeholder="Ex.: Ford Bronco Sport"
+                      value={form.veiculo}
+                      onChange={(e) => setField('veiculo', e.target.value)}
+                      className={errors.veiculo ? styles.inputError : ''}
+                    />
+                    {errors.veiculo && <span className={styles.fieldError}>{errors.veiculo}</span>}
+                  </div>
                 </div>
 
                 <div className={`${styles.group} ${styles.full}`}>

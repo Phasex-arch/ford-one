@@ -4,6 +4,9 @@ export interface ContactFormData {
   telefone: string;
   cidade: string;
   interesse: string;
+  /** Modelo Ford real de interesse — é o que vira Lead.veiculoInteresse no
+   * backend (antes o campo "interesse" genérico ia pra lá por engano). */
+  veiculo: string;
   mensagem: string;
 }
 
@@ -13,6 +16,7 @@ export interface ContactFormErrors {
   telefone?: string;
   cidade?: string;
   interesse?: string;
+  veiculo?: string;
 }
 
 export interface NavLink {

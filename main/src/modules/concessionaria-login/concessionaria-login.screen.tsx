@@ -5,12 +5,14 @@ import { useAnimatedRingsBackground } from './hooks/useAnimatedLoginBackground';
 import { ROUTES } from '../../shared/constants/routes';
 import styles from './styles/concessionaria-login.module.scss';
 
-// As 3 contas de exemplo criadas pelo seed (prisma/seed.ts) — mesma senha em
-// todo ambiente pra ADMIN varia por ADMIN_SENHA; aqui é o valor de produção.
+// As 3 contas de exemplo criadas pelo seed (prisma/seed.ts). As senhas NUNCA
+// ficam hardcoded aqui — cada ambiente que quiser mostrar a senha de demo
+// define seu próprio VITE_DEMO_*_SENHA no build (nunca commitado); sem a
+// variável, a linha de senha não aparece (só o email, que não é segredo).
 const DEMO_ACCOUNTS = [
-  { tab: 'Admin', email: 'admin@ford.com.br', senha: '3htHjrs8CpFo8ZfKpvr1JNsM' },
-  { tab: 'Gerente', email: 'ricardo.costa@ford.com.br', senha: 'GerenteFord@2026' },
-  { tab: 'Funcionário', email: 'patricia.oliveira@ford.com.br', senha: 'FuncFord@2026' },
+  { tab: 'Admin', email: 'admin@ford.com.br', senha: import.meta.env.VITE_DEMO_ADMIN_SENHA },
+  { tab: 'Gerente', email: 'ricardo.costa@ford.com.br', senha: import.meta.env.VITE_DEMO_GERENTE_SENHA },
+  { tab: 'Funcionário', email: 'patricia.oliveira@ford.com.br', senha: import.meta.env.VITE_DEMO_FUNCIONARIO_SENHA },
 ] as const;
 
 /**
@@ -33,7 +35,7 @@ export function ConcessionariaLoginScreen() {
 
       <header className={styles.header}>
         <Link to={ROUTES.HOME} className={styles.logo}>
-          <img src="assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
+          <img src="/assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
           <div className={styles.logoDivider} />
           <div className={styles.logoText}>
             <span className={styles.logoTitle}>FORD ONE</span>
@@ -59,7 +61,7 @@ export function ConcessionariaLoginScreen() {
           {state.error && (
             <div className={styles.errorMsg}>
               <i className="fa-solid fa-circle-exclamation" />
-              <span>Usuário ou senha incorretos.</span>
+              <span>{state.error}</span>
             </div>
           )}
 
@@ -152,7 +154,9 @@ export function ConcessionariaLoginScreen() {
 
               {[
                 { label: 'Usuário', value: DEMO_ACCOUNTS[demoTab].email, fill: () => { clearErrors(); setUsername(DEMO_ACCOUNTS[demoTab].email); } },
-                { label: 'Senha',   value: DEMO_ACCOUNTS[demoTab].senha, fill: () => { clearErrors(); setPassword(DEMO_ACCOUNTS[demoTab].senha); } },
+                ...(DEMO_ACCOUNTS[demoTab].senha
+                  ? [{ label: 'Senha', value: DEMO_ACCOUNTS[demoTab].senha as string, fill: () => { clearErrors(); setPassword(DEMO_ACCOUNTS[demoTab].senha as string); } }]
+                  : []),
               ].map(({ label, value, fill }) => (
                 <div key={label} className={styles.credentialsRow}>
                   <span className={styles.credentialsLabel}>{label}</span>

@@ -21,9 +21,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { fetchAgendamentosDia, createAgendamento, cancelarAgendamento } from '../services/agenda.service';
 import { fetchTecnicos } from '../../servicos/services/tecnico.service';
+import { fetchClientes } from '../../clientes/services/clientes.service';
 import { SLOT_HOURS } from '../../../shared/constants/agenda';
 import { DAYS, MONTHS } from '../../../shared/utils/dates';
-import type { AgendaSlot, Tecnico } from '../../../types/global.types';
+import type { AgendaSlot, Tecnico, Cliente } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 import { friendlyApiMessage } from '../../../shared/api/client';
 
@@ -34,6 +35,7 @@ export function useAgenda(showToast: (m: string, t?: ToastType) => void) {
   const [slots, setSlots] = useState<AgendaSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [tecnicos, setTecnicos] = useState<Tecnico[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [schedOpen, setSchedOpen] = useState(false);
   const [preselSlot, setPreselSlot] = useState(-1);
   const [selectedSlot, setSelectedSlot] = useState(-1);
@@ -50,6 +52,7 @@ export function useAgenda(showToast: (m: string, t?: ToastType) => void) {
 
   useEffect(() => { reload(); }, [reload]);
   useEffect(() => { fetchTecnicos().then(setTecnicos).catch(() => setTecnicos([])); }, []);
+  useEffect(() => { fetchClientes({ page: 1, limit: 100 }).then(res => setClientes(res.data)).catch(() => setClientes([])); }, []);
 
   const getDayTitle = () => {
     const d = diaAtual();
@@ -70,22 +73,24 @@ export function useAgenda(showToast: (m: string, t?: ToastType) => void) {
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
-  const confirmSchedule = (cli: string, serv: string, tech: string) => {
+  const confirmSchedule = (clienteId: string, serv: string, tecnicoId: string) => {
     if (selectedSlot < 0) { showToast('Selecione um horário.', 'warning'); return; }
-    if (!cli || !serv) { showToast('Preencha cliente e serviço.', 'warning'); return; }
-    const t = tech || tecnicos.find(x => x.status === 'livre')?.nome || tecnicos[0]?.nome || '';
+    if (!clienteId || !serv) { showToast('Preencha cliente e serviço.', 'warning'); return; }
+    const tId = tecnicoId || tecnicos.find(x => x.status === 'livre')?.id || tecnicos[0]?.id || '';
+    const cliNome = clientes.find(c => c.id === clienteId)?.nome ?? '';
+    const techNome = tecnicos.find(t => t.id === tId)?.nome ?? '';
     const hora = SLOT_HOURS[selectedSlot];
     const [h, m] = hora.split(':').map(Number);
     const d = diaAtual();
     const dataHora = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m).toISOString();
-    createAgendamento({ cliente: cli, servico: serv, tecnico: t || undefined, dataHora }).then(() => {
+    createAgendamento({ clienteId, servico: serv, tecnicoId: tId || undefined, dataHora }).then(() => {
       setSchedOpen(false); setSelectedSlot(-1);
-      showToast(`Agendado: ${cli} às ${hora}${t ? ' com ' + t : ''}!`, 'success');
+      showToast(`Agendado: ${cliNome} às ${hora}${techNome ? ' com ' + techNome : ''}!`, 'success');
       reload();
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
   return { slots, loading, offset, getDayTitle, active, total, pct, shiftDay, cancelApt,
            schedOpen, setSchedOpen, preselSlot, setPreselSlot, selectedSlot, setSelectedSlot,
-           confirmSchedule, tecnicos };
+           confirmSchedule, tecnicos, clientes };
 }

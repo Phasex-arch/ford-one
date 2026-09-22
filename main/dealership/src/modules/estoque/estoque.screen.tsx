@@ -27,6 +27,7 @@ import { PaginationBar } from '../../shared/components/PaginationBar/PaginationB
 import type { ToastType } from '../../shared/hooks/useToast';
 import { useApp } from '../../shared/context/AppContext';
 import { AddEstoqueModal } from './components/AddEstoqueModal/AddEstoqueModal';
+import { ImportEstoqueModal } from './components/ImportEstoqueModal/ImportEstoqueModal';
 
 interface Props { showToast:(m:string,t?:ToastType)=>void; onFinSimFromEstoque:(id:string)=>void; }
 
@@ -36,8 +37,10 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
     setPage, pagination, loading, error,
     editingEstoque, setEditingEstoque, salvarEdicaoEstoque,
     deleteTarget, setDeleteTarget, confirmarExclusaoEstoque,
+    clientesParaReserva, reservarUnidade, cancelarReserva,
   } = useEstoque();
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const { navigate, user } = useApp();
   const canAddEstoque = user?.role === 'ADMIN' || user?.role === 'GERENTE';
   const canEditEstoque = user?.role === 'ADMIN' || user?.role === 'GERENTE';
@@ -50,7 +53,7 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
       <div className="mod-header">
         <div><h1>Estoque</h1><p className="mod-sub" id="estoqueSubtitle">{subtitle}</p></div>
         <div className="mod-actions">
-          <button className="btn-sec" onClick={()=>showToast('Importando planilha...','info')}>
+          <button className="btn-sec" onClick={()=>setImportModalOpen(true)}>
             <i className="ph-bold ph-arrow-square-in"/> Importar planilha
           </button>
           <button
@@ -117,11 +120,20 @@ export const EstoqueScreen: React.FC<Props> = ({ showToast, onFinSimFromEstoque 
         onExcluir={item => { setModalId(null); setDeleteTarget(item); }}
         canEdit={canEditEstoque}
         canDelete={canDeleteEstoque}
+        clientesParaReserva={clientesParaReserva}
+        onReservar={(id, clienteId) => reservarUnidade(id, clienteId, showToast)}
+        onCancelarReserva={id => cancelarReserva(id, showToast)}
       />
       <AddEstoqueModal
         isOpen={addModalOpen}
         onClose={() => setAddModalOpen(false)}
         onCreated={reload}
+        showToast={showToast}
+      />
+      <ImportEstoqueModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onImported={reload}
         showToast={showToast}
       />
       <EditEstoqueModal

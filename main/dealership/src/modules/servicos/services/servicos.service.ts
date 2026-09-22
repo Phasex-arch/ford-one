@@ -18,6 +18,7 @@ interface ServicoApi {
   tipo: string;
   tecnico: string;
   prazo: string;
+  prazoData: string | null;
   prioridade: 'OK' | 'RISCO' | 'ATRASADO';
   valor: number;
   status: 'PREVISTO' | 'ANDAMENTO' | 'CONCLUIDO' | 'CANCELADO';
@@ -37,6 +38,7 @@ const toOrdemServico = (item: ServicoApi): OrdemServico => ({
   t: item.tipo,
   tech: item.tecnico,
   prazo: item.prazo,
+  prazoData: item.prazoData,
   pc: item.prioridade.toLowerCase() as OrdemServico['pc'],
   val: item.valor,
 });
@@ -59,14 +61,18 @@ export async function fetchServicos(params: FetchServicosParams): Promise<Servic
 }
 
 export interface CreateServicoInput {
-  numero: string;
-  cliente: string;
+  /** numero nunca é enviado — o servidor gera (ver auditoria, seção 3: o
+   * Math.random() no navegador tinha risco real de colisão). */
+  cliente?: string;
+  clienteId?: string;
   veiculo: string;
   tipo: string;
-  tecnico: string;
-  prazo: string;
+  tecnico?: string;
+  tecnicoId?: string;
+  /** ISO 8601 (UTC) — prazo (texto) e prioridade nunca são enviados: o
+   * servidor calcula os dois a partir daqui. */
+  prazoData: string;
   valor: number;
-  prioridade?: 'OK' | 'RISCO' | 'ATRASADO';
 }
 
 export async function createServico(input: CreateServicoInput): Promise<OrdemServico> {
@@ -82,9 +88,10 @@ export interface UpdateServicoInput {
   veiculo?: string;
   tipo?: string;
   tecnico?: string;
-  prazo?: string;
+  /** ISO 8601 (UTC) — quando informado, prazo (texto) e prioridade são
+   * recalculados no servidor. */
+  prazoData?: string;
   valor?: number;
-  prioridade?: 'OK' | 'RISCO' | 'ATRASADO';
   status?: ServicoApi['status'];
 }
 

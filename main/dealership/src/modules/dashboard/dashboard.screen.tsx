@@ -87,7 +87,7 @@ export const DashboardScreen: React.FC = () => {
         ))}
       </div>
       {loading && <p className="mod-sub">Carregando dados...</p>}
-      {error && <p className="mod-sub">{error}</p>}
+      {error && <p className="mod-sub" style={{ color: 'var(--red)', marginBottom: 16 }}>{error}</p>}
 
       <DashCharts period={period} data={data} />
 

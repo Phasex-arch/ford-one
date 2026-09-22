@@ -28,8 +28,9 @@ interface Props { showToast:(m:string,t?:ToastType)=>void; }
 
 export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
   const { slots, loading, getDayTitle, active, total, pct, shiftDay, cancelApt,
-          schedOpen, setSchedOpen, selectedSlot, setSelectedSlot, confirmSchedule, tecnicos: TECNICOS } = useAgenda(showToast);
-  const [schedCli, setSchedCli] = useState('');
+          schedOpen, setSchedOpen, selectedSlot, setSelectedSlot, confirmSchedule,
+          tecnicos: TECNICOS, clientes } = useAgenda(showToast);
+  const [schedCliId, setSchedCliId] = useState('');
   const [schedServ, setSchedServ] = useState('');
   const [schedTech, setSchedTech] = useState('');
 
@@ -107,16 +108,19 @@ export const AgendaScreen: React.FC<Props> = ({ showToast }) => {
                 })}
               </div>
               <div className="m-form" style={{marginTop:14}}>
-                <label>Cliente<input type="text" placeholder="Nome do cliente" value={schedCli} onChange={e=>setSchedCli(e.target.value)}/></label>
+                <label>Cliente<select value={schedCliId} onChange={e=>setSchedCliId(e.target.value)}>
+                  <option value="">Selecione o cliente...</option>
+                  {clientes.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select></label>
                 <label>Serviço<input type="text" placeholder="Tipo de serviço ou veículo" value={schedServ} onChange={e=>setSchedServ(e.target.value)}/></label>
                 <label>Técnico<select value={schedTech} onChange={e=>setSchedTech(e.target.value)}>
                   <option value="">Sem técnico designado</option>
-                  {TECNICOS.map(t=><option key={t.nome}>{t.nome}</option>)}
+                  {TECNICOS.map(t=><option key={t.id} value={t.id}>{t.nome}</option>)}
                 </select></label>
               </div>
               <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:16}}>
                 <button className="btn-sec" onClick={()=>{setSchedOpen(false);setSelectedSlot(-1);}}>Cancelar</button>
-                <button className="btn-prim" onClick={()=>confirmSchedule(schedCli,schedServ,schedTech)}>Confirmar</button>
+                <button className="btn-prim" onClick={()=>confirmSchedule(schedCliId,schedServ,schedTech)}>Confirmar</button>
               </div>
             </div>
           </div>

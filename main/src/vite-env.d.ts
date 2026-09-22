@@ -6,6 +6,11 @@ interface ImportMetaEnv {
   /** Liga a caixa de credenciais de demo na tela de login em produção — só
    * durante a janela de demonstração, nunca deixar permanente. */
   readonly VITE_SHOW_DEMO_CREDENTIALS?: string;
+  /** Senhas de demo exibidas na caixa acima — nunca hardcoded no código,
+   * só setadas no build quando a janela de demonstração está ativa. */
+  readonly VITE_DEMO_ADMIN_SENHA?: string;
+  readonly VITE_DEMO_GERENTE_SENHA?: string;
+  readonly VITE_DEMO_FUNCIONARIO_SENHA?: string;
 }
 
 interface ImportMeta {

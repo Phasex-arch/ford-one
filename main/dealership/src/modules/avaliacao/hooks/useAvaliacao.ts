@@ -19,6 +19,7 @@ import {
   fetchAvaliacaoStats,
   updateAvaliacao,
   deleteAvaliacao,
+  moderarAvaliacao,
   type AvaliacaoStats,
   type UpdateAvaliacaoInput,
 } from '../services/avaliacao.service';
@@ -85,10 +86,28 @@ export function useAvaliacao() {
     [deleteTarget, reload],
   );
 
+  const moderar = useCallback(
+    (id: string, status: 'aprovada' | 'rejeitada', showToast: (m: string, t?: 'success' | 'warning') => void) => {
+      moderarAvaliacao(id, status).then(() => {
+        setDetailId(null);
+        reload();
+        showToast(status === 'aprovada' ? 'Avaliação aprovada — já aparece publicamente.' : 'Avaliação rejeitada.', 'success');
+      }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+    },
+    [reload],
+  );
+
+  // Pendentes primeiro (é o que precisa de ação), depois aprovadas, com
+  // rejeitadas recolhidas — mesmo padrão de seções já usado em Financiamentos.
+  const pendentes = avaliacoes.filter(a => a.status === 'pendente');
+  const aprovadas = avaliacoes.filter(a => a.status === 'aprovada');
+  const rejeitadas = avaliacoes.filter(a => a.status === 'rejeitada');
+
   return {
     avaliacoes, pagination, page, setPage, loading, error, stats,
     detailId, setDetailId, detail,
     editTarget, setEditTarget, salvarEdicao,
     deleteTarget, setDeleteTarget, confirmarExclusao,
+    moderar, pendentes, aprovadas, rejeitadas,
   };
 }

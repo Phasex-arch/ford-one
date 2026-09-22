@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-import { ROUTES } from '../../../../shared/constants/routes';
 import styles from './Hero.module.scss';
 
 /**
@@ -36,18 +34,18 @@ export function Hero() {
 
         <div className={styles.heroStats}>
           <div className={styles.stat}>
-            <span className={styles.statNum}>2M+</span>
-            <span className={styles.statLabel}>Veículos conectados</span>
+            <span className={styles.statNum}>Automático</span>
+            <span className={styles.statLabel}>Lead vira cliente na aprovação</span>
           </div>
           <div className={styles.statSep} />
           <div className={styles.stat}>
-            <span className={styles.statNum}>98%</span>
-            <span className={styles.statLabel}>Satisfação dos clientes</span>
+            <span className={styles.statNum}>Tempo real</span>
+            <span className={styles.statLabel}>Estoque atualizado a cada venda</span>
           </div>
           <div className={styles.statSep} />
           <div className={styles.stat}>
-            <span className={styles.statNum}>150+</span>
-            <span className={styles.statLabel}>Concessionárias parceiras</span>
+            <span className={styles.statNum}>Seguro</span>
+            <span className={styles.statLabel}>Acesso por papel, dados protegidos</span>
           </div>
         </div>
       </div>

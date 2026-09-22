@@ -17,7 +17,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchVeiculosCliente } from '../services/historico.service';
-import { fetchClienteById } from '../../clientes/services/clientes.service';
+import { fetchClienteById, fetchHistoricoMesclagem, type HistoricoMesclagem } from '../../clientes/services/clientes.service';
 import { friendlyApiMessage } from '../../../shared/api/client';
 import type { Veiculo, Cliente } from '../../../types/global.types';
 
@@ -27,6 +27,7 @@ export function useHistorico() {
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [historicoMesclagem, setHistoricoMesclagem] = useState<HistoricoMesclagem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,7 +42,7 @@ export function useHistorico() {
   }, []);
 
   useEffect(() => {
-    if (!selectedId) { setSelectedCliente(null); setVeiculos([]); return; }
+    if (!selectedId) { setSelectedCliente(null); setVeiculos([]); setHistoricoMesclagem([]); return; }
     setLoading(true);
     setError('');
     Promise.all([fetchClienteById(selectedId), fetchVeiculosCliente(selectedId)])
@@ -55,6 +56,7 @@ export function useHistorico() {
         setVeiculos([]);
       })
       .finally(() => setLoading(false));
+    fetchHistoricoMesclagem(selectedId).then(setHistoricoMesclagem).catch(() => setHistoricoMesclagem([]));
   }, [selectedId]);
 
   const openVehicleModal = useCallback((cid: string, vid: string) => {
@@ -72,7 +74,7 @@ export function useHistorico() {
   }, []);
 
   return {
-    selectedId, selectedCliente, veiculos, loading, error,
+    selectedId, selectedCliente, veiculos, historicoMesclagem, loading, error,
     openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen,
     voltar,
   };

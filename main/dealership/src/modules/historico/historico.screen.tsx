@@ -33,7 +33,7 @@ interface Props { showToast: (m: string, t?: ToastType) => void; }
 export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
   const { navigate, accessLog, clearHistory, logAccess, logVehicleAccess } = useApp();
   const {
-    selectedId, selectedCliente, veiculos, loading, error,
+    selectedId, selectedCliente, veiculos, historicoMesclagem, loading, error,
     openVehicleModal, selectedVeiculo, vehicleModalOpen, setVehicleModalOpen, voltar,
   } = useHistorico();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -121,6 +121,25 @@ export const HistoricoScreen: React.FC<Props> = ({ showToast }) => {
             <div className="csb-item"><div className="csb-lbl">LTV Total</div><div className="csb-val" style={{color:'var(--green)'}}>{formatCurrency(selectedCliente.ltv)}</div></div>
             <div className="csb-item"><div className="csb-lbl">Telefone</div><div className="csb-val" style={{fontSize:'var(--fs3)'}}>{selectedCliente.tel}</div></div>
           </div>
+          {historicoMesclagem.length > 0 && (
+            <div className="m-sec" style={{marginBottom:20}}>
+              <div className="m-sec-title">Histórico de cadastro</div>
+              <p className="mod-sub" style={{marginBottom:10}}>
+                Esse cliente já tinha cadastro quando um novo contato com o mesmo e-mail/telefone chegou — os dados foram atualizados pro contato mais recente, e o cadastro anterior fica registrado aqui.
+              </p>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {historicoMesclagem.map(h => (
+                  <div key={h.id} style={{padding:'10px 14px',background:'var(--c-bg)',borderRadius:'var(--rsm)',borderLeft:'3px solid var(--orange)',fontSize:'var(--fs1)'}}>
+                    <div style={{color:'var(--c-dim)',fontSize:'var(--fs0)',marginBottom:4}}>
+                      {new Date(h.timestamp).toLocaleString('pt-BR')} · lead duplicado {h.details.leadDuplicadoCodigo}
+                    </div>
+                    <div>Nome: <strong style={{textDecoration:'line-through',color:'var(--c-dim)'}}>{h.details.nomeAntigo}</strong> → <strong>{h.details.nomeNovo}</strong></div>
+                    <div>Telefone: <strong style={{textDecoration:'line-through',color:'var(--c-dim)'}}>{h.details.telefoneAntigo}</strong> → <strong>{h.details.telefoneNovo}</strong></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="vehicles-grid" id="vehiclesGrid">
             {veiculos.length === 0
               ? <p style={{color:'var(--c-dim)',fontSize:'var(--fs1)',padding:'14px 0'}}>Nenhum veículo registrado.</p>

@@ -6,7 +6,7 @@ import { submitContactForm } from '../services/landing.service';
 
 const INITIAL: ContactFormData = {
   nome: '', email: '', telefone: '',
-  cidade: '', interesse: '', mensagem: '',
+  cidade: '', interesse: '', veiculo: '', mensagem: '',
 };
 
 /**
@@ -38,6 +38,8 @@ export function useContactForm() {
     else if (!isValidPhone(form.telefone))  errs.telefone  = 'Telefone inválido.';
     if (!form.cidade.trim())                errs.cidade    = 'Informe sua cidade.';
     if (!form.interesse)                    errs.interesse = 'Selecione um interesse.';
+    if (!form.veiculo.trim())               errs.veiculo   = 'Informe o veículo de interesse.';
+    else if (!hasMinLength(form.veiculo, 2)) errs.veiculo  = 'Nome do veículo muito curto.';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };

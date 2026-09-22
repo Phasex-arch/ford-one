@@ -16,16 +16,19 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import type { Estoque } from '../../../types/global.types';
+import type { Estoque, Cliente } from '../../../types/global.types';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
 import {
   fetchEstoque,
   fetchEstoqueById,
   updateEstoque,
   deleteEstoque,
+  reservarEstoque,
+  liberarReservaEstoque,
   type EstoqueFilters,
   type UpdateEstoqueInput,
 } from '../services/estoque.service';
+import { fetchClientes } from '../../clientes/services/clientes.service';
 
 const DEFAULT: EstoqueFilters = { query:'', cond:'', seg:'' };
 const PAGE_SIZE = 20;
@@ -42,6 +45,13 @@ export function useEstoque() {
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [clientesParaReserva, setClientesParaReserva] = useState<Cliente[]>([]);
+
+  useEffect(() => {
+    fetchClientes({ page: 1, limit: 100 })
+      .then(res => setClientesParaReserva(res.data))
+      .catch(() => setClientesParaReserva([]));
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(filters.query), 300);
@@ -112,10 +122,33 @@ export function useEstoque() {
     [deleteTarget, reload]
   );
 
+  const reservarUnidade = useCallback(
+    (id: string, clienteId: string, showToast: (m: string, t?: 'success' | 'warning') => void) => {
+      reservarEstoque(id, clienteId).then(atualizado => {
+        setModalItem(atualizado);
+        reload();
+        showToast('Unidade reservada por 48h!', 'success');
+      }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+    },
+    [reload]
+  );
+
+  const cancelarReserva = useCallback(
+    (id: string, showToast: (m: string, t?: 'success' | 'warning') => void) => {
+      liberarReservaEstoque(id).then(atualizado => {
+        setModalItem(atualizado);
+        reload();
+        showToast('Reserva cancelada.', 'success');
+      }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+    },
+    [reload]
+  );
+
   return {
     estoque, filters, updateFilter, modalId, setModalId, modalItem, reload,
     page, setPage, pagination, loading, error,
     editingEstoque, setEditingEstoque, salvarEdicaoEstoque,
     deleteTarget, setDeleteTarget, confirmarExclusaoEstoque,
+    clientesParaReserva, reservarUnidade, cancelarReserva,
   };
 }

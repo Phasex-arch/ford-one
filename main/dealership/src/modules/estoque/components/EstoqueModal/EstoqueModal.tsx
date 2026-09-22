@@ -25,18 +25,24 @@
  * - canDelete   → se o usuário logado pode excluir (ADMIN)
  */
 
-import React from 'react';
-import type { Estoque } from '../../../../types/global.types';
+import React, { useState } from 'react';
+import type { Estoque, Cliente } from '../../../../types/global.types';
 import { formatCurrency, cap } from '../../../../shared/utils/formatters';
 import type { ToastType } from '../../../../shared/hooks/useToast';
 
 interface Props {
   isOpen:boolean; onClose:()=>void; item:Estoque|undefined; showToast:(m:string,t?:ToastType)=>void; onFinSim:(id:string)=>void;
   onEditar?: (item: Estoque) => void; onExcluir?: (item: Estoque) => void; canEdit?: boolean; canDelete?: boolean;
+  clientesParaReserva?: Cliente[];
+  onReservar?: (id: string, clienteId: string) => void;
+  onCancelarReserva?: (id: string) => void;
 }
 
-export const EstoqueModal: React.FC<Props> = ({ isOpen, onClose, item:e, showToast, onFinSim, onEditar, onExcluir, canEdit, canDelete }) => {
+export const EstoqueModal: React.FC<Props> = ({ isOpen, onClose, item:e, onFinSim, onEditar, onExcluir, canEdit, canDelete, clientesParaReserva, onReservar, onCancelarReserva }) => {
+  const [clienteSelecionado, setClienteSelecionado] = useState('');
   if(!e) return null;
+  const reservada = !!e.reservadoClienteId;
+  const clienteDaReserva = clientesParaReserva?.find(c => c.id === e.reservadoClienteId);
   return (
     <div className={`modal-ov${isOpen?' open':''}`} id="estoqueModal" onClick={ev=>{if(ev.target===ev.currentTarget)onClose();}}>
       <div className="modal-box">
@@ -62,9 +68,32 @@ export const EstoqueModal: React.FC<Props> = ({ isOpen, onClose, item:e, showToa
           <div className="m-sec"><div className="m-sec-title">Precificação</div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
               <div><div className="mf-lbl">Valor sugerido</div><div style={{fontSize:28,fontWeight:700,color:'var(--ford-blue)'}}>{formatCurrency(e.preco)}</div></div>
-              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
                 <button className="btn-sec" onClick={()=>{onClose();setTimeout(()=>onFinSim(e.id),220);}}>Simular financiamento</button>
-                <button className="btn-prim" onClick={()=>showToast('Unidade reservada!','success')}>Reservar unidade</button>
+                {reservada ? (
+                  <>
+                    <span className="mf-lbl" style={{whiteSpace:'nowrap'}}>
+                      Reservada p/ {clienteDaReserva?.nome ?? 'cliente'} até {e.reservadoAte ? new Date(e.reservadoAte).toLocaleString('pt-BR') : '—'}
+                    </span>
+                    {onCancelarReserva && (
+                      <button className="btn-danger-out" onClick={()=>onCancelarReserva(e.id)}>Cancelar reserva</button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <select value={clienteSelecionado} onChange={ev=>setClienteSelecionado(ev.target.value)}>
+                      <option value="">Selecione o cliente...</option>
+                      {clientesParaReserva?.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}
+                    </select>
+                    <button
+                      className="btn-prim"
+                      disabled={!clienteSelecionado || !onReservar}
+                      onClick={()=>{ if(onReservar && clienteSelecionado) onReservar(e.id, clienteSelecionado); }}
+                    >
+                      Reservar unidade
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

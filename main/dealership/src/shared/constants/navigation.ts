@@ -16,7 +16,15 @@
 
 import type { ModuleId } from '../../types/global.types';
 
-export interface NavItem { id: ModuleId; label: string; icon: string; }
+type Role = 'ADMIN' | 'GERENTE' | 'FUNCIONARIO';
+
+/**
+ * roles: quando ausente, o item é visível pra qualquer papel autenticado.
+ * Receita e Desempenho ficam restritos a ADMIN/GERENTE — espelha o RBAC do
+ * backend (`/api/dashboard/receita` e `/api/dashboard/desempenho`), que
+ * expõe receita da loja e conversão individual por consultor.
+ */
+export interface NavItem { id: ModuleId; label: string; icon: string; roles?: Role[]; }
 export interface NavSection { label?: string; items: NavItem[]; }
 
 export const NAV_SECTIONS: NavSection[] = [
@@ -34,9 +42,9 @@ export const NAV_SECTIONS: NavSection[] = [
     { id:'financiamentos', label:'Financiamentos',    icon:'ph-credit-card'   },
   ]},
   { label:'Análise', items: [
-    { id:'receita',     label:'Receita',     icon:'ph-currency-dollar' },
+    { id:'receita',     label:'Receita',     icon:'ph-currency-dollar', roles:['ADMIN','GERENTE'] },
     { id:'avaliacao',   label:'Avaliação',   icon:'ph-star'            },
-    { id:'desempenho',  label:'Desempenho',  icon:'ph-chart-bar'       },
+    { id:'desempenho',  label:'Desempenho',  icon:'ph-chart-bar',      roles:['ADMIN','GERENTE'] },
     { id:'relatorios',  label:'Relatórios',  icon:'ph-file-text'       },
   ]},
   { items: [

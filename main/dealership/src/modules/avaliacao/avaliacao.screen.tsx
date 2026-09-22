@@ -28,10 +28,34 @@ import { ConfirmModal } from '../../shared/components/Modal/ConfirmModal';
 import { PaginationBar } from '../../shared/components/PaginationBar/PaginationBar';
 import type { ToastType } from '../../shared/hooks/useToast';
 import type { UpdateAvaliacaoInput } from './services/avaliacao.service';
+import type { Avaliacao } from '../../types/global.types';
 
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+const AvalCard: React.FC<{ a: Avaliacao; onClick: () => void; onAprovar?: () => void; onRejeitar?: () => void }> = ({ a, onClick, onAprovar, onRejeitar }) => {
+  const ini = a.c.split(' ').map(n => n[0]).slice(0, 2).join('');
+  return (
+    <div className="aval-card" onClick={onClick} style={{ cursor: 'pointer' }}>
+      <div className="aval-head">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><div className="cli-av">{ini}</div><div><div className="aval-name">{a.c}</div><div className="aval-date">{a.data}</div></div></div>
+        <div className="aval-stars" style={{ color: '#f59e0b', fontSize: 16 }}>{stars(a.nota)}</div>
+      </div>
+      <div className="aval-txt">"{a.txt}"</div>
+      {(onAprovar || onRejeitar) && (
+        <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+          <button className="icon-btn" title="Aprovar" style={{ color: 'var(--green)' }} onClick={e => { e.stopPropagation(); onAprovar?.(); }}>
+            <i className="ph-bold ph-check" />
+          </button>
+          <button className="icon-btn" title="Rejeitar" style={{ color: 'var(--red)' }} onClick={e => { e.stopPropagation(); onRejeitar?.(); }}>
+            <i className="ph-bold ph-x" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
   const { user } = useApp();
@@ -41,8 +65,10 @@ export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
     detailId, setDetailId, detail,
     editTarget, setEditTarget, salvarEdicao,
     deleteTarget, setDeleteTarget, confirmarExclusao,
+    moderar, pendentes, aprovadas, rejeitadas,
   } = useAvaliacao();
   const [editForm, setEditForm] = useState<UpdateAvaliacaoInput>({});
+  const [showRejeitadas, setShowRejeitadas] = useState(false);
 
   const kpis = [
     { ic: 'ic-gold', fa: 'ph-star', lbl: 'Nota Média', val: stats ? stats.notaMedia.toFixed(1) : '—' },
@@ -66,20 +92,37 @@ export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
       {error && <p className="mod-sub" style={{ color: 'var(--red)' }}>{error}</p>}
       {!loading && !error && avaliacoes.length === 0 && <p className="mod-sub">Nenhuma avaliação registrada.</p>}
 
-      <div id="avalList" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 14, marginTop: 16 }}>
-        {avaliacoes.map(a => {
-          const ini = a.c.split(' ').map(n => n[0]).slice(0, 2).join('');
-          return (
-            <div key={a.id} className="aval-card" onClick={() => setDetailId(a.id)} style={{ cursor: 'pointer' }}>
-              <div className="aval-head">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><div className="cli-av">{ini}</div><div><div className="aval-name">{a.c}</div><div className="aval-date">{a.data}</div></div></div>
-                <div className="aval-stars" style={{ color: '#f59e0b', fontSize: 16 }}>{stars(a.nota)}</div>
-              </div>
-              <div className="aval-txt">"{a.txt}"</div>
-            </div>
-          );
-        })}
+      {pendentes.length > 0 && (
+        <>
+          <h3 className="sec-title" style={{ marginTop: 16 }}>Pendentes de moderação ({pendentes.length})</h3>
+          <p className="mod-sub" style={{ marginBottom: 10 }}>Só aparecem publicamente depois de aprovadas.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 14, marginBottom: 24 }}>
+            {pendentes.map(a => (
+              <AvalCard key={a.id} a={a} onClick={() => setDetailId(a.id)}
+                onAprovar={() => moderar(a.id, 'aprovada', showToast)}
+                onRejeitar={() => moderar(a.id, 'rejeitada', showToast)} />
+            ))}
+          </div>
+        </>
+      )}
+
+      <h3 className="sec-title">Publicadas ({aprovadas.length})</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 14, marginTop: 10, marginBottom: aprovadas.length ? 20 : 0 }}>
+        {aprovadas.map(a => <AvalCard key={a.id} a={a} onClick={() => setDetailId(a.id)} />)}
       </div>
+
+      {rejeitadas.length > 0 && (
+        <>
+          <button className="btn-sec" style={{ marginBottom: 12 }} onClick={() => setShowRejeitadas(v => !v)}>
+            <i className={`ph-bold ${showRejeitadas ? 'ph-caret-up' : 'ph-caret-down'}`} /> Rejeitadas ({rejeitadas.length})
+          </button>
+          {showRejeitadas && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 14, marginBottom: 20 }}>
+              {rejeitadas.map(a => <AvalCard key={a.id} a={a} onClick={() => setDetailId(a.id)} />)}
+            </div>
+          )}
+        </>
+      )}
 
       {pagination && (
         <PaginationBar
@@ -117,7 +160,13 @@ export const AvaliacaoScreen: React.FC<Props> = ({ showToast }) => {
                     </div>
                   </>
                 )}
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16, flexWrap: 'wrap' }}>
+                  {detail.status === 'pendente' && (
+                    <>
+                      <button className="btn-danger-out" onClick={() => moderar(detail.id, 'rejeitada', showToast)}><i className="ph-bold ph-x" /> Rejeitar</button>
+                      <button className="btn-prim" style={{ background: 'var(--green)' }} onClick={() => moderar(detail.id, 'aprovada', showToast)}><i className="ph-bold ph-check" /> Aprovar</button>
+                    </>
+                  )}
                   {canDelete && <button className="btn-danger-out" onClick={() => { setDeleteTarget(detail); setDetailId(null); }}><i className="ph-bold ph-trash" /> Excluir</button>}
                   <button className="btn-prim" onClick={() => { setEditForm({}); setEditTarget(detail); setDetailId(null); }}><i className="ph-bold ph-pencil-simple" /> Editar</button>
                 </div>

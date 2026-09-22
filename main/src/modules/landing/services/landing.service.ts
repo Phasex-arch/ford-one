@@ -8,9 +8,10 @@ export async function submitContactForm(data: ContactFormData): Promise<void> {
       nome: data.nome,
       email: data.email,
       telefone: data.telefone,
-      veiculoInteresse: data.interesse,
+      veiculoInteresse: data.veiculo,
       mensagem: [
         data.mensagem.trim() || 'Solicitou contato pelo portal Ford One.',
+        `Interesse: ${data.interesse}`,
         `Cidade: ${data.cidade}`,
       ].join('\n'),
     }),

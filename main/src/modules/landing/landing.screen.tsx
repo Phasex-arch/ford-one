@@ -212,7 +212,7 @@ export function LandingScreen() {
               {[
                 { delay: 0,   title: 'Tecnologia proprietária Ford',      desc: 'Desenvolvida internamente pela equipe global Ford, integrada ao DNA dos veículos desde a fabricação.' },
                 { delay: 100, title: 'Confiabilidade comprovada',         desc: 'Mais de 120 anos de história Ford respaldando cada decisão tecnológica da plataforma.' },
-                { delay: 200, title: 'Segurança de dados nível bancário', desc: 'Criptografia end-to-end, servidores certificados ISO 27001 e conformidade total com a LGPD.' },
+                { delay: 200, title: 'Segurança de dados de verdade', desc: 'Criptografia AES-256 dos dados sensíveis em repouso e controle de acesso por papel — cada pessoa só vê o que precisa ver.' },
                 { delay: 300, title: 'Evolução contínua',                 desc: 'Atualizações automáticas OTA que melhoram o sistema sem que você precise fazer nada.' },
                 { delay: 400, title: 'Suporte 24/7 dedicado',             desc: 'Central de atendimento especializada disponível a qualquer hora, pelo app ou telefone.' },
               ].map(({ delay, title, desc }) => (
@@ -236,7 +236,7 @@ export function LandingScreen() {
         </div>
         <div className="container cta-content">
           <h2 className="cta-title">Conecte-se ao futuro<br />da mobilidade</h2>
-          <p className="cta-desc">Milhares de proprietários Ford já transformaram sua relação com o veículo. A sua vez chegou.</p>
+          <p className="cta-desc">Do primeiro contato ao pós-venda, tudo em um só lugar. A sua vez chegou.</p>
           <Link to={ROUTES.ESCOLHER} className="btn-cta-final">
             Começar agora <i className="fa-solid fa-arrow-right" />
           </Link>

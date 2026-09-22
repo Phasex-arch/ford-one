@@ -43,6 +43,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../shared/hooks/useTheme';
+import { formatTelefone } from '../../shared/utils/formatters';
 import { useConfiguracoes } from './hooks/useConfiguracoes';
 import { useColaboradores } from './hooks/useColaboradores';
 import { ColaboradorModal } from './components/ColaboradorModal/ColaboradorModal';
@@ -58,6 +59,16 @@ import type { ColaboradorRole } from './services/colaboradores.service';
 interface Props { showToast: (m: string, t?: ToastType) => void; }
 
 const PDF_URL = '/assets/document/ford-one-concessionaria.pdf';
+
+/** Formata CNPJ conforme o usuário digita: 00.000.000/0000-00. */
+const formatCnpj = (value: string): string => {
+  const digits = value.replace(/\D/g, '').slice(0, 14);
+  if (digits.length > 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+  if (digits.length > 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+  if (digits.length > 5) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  if (digits.length > 2) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  return digits;
+};
 
 const ROLE_LABEL: Record<ColaboradorRole, string> = {
   ADMIN: 'Administrador', GERENTE: 'Gerente', FUNCIONARIO: 'Funcionário',
@@ -206,14 +217,14 @@ export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
                     <div className="m-grid">
                       <label>Nome<input type="text" value={form.nome ?? ''} disabled={!canEditarConcessionaria}
                         onChange={e => setForm(p => ({ ...p, nome: e.target.value }))}/></label>
-                      <label>CNPJ<input type="text" value={form.cnpj ?? ''} disabled={!canEditarConcessionaria}
-                        onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))}/></label>
+                      <label>CNPJ<input type="text" placeholder="00.000.000/0000-00" maxLength={18} value={form.cnpj ?? ''} disabled={!canEditarConcessionaria}
+                        onChange={e => setForm(p => ({ ...p, cnpj: formatCnpj(e.target.value) }))}/></label>
                     </div>
                     <div className="m-grid">
                       <label>Endereço<input type="text" value={form.endereco ?? ''} disabled={!canEditarConcessionaria}
                         onChange={e => setForm(p => ({ ...p, endereco: e.target.value }))}/></label>
-                      <label>Telefone<input type="text" value={form.telefone ?? ''} disabled={!canEditarConcessionaria}
-                        onChange={e => setForm(p => ({ ...p, telefone: e.target.value }))}/></label>
+                      <label>Telefone<input type="text" placeholder="(11) 3000-4000" maxLength={15} value={form.telefone ?? ''} disabled={!canEditarConcessionaria}
+                        onChange={e => setForm(p => ({ ...p, telefone: formatTelefone(e.target.value) }))}/></label>
                     </div>
                   </div>
                   {canEditarConcessionaria ? (

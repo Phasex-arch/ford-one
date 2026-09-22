@@ -29,7 +29,9 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   fetchFinanciamentos, createFinanciamento, deleteFinanciamento, updateFinanciamentoStatus,
 } from '../services/financiamentos.service';
-import type { Financiamento } from '../../../types/global.types';
+import { fetchLeads } from '../../leads/services/leads.service';
+import { fetchEstoque } from '../../estoque/services/estoque.service';
+import type { Financiamento, Lead, Estoque } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
 import { MONTHS } from '../../../shared/utils/dates';
@@ -54,6 +56,34 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
   const [simValor, setSimValor] = useState(199900); const [simEntrada, setSimEntrada] = useState(40000);
   const [simPrazo, setSimPrazo] = useState(48); const [simTaxa, setSimTaxa] = useState(1.49);
   const [deleteTarget, setDeleteTarget] = useState<Financiamento | null>(null);
+  // Lead/estoque de origem — opcionais, mas sem eles a aprovação não dispara
+  // a conversão automática em Cliente nem a baixa de estoque (seção 0 da
+  // auditoria). Carregados uma vez ao montar, igual ao padrão de Metas.
+  const [leadsAbertos, setLeadsAbertos] = useState<Lead[]>([]);
+  const [estoqueDisponivel, setEstoqueDisponivel] = useState<Estoque[]>([]);
+  const [simLeadId, setSimLeadId] = useState('');
+  const [simEstoqueId, setSimEstoqueId] = useState('');
+
+  useEffect(() => {
+    fetchLeads({ page: 1, limit: 100 })
+      .then(res => setLeadsAbertos(res.data.filter(l => !l.convertido)))
+      .catch(() => setLeadsAbertos([]));
+    fetchEstoque({ page: 1, limit: 100 })
+      .then(res => setEstoqueDisponivel(res.data.filter(e => e.estq > 0)))
+      .catch(() => setEstoqueDisponivel([]));
+  }, []);
+
+  const selecionarLead = (leadId: string) => {
+    setSimLeadId(leadId);
+    const lead = leadsAbertos.find(l => l.id === leadId);
+    if (lead) setSimCli(lead.cli);
+  };
+
+  const selecionarEstoque = (estoqueId: string) => {
+    setSimEstoqueId(estoqueId);
+    const item = estoqueDisponivel.find(e => e.id === estoqueId);
+    if (item) setSimVei(`${item.modelo} ${item.versao}`);
+  };
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -88,8 +118,11 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
       clienteNome: simCli, iniciais, veiculo: simVei,
       valor: simValor, entrada: simEntrada, prazo: simPrazo, taxa: simTaxa, parcela, data,
       responsavelId,
+      leadId: simLeadId || undefined,
+      estoqueVeiculoId: simEstoqueId || undefined,
     }).then(() => {
       setSimOpen(false);
+      setSimLeadId(''); setSimEstoqueId('');
       setPage(1);
       reload();
       showToast(`Simulação salva: ${simCli}!`, 'success');
@@ -106,13 +139,25 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
+  /**
+   * Alerta o que a aprovação disparou automaticamente (ver auditoria,
+   * seção 0) — sem lead de origem, aprovar só vira contrato ativo mesmo;
+   * com lead, o lead também é convertido em cliente na hora, e é isso que
+   * a mensagem avisa (em vez de uma seção separada pra navegar depois).
+   */
   const decidir = (id: string, status: 'aprovado' | 'reprovado', cli: string) => {
-    updateFinanciamentoStatus(id, status).then(() => {
+    updateFinanciamentoStatus(id, status).then(financiamento => {
       reload();
-      showToast(
-        status === 'aprovado' ? `Financiamento de ${cli} aprovado — virou contrato ativo!` : `Financiamento de ${cli} reprovado.`,
-        status === 'aprovado' ? 'success' : 'warning',
-      );
+      if (status === 'aprovado') {
+        showToast(
+          financiamento.temLeadOrigem
+            ? `Financiamento de ${cli} aprovado — lead convertido em cliente automaticamente!`
+            : `Financiamento de ${cli} aprovado — virou contrato ativo!`,
+          'success',
+        );
+      } else {
+        showToast(`Financiamento de ${cli} reprovado.`, 'warning');
+      }
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   };
 
@@ -130,5 +175,6 @@ export function useFinanciamentos(showToast: (m: string, t?: ToastType) => void)
            simVei, setSimVei, simCli, setSimCli, simValor, setSimValor, simEntrada, setSimEntrada,
            simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim,
            deleteTarget, setDeleteTarget, confirmarExclusao, decidir,
-           emAndamento, contratosAtivos, reprovados };
+           emAndamento, contratosAtivos, reprovados,
+           leadsAbertos, estoqueDisponivel, simLeadId, simEstoqueId, selecionarLead, selecionarEstoque };
 }

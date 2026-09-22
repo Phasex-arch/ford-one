@@ -57,9 +57,11 @@ export async function fetchAgendamentosDia(dia: Date): Promise<AgendaSlot[]> {
 }
 
 export interface CreateAgendamentoInput {
-  cliente: string;
+  cliente?: string;
+  clienteId?: string;
   servico: string;
   tecnico?: string;
+  tecnicoId?: string;
   dataHora: string;
   leadId?: string;
 }

@@ -50,7 +50,8 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
           simVei, setSimVei, simCli, setSimCli, simValor, setSimValor, simEntrada, setSimEntrada,
           simPrazo, setSimPrazo, simTaxa, setSimTaxa, calcParcela, saveFinSim,
           deleteTarget, setDeleteTarget, confirmarExclusao, decidir,
-          emAndamento, contratosAtivos, reprovados } = useFinanciamentos(showToast);
+          emAndamento, contratosAtivos, reprovados,
+          leadsAbertos, estoqueDisponivel, simLeadId, simEstoqueId, selecionarLead, selecionarEstoque } = useFinanciamentos(showToast);
   const canExcluir = user?.role === 'ADMIN';
   const [showReprovados, setShowReprovados] = useState(false);
 
@@ -168,7 +169,19 @@ export const FinanciamentosScreen: React.FC<Props> = ({ showToast }) => {
             <div style={{padding:22}}>
               <h3 style={{fontSize:20,fontWeight:700,color:'var(--c-text)',marginBottom:16,paddingBottom:12,borderBottom:'1px solid var(--c-border)'}}>Simulação de Financiamento</h3>
               <div className="m-form">
+                <label>Lead de origem (opcional)
+                  <select value={simLeadId} onChange={e=>selecionarLead(e.target.value)}>
+                    <option value="">Nenhum — cliente avulso</option>
+                    {leadsAbertos.map(l=><option key={l.id} value={l.id}>{l.cli} — {l.v}</option>)}
+                  </select>
+                </label>
                 <label>Cliente<input type="text" value={simCli} onChange={e=>setSimCli(e.target.value)} placeholder="Nome do cliente"/></label>
+                <label>Veículo do estoque (opcional)
+                  <select value={simEstoqueId} onChange={e=>selecionarEstoque(e.target.value)}>
+                    <option value="">Nenhum — sem baixa automática de estoque</option>
+                    {estoqueDisponivel.map(e=><option key={e.id} value={e.id}>{e.modelo} {e.versao} ({e.estq} em estoque)</option>)}
+                  </select>
+                </label>
                 <label>Veículo<input type="text" value={simVei} onChange={e=>setSimVei(e.target.value)} placeholder="Modelo e versão"/></label>
                 <label>Valor (R$)<input type="number" value={simValor} onChange={e=>setSimValor(+e.target.value)}/></label>
                 <label>Entrada (R$)<input type="number" value={simEntrada} onChange={e=>setSimEntrada(+e.target.value)}/></label>
