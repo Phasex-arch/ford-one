@@ -12,12 +12,10 @@
  * Utiliza os hooks useLineChart, useGroupedBarChart e useBarChart de
  * shared/ui/Canvas. O parâmetro `period` é passado como dependência para
  * redesenhar os gráficos quando o período do Dashboard muda.
- *
- * Também registra listener de resize para redesenho automático quando
- * a janela é redimensionada.
+ * O redesenho no resize da janela fica nos próprios hooks (useResizeTick).
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLineChart } from '../../../../shared/ui/Canvas/useLineChart';
 import { useBarChart } from '../../../../shared/ui/Canvas/useBarChart';
 import { useGroupedBarChart } from '../../../../shared/ui/Canvas/useGroupedBarChart';
@@ -73,14 +71,6 @@ export const DashCharts: React.FC<Props> = ({ period, data }) => {
     color: '#1700f4',
     unit: '%',
   }, [period, data]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      window.dispatchEvent(new Event('ford:redrawCharts'));
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
     <div className="dash-row">

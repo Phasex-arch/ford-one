@@ -224,7 +224,9 @@ body::after{content:'Ford One \B7 Ford Smart Ecosystem \B7 Todos os direitos res
 .chart-card{background:var(--c-card);border-radius:var(--r);padding:20px;box-shadow:var(--sh0);border:1px solid var(--c-border);overflow:hidden}
 .chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
 .chart-head h3{font-size:var(--fs3);font-weight:600;color:var(--c-text);white-space:nowrap}
-canvas{width:100%!important;display:block}
+// Altura pela proporção 2:1 (como antes), mas com piso: no celular o canvas
+// ficava com ~150px e os gráficos ficavam minúsculos.
+canvas{width:100%!important;aspect-ratio:2/1;min-height:220px;display:block}
 .chart-legend{display:flex;align-items:center;gap:10px;font-size:var(--fs0);color:var(--c-mid);flex-shrink:0;flex-wrap:wrap}
 .leg{display:flex;align-items:center;gap:4px;white-space:nowrap}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%}

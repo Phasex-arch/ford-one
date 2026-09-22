@@ -18,6 +18,7 @@
  */
 
 import { useEffect } from 'react';
+import { useCanvasResizeTick, niceMax, labelStep, showLabel, valuesFit } from './chartUtils';
 
 interface Serie { data: number[]; color: string; }
 interface GroupedBarCfg { labels: string[]; seriesA: Serie; seriesB: Serie; unit?: string; }
@@ -26,6 +27,7 @@ const ctxt  = () => getComputedStyle(document.documentElement).getPropertyValue(
 const cgrid = () => getComputedStyle(document.documentElement).getPropertyValue('--c-border').trim() || '#e2e5ef';
 
 export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, deps: unknown[] = []) {
+  const resizeTick = useCanvasResizeTick(canvasId, deps);
   useEffect(() => {
     if (!cfg) return;
     const el = document.getElementById(canvasId) as HTMLCanvasElement | null;
@@ -42,14 +44,17 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
     if (n === 0) { ctx.clearRect(0, 0, W, H); return; }
 
     const all = [...cfg.seriesA.data, ...cfg.seriesB.data];
-    // *1.15 || 1 evita NaN quando as duas séries estão zeradas (ex.: sem
-    // nenhum dado no ano anterior ainda) — mesmo guard do useBarChart.
-    const mx = Math.max(...all) * 1.15 || 1;
+    // niceMax nunca devolve 0 — evita NaN com as duas séries zeradas (ex.:
+    // sem nenhum dado no ano anterior ainda).
+    const mx = niceMax(Math.max(...all));
 
     const catW = pw / n;
     const barW = catW * 0.3;
     const barGap = catW * 0.05;
     const sideMargin = (catW - (2 * barW + barGap)) / 2;
+    ctx.font = '10px Inter,sans-serif';
+    const step = labelStep(ctx, cfg.labels, catW);
+    const showValues = valuesFit(ctx, all.map(v => String(v) + (cfg.unit || '')), catW / 2);
 
     const barX = (i: number, serie: 'A' | 'B') => {
       const catX = P.l + i * catW + sideMargin;
@@ -71,7 +76,9 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
       ctx.fillStyle = ctxt();
       ctx.font = `${hov ? 'bold' : 'normal'} 9.5px Inter,sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(String(v) + (cfg.unit || ''), x + barW / 2, y - 5);
+      // Cada barra tem meia categoria de espaço pro valor — ver valuesFit.
+      // Zero não tem barra pra rotular.
+      if (hov || (showValues && v !== 0)) ctx.fillText(String(v) + (cfg.unit || ''), x + barW / 2, y - 5);
     };
 
     // hi = {i, serie} da barra sob o cursor, ou null.
@@ -88,7 +95,7 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
         drawBar(barX(i, 'A'), cfg.seriesA.data[i] ?? 0, cfg.seriesA.color, hi?.i === i && hi.serie === 'A');
         drawBar(barX(i, 'B'), cfg.seriesB.data[i] ?? 0, cfg.seriesB.color, hi?.i === i && hi.serie === 'B');
         ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(cfg.labels[i], P.l + i * catW + catW / 2, H - P.b + 19);
+        if (showLabel(i, n, step)) ctx.fillText(cfg.labels[i], P.l + i * catW + catW / 2, H - P.b + 19);
       }
     };
     draw(null);
@@ -109,5 +116,5 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
     el.addEventListener('mouseleave', onLeave);
     return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasId, ...deps]);
+  }, [canvasId, resizeTick, ...deps]);
 }

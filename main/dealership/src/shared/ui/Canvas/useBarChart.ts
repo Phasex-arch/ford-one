@@ -21,6 +21,7 @@
  */
 
 import { useEffect } from 'react';
+import { useCanvasResizeTick, niceMax, labelStep, showLabel, valuesFit } from './chartUtils';
 
 interface BarCfg {
   labels: string[]; data: number[]; color: string; unit?: string;
@@ -32,6 +33,7 @@ const ctxt  = () => getComputedStyle(document.documentElement).getPropertyValue(
 const cgrid = () => getComputedStyle(document.documentElement).getPropertyValue('--c-border').trim() || '#e2e5ef';
 
 export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[] = []) {
+  const resizeTick = useCanvasResizeTick(canvasId, deps);
   useEffect(() => {
     if (!cfg) return;
     const el = document.getElementById(canvasId) as HTMLCanvasElement | null;
@@ -48,10 +50,13 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
       ctx.clearRect(0, 0, W, H);
       return;
     }
-    // Math.max(...cfg.data) pode ser 0 quando toda a série é zero (ex.: nenhum
-    // lead convertido ainda) — sem o guard, v/mx vira 0/0 = NaN e quebra o
-    // createLinearGradient mais abaixo.
-    const mx = Math.max(...cfg.data) * 1.15 || 1;
+    // niceMax nunca devolve 0 — série toda em zero (ex.: nenhum lead
+    // convertido ainda) não vira 0/0 = NaN no createLinearGradient abaixo.
+    const mx = niceMax(Math.max(...cfg.data));
+    const slotW = pw / cfg.data.length;
+    ctx.font = '10px Inter,sans-serif';
+    const step = labelStep(ctx, cfg.labels, slotW);
+    const showValues = valuesFit(ctx, cfg.data.map(v => v + (cfg.unit || '')), slotW);
     const bw = (pw / cfg.data.length) * .58;
     const gap = (pw / cfg.data.length) * .21;
 
@@ -82,8 +87,12 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
         ctx.font = `${hov ? 'bold' : 'normal'} 10px Inter,sans-serif`;
         ctx.textAlign = 'center';
         const inlineCount = hov ? cfg.counts?.[i] : undefined;
-        ctx.fillText(inlineCount !== undefined ? String(inlineCount) : v + (cfg.unit || ''), x + bw / 2, y - 5);
-        ctx.fillText(cfg.labels[i], x + bw / 2, H - P.b + 19);
+        const txt = inlineCount !== undefined ? String(inlineCount) : v + (cfg.unit || '');
+        // Com 12 meses no celular os valores se sobrepunham — ver valuesFit.
+        // Zero não tem barra pra rotular.
+        if (hov || (showValues && v !== 0)) ctx.fillText(txt, x + bw / 2, y - 5);
+        ctx.font = '10px Inter,sans-serif';
+        if (showLabel(i, cfg.data.length, step)) ctx.fillText(cfg.labels[i], x + bw / 2, H - P.b + 19);
       });
     };
     draw(-1);
@@ -103,5 +112,5 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
     el.addEventListener('mouseleave', onLeave);
     return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasId, ...deps]);
+  }, [canvasId, resizeTick, ...deps]);
 }
