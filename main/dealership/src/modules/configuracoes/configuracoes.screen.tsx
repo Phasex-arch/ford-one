@@ -482,7 +482,7 @@ export const ConfiguracoesScreen: React.FC<Props> = ({ showToast }) => {
                   <div className="doc-icon"><i className="ph-bold ph-file-pdf" /></div>
                   <div>
                     <div className="doc-name">ford-one-concessionaria.pdf</div>
-                    <div className="doc-meta">Documentação técnica completa · Ford One v3.2 · 2026</div>
+                    <div className="doc-meta">Documentação técnica completa · Ford One v1.0 · 2026</div>
                   </div>
                 </div>
                 <button className="btn-prim" onClick={baixarDocumentacao} disabled={baixando} style={{ width: '100%', height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: baixando ? 0.8 : 1 }}>

@@ -636,7 +636,12 @@ canvas{width:100%!important;display:block}
 .cfg-meta-progress{font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0}
 .cfg-meta-progress.hit{color:var(--green)}
 .cfg-meta-progress.miss{color:var(--gold)}
-.audit-list{display:flex;flex-direction:column;gap:0}
+// max-height + overflow-y evita que a lista (até 8 entradas, ver
+// fetchAuditLogRecente) cresça livremente e empurre o resto da aba Sistema
+// (Documentação) pra baixo — vira um painel contido com rolagem própria.
+// padding-right afasta o texto (.audit-meta) da barra de rolagem — sem
+// isso a data fica colada nela, cortada visualmente.
+.audit-list{display:flex;flex-direction:column;gap:0;max-height:230px;overflow-y:auto;padding-right:10px}
 .audit-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--c-border);font-size:var(--fs1)}
 .audit-row:last-child{border-bottom:none}
 .audit-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--c-dim)}
