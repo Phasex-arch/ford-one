@@ -20,6 +20,7 @@
  */
 
 import { useEffect } from 'react';
+import { useCanvasResizeTick, labelStep, showLabel } from './chartUtils';
 
 interface DataSet { data: number[]; color: string; fill?: boolean; dashed?: boolean; }
 interface LineCfg { labels: string[]; sets: DataSet[]; unit?: string; }
@@ -29,6 +30,7 @@ const cgrid = () => getComputedStyle(document.documentElement).getPropertyValue(
 const ccard = () => getComputedStyle(document.documentElement).getPropertyValue('--c-card').trim() || '#fff';
 
 export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknown[] = []) {
+  const resizeTick = useCanvasResizeTick(canvasId, deps);
   useEffect(() => {
     if (!cfg) return;
     const el = document.getElementById(canvasId) as HTMLCanvasElement | null;
@@ -63,7 +65,15 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
       ctx.fillText(Math.round(mx - i / 4 * (mx - mn)) + (cfg.unit || ''), P.l - 6, y + 3.5);
     }
     ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
-    cfg.labels.forEach((l, i) => ctx.fillText(l, tx(i), H - P.b + 19));
+    const n = cfg.labels.length;
+    const step = labelStep(ctx, cfg.labels, n > 1 ? pw / (n - 1) : pw);
+    cfg.labels.forEach((l, i) => {
+      if (!showLabel(i, n, step)) return;
+      // Primeiro/último ponto ficam na borda do gráfico — segura o rótulo
+      // dentro do canvas em vez de cortar metade dele ("Q3/202…").
+      const half = ctx.measureText(l).width / 2;
+      ctx.fillText(l, Math.min(Math.max(tx(i), half), W - half), H - P.b + 19);
+    });
 
     cfg.sets.forEach(ds => {
       const pts = ds.data.map((v, i) => [tx(i), ty(v)] as [number, number]);
@@ -87,5 +97,5 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
       });
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasId, ...deps]);
+  }, [canvasId, resizeTick, ...deps]);
 }

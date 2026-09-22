@@ -18,6 +18,7 @@
  */
 
 import { useEffect } from 'react';
+import { useCanvasResizeTick } from './chartUtils';
 
 interface PieCfg {
   labels: string[]; data: number[]; colors: string[];
@@ -30,6 +31,7 @@ const ctxt = () => getComputedStyle(document.documentElement).getPropertyValue('
 const ccard = () => getComputedStyle(document.documentElement).getPropertyValue('--c-card').trim() || '#fff';
 
 export function usePieChart(canvasId: string, cfg: PieCfg | null, deps: unknown[] = []) {
+  const resizeTick = useCanvasResizeTick(canvasId, deps);
   useEffect(() => {
     if (!cfg) return;
     const el = document.getElementById(canvasId) as HTMLCanvasElement | null;
@@ -99,5 +101,5 @@ export function usePieChart(canvasId: string, cfg: PieCfg | null, deps: unknown[
     el.addEventListener('mouseleave', onLeave);
     return () => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasId, ...deps]);
+  }, [canvasId, resizeTick, ...deps]);
 }

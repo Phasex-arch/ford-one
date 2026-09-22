@@ -18,7 +18,7 @@
  * Gráficos renderizados via usePieChart e useLineChart de shared/ui/Canvas.
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useReceita } from './hooks/useReceita';
 import { useLineChart } from '../../shared/ui/Canvas/useLineChart';
 import { usePieChart } from '../../shared/ui/Canvas/usePieChart';
@@ -52,12 +52,6 @@ export const ReceitaScreen: React.FC = () => {
       formatCurrency(data.categorias.servicos, true),
     ],
   } : null, [pctCategorias, data]);
-
-  useEffect(() => {
-    const handleResize = () => window.dispatchEvent(new Event('ford:redrawCharts'));
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const kpis = data ? [
     { ic: 'ic-blue', fa: 'ph-currency-dollar', lbl: 'Receita', val: formatCurrency(data.kpis.total), delta: 'c/ pipeline', cls: 'neu' },
