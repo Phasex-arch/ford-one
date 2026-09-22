@@ -21,10 +21,11 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { fetchLeads, fetchLeadById, fetchLeadsStats, assumirLead as assumirLeadApi, type LeadsStats } from '../services/leads.service';
+import { fetchLeads, fetchLeadById, fetchLeadsStats, assumirLead as assumirLeadApi, registrarContatoLead, associarVeiculoLead, type LeadsStats } from '../services/leads.service';
 import { fetchAgendamentosDeLeads, type LeadAgendamento } from '../../agenda/services/agenda.service';
+import { fetchEstoque } from '../../estoque/services/estoque.service';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
-import type { Lead, LeadUrgencia } from '../../../types/global.types';
+import type { Lead, LeadUrgencia, Estoque } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 
 const PAGE_SIZE = 20;
@@ -41,13 +42,24 @@ export function useLeads() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pipeline, setPipeline] = useState<LeadsStats>(EMPTY_STATS);
+  const [estoqueDisponivel, setEstoqueDisponivel] = useState<Estoque[]>([]);
+
+  useEffect(() => {
+    fetchEstoque({ page: 1, limit: 100 })
+      .then(res => setEstoqueDisponivel(res.data.filter(e => e.estq > 0)))
+      .catch(() => setEstoqueDisponivel([]));
+  }, []);
 
   useEffect(() => { setPage(1); }, [urgFilter]);
 
+  // Lead convertido já virou Cliente de verdade (ver auditoria, seção 0) —
+  // some do pipeline ativo, já que não é mais um lead em aberto (o alerta
+  // do momento da conversão acontece em Financiamentos, que é onde ela
+  // realmente é disparada).
   const reload = useCallback(() => {
     setLoading(true);
     setError('');
-    fetchLeads({ page, limit: PAGE_SIZE, urgencia: urgFilter })
+    fetchLeads({ page, limit: PAGE_SIZE, urgencia: urgFilter, convertido: false })
       .then(res => { setLeads(res.data); setPagination(res.pagination); })
       .catch(e => { setError(friendlyApiMessage(e)); setLeads([]); setPagination(null); })
       .finally(() => setLoading(false));
@@ -87,9 +99,32 @@ export function useLeads() {
     }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
   }, [reload]);
 
+  /**
+   * Liga de verdade (tel:) e registra o contato — antes era só um toast
+   * fixo sem nenhuma chamada real (ver auditoria, seção 3).
+   */
+  const ligarAgora = useCallback((id: string, telefone: string, showToast: (m: string, t?: ToastType) => void) => {
+    window.location.href = `tel:${telefone.replace(/\D/g, '')}`;
+    registrarContatoLead(id).then(() => {
+      showToast('Ligação iniciada — contato registrado.', 'info');
+      reload();
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  }, [reload]);
+
+  /** Vincula o lead a um item real do estoque (ver auditoria, seção 4 —
+   * antes "Veículo" era só o que o visitante digitou no formulário). */
+  const associarVeiculo = useCallback((id: string, estoqueVeiculoId: string, showToast: (m: string, t?: ToastType) => void) => {
+    associarVeiculoLead(id, estoqueVeiculoId).then(atualizado => {
+      setLead(atualizado);
+      showToast('Veículo associado ao lead!', 'success');
+      reload();
+    }).catch(e => showToast(friendlyApiMessage(e), 'warning'));
+  }, [reload]);
+
   return {
     leads, urgFilter, setUrgFilter, modalId, setModalId, lead, pipeline,
-    leadAgendamentos, reloadAgendamentos, assumirLead,
+    leadAgendamentos, reloadAgendamentos, assumirLead, ligarAgora,
     page, setPage, pagination, loading, error,
+    estoqueDisponivel, associarVeiculo,
   };
 }

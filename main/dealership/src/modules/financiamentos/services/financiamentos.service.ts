@@ -22,6 +22,7 @@ interface FinanciamentoApi {
   parcela: number;
   status: 'APROVADO' | 'ANALISE' | 'PENDENTE' | 'REPROVADO';
   data: string;
+  leadId?: string | null;
 }
 
 const toFinanciamento = (item: FinanciamentoApi): Financiamento => ({
@@ -37,6 +38,7 @@ const toFinanciamento = (item: FinanciamentoApi): Financiamento => ({
   parcela: item.parcela,
   status: item.status.toLowerCase() as FinanciamentoStatus,
   data: item.data,
+  temLeadOrigem: !!item.leadId,
 });
 
 export interface FetchFinanciamentosParams { page: number; limit: number; }
@@ -64,6 +66,12 @@ export interface CreateFinanciamentoInput {
   parcela: number;
   data: string;
   responsavelId?: string;
+  /** Lead de origem — sem isso a aprovação não converte ninguém em Cliente
+   * automaticamente (ver auditoria, seção 0). */
+  leadId?: string;
+  /** Item real do estoque — sem isso a aprovação não gera posse nem baixa
+   * estoque automaticamente. */
+  estoqueVeiculoId?: string;
 }
 
 export async function createFinanciamento(input: CreateFinanciamentoInput): Promise<Financiamento> {

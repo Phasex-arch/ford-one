@@ -35,7 +35,10 @@ export interface Cliente {
   nome: string;
   tel: string;
   email: string;
+  /** Formatada pra exibição (dd/mm/yyyy ou "-") — usar ultRaw pra ordenar. */
   ult: string;
+  /** ISO da mesma data, ou null — é o que sortClientes('ult') usa de verdade. */
+  ultRaw: string | null;
   status: ClienteStatus;
   v: number;
   ltv: number;
@@ -83,6 +86,10 @@ export interface Estoque {
   estq: number;
   km: string | null;
   ops: string[];
+  /** Reserva real (POST /estoque/:id/reservar) — null quando não há
+   * reserva em andamento. Expira sozinha (ver auditoria, seção 3). */
+  reservadoClienteId: string | null;
+  reservadoAte: string | null;
 }
 
 export interface Lead {
@@ -96,6 +103,11 @@ export interface Lead {
   tel: string;
   email: string | null;
   ins: string;
+  /** true quando um financiamento vinculado a este lead já foi aprovado —
+   * a conversão em Cliente já aconteceu automaticamente (ver auditoria,
+   * seção 0). Lead já convertido some das opções de "Lead de origem" na
+   * Nova Simulação. */
+  convertido: boolean;
 }
 
 export interface OrdemServico {
@@ -106,6 +118,10 @@ export interface OrdemServico {
   t: string;
   tech: string;
   prazo: string;
+  /** ISO 8601 (UTC) — fonte real do prazo; prazo (texto) e pc (prioridade)
+   * são sempre derivados daqui no servidor. null só em registro antigo, de
+   * antes desse campo existir. */
+  prazoData: string | null;
   pc: OSStatus;
   val: number;
 }
@@ -123,7 +139,12 @@ export interface Financiamento {
   parcela: number;
   status: FinanciamentoStatus;
   data: string;
+  /** true quando vinculado a um Lead — é o que dispara a conversão
+   * automática em Cliente na aprovação (ver auditoria, seção 0). */
+  temLeadOrigem: boolean;
 }
+
+export type AvaliacaoStatus = 'pendente' | 'aprovada' | 'rejeitada';
 
 export interface Avaliacao {
   id: string;
@@ -132,6 +153,7 @@ export interface Avaliacao {
   data: string;
   txt: string;
   detalhe: string;
+  status: AvaliacaoStatus;
 }
 
 export interface Meta {

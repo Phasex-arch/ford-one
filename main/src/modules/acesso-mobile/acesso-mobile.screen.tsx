@@ -15,7 +15,7 @@ export function AcessoMobileScreen() {
 
       <header className={styles.header}>
         <Link to={ROUTES.HOME} className={styles.logo}>
-          <img src="assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
+          <img src="/assets/images/logo/icon_ford_one.png" alt="Ford" className={styles.logoImg} />
           <div className={styles.logoDivider} />
           <div className={styles.logoText}>
             <span className={styles.logoTitle}>FORD ONE</span>
@@ -46,7 +46,7 @@ export function AcessoMobileScreen() {
 
           <div className={styles.qrWrap}>
             <img
-              src="assets/images/qrcode/qrcode-ford-one.jpg"
+              src="/assets/images/qrcode/qrcode-ford-one.jpg"
               alt="QR Code para acessar o Ford One pelo celular"
             />
           </div>

@@ -28,6 +28,7 @@ interface LeadApi {
   telefone: string;
   email?: string | null;
   insight?: string | null;
+  convertido?: boolean;
 }
 
 const toLead = (item: LeadApi): Lead => ({
@@ -41,6 +42,7 @@ const toLead = (item: LeadApi): Lead => ({
   tel: item.telefone,
   email: item.email ?? null,
   ins: item.insight ?? 'Sem insight adicional.',
+  convertido: item.convertido ?? false,
 });
 
 export interface FetchLeadsParams {
@@ -48,6 +50,8 @@ export interface FetchLeadsParams {
   limit: number;
   urgencia?: LeadUrgencia | '';
   search?: string;
+  /** Sem informar, traz todos (convertidos e não). */
+  convertido?: boolean;
 }
 
 export interface LeadsPage {
@@ -59,6 +63,7 @@ export async function fetchLeads(params: FetchLeadsParams): Promise<LeadsPage> {
   const qs = new URLSearchParams({ page: String(params.page), limit: String(params.limit) });
   if (params.urgencia) qs.set('urgencia', params.urgencia.toUpperCase());
   if (params.search?.trim()) qs.set('search', params.search.trim());
+  if (params.convertido !== undefined) qs.set('convertido', String(params.convertido));
   const response = await apiRequest<PaginatedResponse<LeadApi>>(`/leads?${qs}`);
   return { data: response.data.map(toLead), pagination: response.pagination };
 }
@@ -76,6 +81,27 @@ export async function assumirLead(id: string, responsavelId: string): Promise<Le
   return toLead(item);
 }
 
+/**
+ * POST /leads/:id/contato — registra o momento do contato real (ex.: "Ligar
+ * agora"). É o sinal que o job de reavaliação de urgência usa pra saber que
+ * alguém falou com o lead recentemente e não precisa escalar por
+ * negligência ainda.
+ */
+export async function registrarContatoLead(id: string): Promise<Lead> {
+  const item = await apiRequest<LeadApi>(`/leads/${id}/contato`, { method: 'POST' });
+  return toLead(item);
+}
+
+/** Vincula o lead a um item real do estoque — o texto "Veículo" passa a
+ * vir do cadastro real, não do que foi digitado no formulário público. */
+export async function associarVeiculoLead(id: string, estoqueVeiculoId: string): Promise<Lead> {
+  const item = await apiRequest<LeadApi>(`/leads/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ estoqueVeiculoId }),
+  });
+  return toLead(item);
+}
+
 export interface LeadsStats {
   total: number;
   urgentes: number;
@@ -84,7 +110,8 @@ export interface LeadsStats {
 }
 
 export async function fetchLeadsStats(): Promise<LeadsStats> {
-  const { data, pagination } = await fetchLeads({ page: 1, limit: 100 });
+  // Convertido já é cliente — não conta mais como pipeline em aberto.
+  const { data, pagination } = await fetchLeads({ page: 1, limit: 100, convertido: false });
   return {
     total: pagination.total,
     urgentes: data.filter(l => l.urg === 'urgente').length,

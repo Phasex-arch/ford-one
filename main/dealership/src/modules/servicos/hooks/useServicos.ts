@@ -25,7 +25,8 @@ import {
   type CreateServicoInput, type UpdateServicoInput,
 } from '../services/servicos.service';
 import { fetchTecnicos } from '../services/tecnico.service';
-import type { OrdemServico, Tecnico } from '../../../types/global.types';
+import { fetchClientes } from '../../clientes/services/clientes.service';
+import type { OrdemServico, Tecnico, Cliente } from '../../../types/global.types';
 import type { ToastType } from '../../../shared/hooks/useToast';
 import { friendlyApiMessage, type PaginationMeta } from '../../../shared/api/client';
 
@@ -41,6 +42,7 @@ export function useServicos(showToast: (m: string, t?: ToastType) => void) {
   const [counts, setCounts] = useState<Record<OSTab, number>>({ previstos: 0, andamento: 0, concluidos: 0 });
   const [loading, setLoading] = useState(true);
   const [tecnicos, setTecnicos] = useState<Tecnico[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [detailIdx, setDetailIdx] = useState<number | null>(null);
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
@@ -62,6 +64,7 @@ export function useServicos(showToast: (m: string, t?: ToastType) => void) {
 
   useEffect(() => { reload(); }, [reload]);
   useEffect(() => { fetchTecnicos().then(setTecnicos).catch(() => setTecnicos([])); }, []);
+  useEffect(() => { fetchClientes({ page: 1, limit: 100 }).then(res => setClientes(res.data)).catch(() => setClientes([])); }, []);
   // Mantém as contagens das outras abas atualizadas pra exibir nos botões de aba.
   useEffect(() => {
     (['previstos', 'andamento', 'concluidos'] as OSTab[])
@@ -110,7 +113,7 @@ export function useServicos(showToast: (m: string, t?: ToastType) => void) {
   }, [tab, showToast, reload]);
 
   return {
-    tab, setTab, list, pagination, page, setPage, loading, counts, tecnicos,
+    tab, setTab, list, pagination, page, setPage, loading, counts, tecnicos, clientes,
     detailIdx, setDetailIdx, editIdx, setEditIdx,
     deleteIdx, setDeleteIdx, novaOSOpen, setNovaOSOpen,
     moverOS, deletarOS, salvarEdicao, criarOS,

@@ -47,8 +47,9 @@ const formatBooking = (dataHora: string): string => {
 export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
   const {
     leads, urgFilter, setUrgFilter, modalId, setModalId, lead, pipeline,
-    leadAgendamentos, reloadAgendamentos, assumirLead,
+    leadAgendamentos, reloadAgendamentos, assumirLead, ligarAgora,
     setPage, pagination, loading, error,
+    estoqueDisponivel, associarVeiculo,
   } = useLeads();
   const { navigate, user } = useApp();
   const [schedLeadId, setSchedLeadId] = useState<string|null>(null);
@@ -196,7 +197,18 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
             <div className="m-body" style={{paddingTop:0}}>
               <div className="m-sec"><div className="m-sec-title">Oportunidade</div>
                 <div className="m-grid">
-                  <div><div className="mf-lbl">Veículo</div><div className="mf-val">{lead.v}</div></div>
+                  <div>
+                    <div className="mf-lbl">Veículo</div>
+                    <div className="mf-val">{lead.v}</div>
+                    <select
+                      style={{marginTop:6,fontSize:'var(--fs0)'}}
+                      value=""
+                      onChange={e=>{ if(e.target.value) associarVeiculo(lead.id, e.target.value, showToast); }}
+                    >
+                      <option value="">Associar veículo do estoque...</option>
+                      {estoqueDisponivel.map(e=><option key={e.id} value={e.id}>{e.modelo} {e.versao} ({e.estq} em estoque)</option>)}
+                    </select>
+                  </div>
                   <div><div className="mf-lbl">Necessidade</div><div className="mf-val">{lead.nec}</div></div>
                   <div><div className="mf-lbl">Valor Estimado</div><div className="mf-val" style={{fontSize:22,fontWeight:700,color:'var(--ford-blue)'}}>{formatCurrency(lead.val)}</div></div>
                 </div>
@@ -206,7 +218,7 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
               </div>
               <div className="m-sec" style={{marginBottom:0}}><div className="m-sec-title">Ações</div>
                 <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                  <button className="btn-sec" onClick={()=>{showToast('Ligação registrada!','info');setModalId(null);}}>Ligar agora</button>
+                  <button className="btn-sec" onClick={()=>{ligarAgora(lead.id,lead.tel,showToast);setModalId(null);}}>Ligar agora</button>
                   {isBooked(lead.id)
                     ? <button className="btn-danger" onClick={()=>{cancelSchedule(lead.id);setModalId(null);}}>Cancelar agendamento</button>
                     : <button className="btn-sec" onClick={()=>{setModalId(null);setSchedLeadId(lead.id);setSchedDay(0);setSelectedSlot(-1);}}>Agendar visita</button>}

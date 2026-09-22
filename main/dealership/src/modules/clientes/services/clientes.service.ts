@@ -41,6 +41,7 @@ const toCliente = (item: ClienteApi): Cliente => ({
   tel: item.telefone,
   email: item.email,
   ult: item.ultimaVisita ? new Date(item.ultimaVisita).toLocaleDateString('pt-BR') : '-',
+  ultRaw: item.ultimaVisita ?? null,
   status: (item.status ?? 'ATIVO').toLowerCase() as ClienteStatus,
   v: item.veiculosCount ?? 0,
   ltv: item.ltv ?? 0,
@@ -76,6 +77,15 @@ export async function fetchClienteById(id: string): Promise<Cliente> {
 export function sortClientes(order: ClienteFilters['order'], source: Cliente[] = []): Cliente[] {
   if (order === 'ltv') return [...source].sort((a, b) => b.ltv - a.ltv);
   if (order === 'nome') return [...source].sort((a, b) => a.nome.localeCompare(b.nome));
+  if (order === 'ult') {
+    // Mais recente primeiro; sem data registrada vai pro fim, não pro topo.
+    return [...source].sort((a, b) => {
+      if (!a.ultRaw && !b.ultRaw) return 0;
+      if (!a.ultRaw) return 1;
+      if (!b.ultRaw) return -1;
+      return new Date(b.ultRaw).getTime() - new Date(a.ultRaw).getTime();
+    });
+  }
   return source;
 }
 
@@ -114,6 +124,30 @@ export async function updateCliente(
 
 export async function deleteCliente(id: string): Promise<void> {
   await apiRequest<void>(`/clientes/${id}`, { method: 'DELETE' });
+}
+
+export interface HistoricoMesclagem {
+  id: string;
+  timestamp: string;
+  details: {
+    nomeAntigo: string;
+    telefoneAntigo: string;
+    nomeNovo: string;
+    telefoneNovo: string;
+    leadDuplicadoId: string;
+    leadDuplicadoCodigo: string;
+  };
+}
+
+/**
+ * GET /clientes/:id/historico — cadastros duplicados que foram mesclados
+ * neste cliente (mesmo e-mail/telefone de um lead novo bateu com um
+ * cliente já existente na conversão automática). Vazio na maioria dos
+ * casos — só aparece quando a mesma pessoa entrou em contato mais de uma
+ * vez com dados de cadastro diferentes.
+ */
+export async function fetchHistoricoMesclagem(clienteId: string): Promise<HistoricoMesclagem[]> {
+  return apiRequest<HistoricoMesclagem[]>(`/clientes/${clienteId}/historico`);
 }
 
 export const SEGMENTOS: ClienteSegmento[] = ['Padrão', 'Família', 'Executivo', 'Premium', 'VIP'];

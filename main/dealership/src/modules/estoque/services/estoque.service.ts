@@ -32,6 +32,8 @@ interface EstoqueApi {
   quantidade?: number;
   km?: string | null;
   opcionais?: string[];
+  reservadoClienteId?: string | null;
+  reservadoAte?: string | null;
 }
 
 export interface CatalogVehicle {
@@ -74,6 +76,8 @@ const toEstoque = (item: EstoqueApi): Estoque => ({
   estq: item.quantidade ?? 0,
   km: item.km ?? null,
   ops: item.opcionais ?? [],
+  reservadoClienteId: item.reservadoClienteId ?? null,
+  reservadoAte: item.reservadoAte ?? null,
 });
 
 export interface EstoqueFilters { query: string; cond: string; seg: string; }
@@ -157,4 +161,19 @@ export async function updateEstoque(id: string, dados: UpdateEstoqueInput): Prom
 
 export async function deleteEstoque(id: string): Promise<void> {
   await apiRequest<void>(`/estoque/${id}`, { method: 'DELETE' });
+}
+
+/** POST /estoque/:id/reservar — reserva real, vinculada a um Cliente real,
+ * expira sozinha em 48h (ver auditoria, seção 3). */
+export async function reservarEstoque(id: string, clienteId: string): Promise<Estoque> {
+  const item = await apiRequest<EstoqueApi>(`/estoque/${id}/reservar`, {
+    method: 'POST',
+    body: JSON.stringify({ clienteId }),
+  });
+  return toEstoque(item);
+}
+
+export async function liberarReservaEstoque(id: string): Promise<Estoque> {
+  const item = await apiRequest<EstoqueApi>(`/estoque/${id}/liberar-reserva`, { method: 'POST' });
+  return toEstoque(item);
 }

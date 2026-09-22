@@ -24,12 +24,15 @@ import type { ModuleId } from '../../../types/global.types';
 interface Props { collapsed: boolean; mobileOpen: boolean; onCloseMobile: () => void; }
 
 export const AppSidebar: React.FC<Props> = ({ collapsed, mobileOpen, onCloseMobile }) => {
-  const { activeModule, navigate } = useApp();
+  const { activeModule, navigate, user } = useApp();
 
   const handleNav = (id: ModuleId) => {
     navigate(id);
     onCloseMobile();
   };
+
+  const visible = (item: { roles?: string[] }) =>
+    !item.roles || (user != null && item.roles.includes(user.role));
 
   return (
     <>
@@ -38,7 +41,7 @@ export const AppSidebar: React.FC<Props> = ({ collapsed, mobileOpen, onCloseMobi
           {NAV_SECTIONS.map((section, si) => (
             <div className="nav-section" key={si}>
               {section.label && <span className="nav-label">{section.label}</span>}
-              {section.items.map(item => (
+              {section.items.filter(visible).map(item => (
                 <a
                   key={item.id}
                   className={`nav-item${activeModule === item.id ? ' active' : ''}`}

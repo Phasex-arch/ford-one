@@ -37,21 +37,30 @@ const STATUS_LABEL: Record<OSTab, string> = { previstos: 'Previsto', andamento: 
 const BADGE_CLS: Record<OSTab, string> = { previstos: 'os-badge-previstos', andamento: 'os-badge-andamento', concluidos: 'os-badge-concluidos' };
 const PRIORIDADE_LABEL: Record<'OK'|'RISCO'|'ATRASADO', string> = { OK: 'No prazo', RISCO: 'Em risco', ATRASADO: 'Atrasado' };
 
-const gerarNumero = () => '#' + Math.floor(1000 + Math.random() * 9000) + String(Date.now()).slice(-2);
+/** value de <input type="datetime-local"> ("2026-09-25T14:00") é sempre
+ * hora local — sem timezone. new Date(iso) já converte pra local aqui, e
+ * new Date(valorLocal).toISOString() faz o caminho de volta pra UTC, mesmo
+ * padrão já usado no agendamento da Agenda. */
+const isoParaInputLocal = (iso: string | null): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
   const { user } = useApp();
   const canDelete = user?.role === 'ADMIN' || user?.role === 'GERENTE';
   const {
-    tab, setTab, list, pagination, page, setPage, loading, counts, tecnicos,
+    tab, setTab, list, pagination, page, setPage, loading, counts, tecnicos, clientes,
     detailIdx, setDetailIdx, editIdx, setEditIdx,
     deleteIdx, setDeleteIdx, novaOSOpen, setNovaOSOpen,
     moverOS, deletarOS, salvarEdicao, criarOS,
   } = useServicos(showToast);
 
   const [editForm, setEditForm] = useState<UpdateServicoInput>({});
-  const [novaForm, setNovaForm] = useState<{ c: string; v: string; t: string; tech: string; prazo: string; valor: number; prioridade: 'OK'|'RISCO'|'ATRASADO' }>(
-    { c: '', v: '', t: '', tech: '', prazo: '', valor: 0, prioridade: 'OK' }
+  const [novaForm, setNovaForm] = useState<{ cId: string; v: string; t: string; tech: string; prazoData: string; valor: number }>(
+    { cId: '', v: '', t: '', tech: '', prazoData: '', valor: 0 }
   );
 
   const detail = detailIdx !== null ? list[detailIdx] : null;
@@ -145,7 +154,7 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
       {/* Edit Modal */}
       {editItem && (
         <div className="modal-ov open" id="osEditModal" onClick={e => { if (e.target === e.currentTarget) setEditIdx(null); }}>
-          <div className="modal-box modal-sm">
+          <div className="modal-box">
             <button className="modal-x" onClick={() => setEditIdx(null)}><i className="ph-bold ph-x" /></button>
             <div style={{ padding: 20 }}>
               <h3 style={{ fontSize: 'var(--fs4)', fontWeight: 700, color: 'var(--c-text)', marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--c-border)' }}>Editar OS {editItem.num}</h3>
@@ -157,12 +166,15 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                   {tecnicos.map(t => <option key={t.id}>{t.nome}</option>)}
                 </select></label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <label>Prazo<input type="text" defaultValue={editItem.prazo} onChange={e => setEditForm(p => ({ ...p, prazo: e.target.value }))} /></label>
+                  <label>Prazo<input type="datetime-local" defaultValue={isoParaInputLocal(editItem.prazoData)}
+                    onChange={e => setEditForm(p => ({ ...p, prazoData: e.target.value ? new Date(e.target.value).toISOString() : undefined }))} /></label>
                   <label>Valor (R$)<input type="number" defaultValue={editItem.val} onChange={e => setEditForm(p => ({ ...p, valor: Number(e.target.value) }))} /></label>
                 </div>
-                <label>Prioridade do prazo<select defaultValue={editItem.pc.toUpperCase()} onChange={e => setEditForm(p => ({ ...p, prioridade: e.target.value as 'OK'|'RISCO'|'ATRASADO' }))}>
-                  <option value="OK">No prazo</option><option value="RISCO">Em risco</option><option value="ATRASADO">Atrasado</option>
-                </select></label>
+                <label>Prioridade do prazo (calculada automaticamente)
+                  <div className={`mf-val os-prazo ${editItem.pc}`} style={{ display: 'inline-flex', width: 'fit-content', marginTop: 4 }}>
+                    {PRIORIDADE_LABEL[editItem.pc.toUpperCase() as 'OK'|'RISCO'|'ATRASADO']}
+                  </div>
+                </label>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                 <button className="btn-sec" onClick={() => setEditIdx(null)}>Cancelar</button>
@@ -181,7 +193,10 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
             <div style={{ padding: 22 }}>
               <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, paddingBottom: 12, borderBottom: '1px solid var(--c-border)' }}>Nova Ordem de Serviço</h3>
               <div className="m-form" style={{ marginTop: 14 }}>
-                <label>Nome do cliente<input type="text" placeholder="Nome completo" value={novaForm.c} onChange={e => setNovaForm(p => ({ ...p, c: e.target.value }))} /></label>
+                <label>Cliente<select value={novaForm.cId} onChange={e => setNovaForm(p => ({ ...p, cId: e.target.value }))}>
+                  <option value="">Selecione o cliente...</option>
+                  {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select></label>
                 <label>Veículo<input type="text" placeholder="Modelo, versão e ano" value={novaForm.v} onChange={e => setNovaForm(p => ({ ...p, v: e.target.value }))} /></label>
                 <label>Tipo de serviço<select value={novaForm.t} onChange={e => setNovaForm(p => ({ ...p, t: e.target.value }))}>
                   <option value="">Selecione...</option>
@@ -192,26 +207,24 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
                 </select></label>
                 <label>Técnico<select value={novaForm.tech} onChange={e => setNovaForm(p => ({ ...p, tech: e.target.value }))}>
                   <option value="">Selecione...</option>
-                  {tecnicos.map(t => <option key={t.id}>{t.nome}</option>)}
+                  {tecnicos.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
                 </select></label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <label>Prazo<input type="text" placeholder="Ex.: Hoje, 14:00" value={novaForm.prazo} onChange={e => setNovaForm(p => ({ ...p, prazo: e.target.value }))} /></label>
+                  <label>Prazo<input type="datetime-local" value={novaForm.prazoData} onChange={e => setNovaForm(p => ({ ...p, prazoData: e.target.value }))} /></label>
                   <label>Valor (R$)<input type="number" value={novaForm.valor} onChange={e => setNovaForm(p => ({ ...p, valor: Number(e.target.value) }))} /></label>
                 </div>
-                <label>Prioridade do prazo<select value={novaForm.prioridade} onChange={e => setNovaForm(p => ({ ...p, prioridade: e.target.value as 'OK'|'RISCO'|'ATRASADO' }))}>
-                  <option value="OK">No prazo</option><option value="RISCO">Em risco</option><option value="ATRASADO">Atrasado</option>
-                </select></label>
+                <p className="mod-sub" style={{ fontSize: 'var(--fs0)' }}>A prioridade (No prazo / Em risco / Atrasado) é calculada automaticamente a partir do prazo.</p>
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                 <button className="btn-sec" onClick={() => setNovaOSOpen(false)}>Cancelar</button>
                 <button className="btn-prim" onClick={() => {
-                  if (!novaForm.c.trim() || !novaForm.v.trim() || !novaForm.t) { showToast('Preencha cliente, veículo e tipo.', 'warning'); return; }
+                  if (!novaForm.cId || !novaForm.v.trim() || !novaForm.t || !novaForm.prazoData) { showToast('Preencha cliente, veículo, tipo e prazo.', 'warning'); return; }
                   criarOS({
-                    numero: gerarNumero(), cliente: novaForm.c, veiculo: novaForm.v, tipo: novaForm.t,
-                    tecnico: novaForm.tech || 'A designar', prazo: novaForm.prazo || 'A definir', valor: novaForm.valor,
-                    prioridade: novaForm.prioridade,
+                    clienteId: novaForm.cId, veiculo: novaForm.v, tipo: novaForm.t,
+                    tecnicoId: novaForm.tech || undefined, tecnico: novaForm.tech ? undefined : 'A designar',
+                    prazoData: new Date(novaForm.prazoData).toISOString(), valor: novaForm.valor,
                   });
-                  setNovaForm({ c: '', v: '', t: '', tech: '', prazo: '', valor: 0, prioridade: 'OK' });
+                  setNovaForm({ cId: '', v: '', t: '', tech: '', prazoData: '', valor: 0 });
                 }}>Criar OS</button>
               </div>
             </div>
