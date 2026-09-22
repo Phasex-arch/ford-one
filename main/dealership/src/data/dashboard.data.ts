@@ -7,7 +7,7 @@
  * valores vêm sempre da API.
  */
 
-export type DashPeriod = 'hoje' | 'semana' | 'mes' | 'trimestre';
+export type DashPeriod = 'hoje' | 'semana' | 'mes' | 'trimestre' | 'ano';
 
 export interface DashDeltas {
   leads: number | null;
@@ -36,6 +36,10 @@ export interface DashData {
   estq: number;
   deltas: DashDeltas;
   alertas: DashAlertas;
-  revenue?: { labels: string[]; actual: number[]; target?: number[] };
-  conversion?: { labels: string[]; values: number[] };
+  /** prevYear só existe quando o período selecionado é 'ano' — receita dos
+   * mesmos meses um ano antes, pra comparar lado a lado. */
+  revenue?: { labels: string[]; actual: number[]; target?: number[]; prevYear?: number[] };
+  /** counts = contagem bruta de leads convertidos por mês, mesmo índice de
+   * values (%) — usada só pro tooltip de hover do gráfico de barras. */
+  conversion?: { labels: string[]; values: number[]; counts: number[] };
 }

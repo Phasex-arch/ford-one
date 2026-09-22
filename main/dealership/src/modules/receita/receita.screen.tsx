@@ -43,11 +43,15 @@ export const ReceitaScreen: React.FC = () => {
     return { financiamentos, servicos: total > 0 ? 100 - financiamentos : 0 };
   })() : null;
 
-  usePieChart('receitaCateg', pctCategorias ? {
+  usePieChart('receitaCateg', pctCategorias && data ? {
     labels: ['Financiamentos', 'Serviços'],
     data: [pctCategorias.financiamentos, pctCategorias.servicos],
     colors: ['#1700f4', '#10B981'],
-  } : null, [pctCategorias]);
+    valueLabels: [
+      formatCurrency(data.categorias.financiamentos, true),
+      formatCurrency(data.categorias.servicos, true),
+    ],
+  } : null, [pctCategorias, data]);
 
   useEffect(() => {
     const handleResize = () => window.dispatchEvent(new Event('ford:redrawCharts'));

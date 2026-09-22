@@ -12,7 +12,7 @@ export interface DesempenhoSnapshot {
     retencao: number;
     produtividade: number;
   };
-  consultores: { nome: string; conversao: number }[];
+  consultores: { nome: string; conversao: number; convertidos: number }[];
   retencaoMensal: { labels: string[]; valores: number[] };
   geradoEm: string;
 }

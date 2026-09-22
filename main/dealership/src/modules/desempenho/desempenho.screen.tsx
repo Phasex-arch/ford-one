@@ -32,6 +32,7 @@ export const DesempenhoScreen: React.FC = () => {
   useBarChart('consultorChart', data ? {
     labels: data.consultores.map(c => c.nome),
     data: data.consultores.map(c => c.conversao),
+    counts: data.consultores.map(c => c.convertidos),
     color: '#1700f4',
     unit: '%',
   } : null, [data]);

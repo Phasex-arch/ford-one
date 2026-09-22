@@ -58,7 +58,7 @@ export const AppSidebar: React.FC<Props> = ({ collapsed, mobileOpen, onCloseMobi
         </nav>
         <div className="sidebar-foot">
           <i className="ph-bold ph-shield-check sf-icon" />
-          <span className="nav-txt">Ford One v3.2 · 2026</span>
+          <span className="nav-txt">Ford One v1.0 · 2026</span>
         </div>
       </aside>
       <div

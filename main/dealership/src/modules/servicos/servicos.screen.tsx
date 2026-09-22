@@ -76,7 +76,7 @@ export const ServicosScreen: React.FC<Props> = ({ showToast }) => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--c-card)', borderRadius: 'var(--r)', padding: 6, border: '1px solid var(--c-border)', boxShadow: 'var(--sh0)', width: 'fit-content' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--c-card)', borderRadius: 'var(--r)', padding: 6, border: '1px solid var(--c-border)', boxShadow: 'var(--sh0)', width: 'fit-content', maxWidth: '100%', overflowX: 'auto' }}>
         {TABS.map(t => (
           <button key={t} className={`tab-btn${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>
             {TAB_LABELS[t]} <span className="tab-ct">{counts[t]}</span>

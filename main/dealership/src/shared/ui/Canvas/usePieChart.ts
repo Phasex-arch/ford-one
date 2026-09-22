@@ -4,20 +4,27 @@
  * Implementação própria sem bibliotecas externas.
  *
  * Funcionalidades:
- * - Formato donut com anel central exibindo percentual
+ * - Formato donut com anel central exibindo percentual (ou, ao passar o
+ *   mouse numa fatia, o valor real por trás dela — via `valueLabels`, já
+ *   formatado pelo chamador — já que o % sozinho não diz o valor absoluto)
  * - Slice expandido ao passar o cursor (efeito de destaque)
  * - Legenda lateral com cor, label e percentual
  * - Lê variáveis CSS do tema ativo para adaptar ao tema claro/escuro
  * - Mouse events: detecta hover por ângulo e distância do centro
  *
  * @param canvasId   ID do elemento <canvas> no DOM
- * @param cfg        Configuração: labels, data (percentuais), colors
+ * @param cfg        Configuração: labels, data (percentuais), colors, valueLabels (opcional)
  * @param deps       Array de dependências para redesenhar o gráfico
  */
 
 import { useEffect } from 'react';
 
-interface PieCfg { labels: string[]; data: number[]; colors: string[]; }
+interface PieCfg {
+  labels: string[]; data: number[]; colors: string[];
+  /** Texto já formatado (ex.: "R$ 300k") pra mostrar no centro ao passar o
+   * mouse numa fatia, no lugar do %. Mesmo índice de `data`. */
+  valueLabels?: string[];
+}
 
 const ctxt = () => getComputedStyle(document.documentElement).getPropertyValue('--c-mid').trim()  || '#9196ae';
 const ccard = () => getComputedStyle(document.documentElement).getPropertyValue('--c-card').trim() || '#fff';
@@ -56,8 +63,12 @@ export function usePieChart(canvasId: string, cfg: PieCfg | null, deps: unknown[
       });
       ctx.beginPath(); ctx.arc(cx, cy, ir, 0, Math.PI * 2);
       ctx.fillStyle = ccard(); ctx.fill();
-      ctx.fillStyle = ctxt(); ctx.font = 'bold 13px Inter,sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(hi >= 0 ? cfg.data[hi] + '%' : '100%', cx, cy + 4);
+      ctx.fillStyle = ctxt(); ctx.textAlign = 'center';
+      const valueLabel = hi >= 0 ? cfg.valueLabels?.[hi] : undefined;
+      // Texto de valor (ex.: "R$ 300k") costuma ser mais largo que "100%" —
+      // fonte um pouco menor pra caber dentro do anel central sem cortar.
+      ctx.font = `bold ${valueLabel !== undefined ? 11.5 : 13}px Inter,sans-serif`;
+      ctx.fillText(valueLabel ?? (hi >= 0 ? cfg.data[hi] + '%' : '100%'), cx, cy + 4);
       const lx = W * .6; let ly = cy - (cfg.labels.length * 21) / 2 + 8;
       cfg.labels.forEach((l, i) => {
         ctx.fillStyle = cfg.colors[i]; ctx.fillRect(lx, ly - 7, 10, 10);
