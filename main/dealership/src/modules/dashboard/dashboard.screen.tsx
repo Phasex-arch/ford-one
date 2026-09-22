@@ -74,6 +74,7 @@ export const DashboardScreen: React.FC = () => {
             <option value="semana">Esta semana</option>
             <option value="mes">Este mês</option>
             <option value="trimestre">Este trimestre</option>
+            <option value="ano">Este ano</option>
           </select>
           <button className="btn-prim" onClick={() => navigate('relatorios')}>
             <i className="ph-bold ph-arrow-square-out" /> Exportar

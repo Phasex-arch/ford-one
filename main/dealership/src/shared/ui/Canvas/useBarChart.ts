@@ -10,20 +10,26 @@
  * - Grid horizontal com valores no eixo Y
  * - Labels no eixo X
  * - Lê variáveis CSS do tema ativo para adaptar ao tema claro/escuro
- * - Mouse events: highlight da barra e tooltip ao passar o cursor
+ * - Mouse events: highlight da barra e, quando `counts` é informado, o
+ *   próprio número já desenhado acima da barra troca pra contagem bruta
+ *   (ex.: "25%" vira "1") enquanto o mouse está em cima — o % sozinho não
+ *   diz se foi 1 de 1 ou 10 de 10.
  *
  * @param canvasId   ID do elemento <canvas> no DOM
- * @param cfg        Configuração: labels, data, color, unit
+ * @param cfg        Configuração: labels, data, color, unit, counts (opcional)
  * @param deps       Array de dependências para redesenhar o gráfico
  */
 
 import { useEffect } from 'react';
 
-interface BarCfg { labels: string[]; data: number[]; color: string; unit?: string; }
+interface BarCfg {
+  labels: string[]; data: number[]; color: string; unit?: string;
+  /** Contagem bruta por trás de cada barra, mesmo índice de `data`. */
+  counts?: number[];
+}
 
 const ctxt  = () => getComputedStyle(document.documentElement).getPropertyValue('--c-mid').trim()    || '#9196ae';
 const cgrid = () => getComputedStyle(document.documentElement).getPropertyValue('--c-border').trim() || '#e2e5ef';
-const ccard = () => getComputedStyle(document.documentElement).getPropertyValue('--c-card').trim()   || '#fff';
 
 export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[] = []) {
   useEffect(() => {
@@ -75,7 +81,8 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
         ctx.fillStyle = ctxt();
         ctx.font = `${hov ? 'bold' : 'normal'} 10px Inter,sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText(v + (cfg.unit || ''), x + bw / 2, y - 5);
+        const inlineCount = hov ? cfg.counts?.[i] : undefined;
+        ctx.fillText(inlineCount !== undefined ? String(inlineCount) : v + (cfg.unit || ''), x + bw / 2, y - 5);
         ctx.fillText(cfg.labels[i], x + bw / 2, H - P.b + 19);
       });
     };
@@ -98,5 +105,3 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasId, ...deps]);
 }
-
-void ccard;
