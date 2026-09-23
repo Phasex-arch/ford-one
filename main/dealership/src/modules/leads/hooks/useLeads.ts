@@ -14,8 +14,10 @@
  *   (status=AGENDADO) — substitui o antigo leadSchedule local do AppContext,
  *   que nunca persistia de verdade
  * - reloadAgendamentos(): recarrega o mapa após agendar/cancelar
- * - assumirLead(id, showToast): PATCH responsavelId = usuário logado — o botão
- *   "Assumir lead" só mostrava um toast antes, sem gravar nada
+ * - assumirLead(id, showToast): PATCH responsavelId = usuário logado — a
+ *   gravação já era real, mas antes nada na tela mostrava quem assumiu (só
+ *   o toast); agora o card e o modal exibem "Responsável" de verdade e o
+ *   botão vira "Reassumir de X" / "Você é responsável" conforme o estado
  *
  * Escuta o CustomEvent 'ford:openLead' para abrir modal via busca global.
  */

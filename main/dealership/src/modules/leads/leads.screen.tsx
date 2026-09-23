@@ -142,6 +142,10 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
                 <span className={`urg-tag ${l.urg}`}>{cap(l.urg)}</span>
               </div>
               <div className="lead-vbox"><div className="lead-vlbl">Interesse em</div><div className="lead-vname">{l.v}</div><div className="lead-nec">{l.nec}</div></div>
+              <div style={{fontSize:'var(--fs0)',color:'var(--c-mid)',display:'flex',alignItems:'center',gap:4}}>
+                <i className="ph-bold ph-user-circle" style={{fontSize:12}}/>
+                {l.responsavel ? `Responsável: ${l.responsavel}` : 'Sem responsável'}
+              </div>
               <div className="lead-insight"><strong>Insight da IA</strong>{l.ins}</div>
               <div className="lead-foot">
                 <div><div className="lead-val-lbl">Valor estimado</div><div className="lead-val">{formatCurrency(l.val)}</div></div>
@@ -193,6 +197,10 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
               {leadAgendamentos[lead.id] && (
                 <div style={{padding:'10px 13px',background:'var(--green-bg)',borderRadius:'var(--rsm)',borderLeft:'3px solid var(--green)',fontSize:'var(--fs1)',marginBottom:14,color:'var(--green)',fontWeight:600}}>Agendado — {formatBooking(leadAgendamentos[lead.id].dataHora)}</div>
               )}
+              <div style={{fontSize:'var(--fs1)',color:'var(--c-mid)',display:'flex',alignItems:'center',gap:5,marginBottom:14}}>
+                <i className="ph-bold ph-user-circle" style={{fontSize:14}}/>
+                {lead.responsavel ? <>Responsável: <strong style={{color:'var(--c-text)'}}>{lead.responsavel}</strong></> : 'Sem responsável ainda'}
+              </div>
             </div>
             <div className="m-body" style={{paddingTop:0}}>
               <div className="m-sec"><div className="m-sec-title">Oportunidade</div>
@@ -222,7 +230,15 @@ export const LeadsScreen: React.FC<Props> = ({ showToast }) => {
                   {isBooked(lead.id)
                     ? <button className="btn-danger" onClick={()=>{cancelSchedule(lead.id);setModalId(null);}}>Cancelar agendamento</button>
                     : <button className="btn-sec" onClick={()=>{setModalId(null);setSchedLeadId(lead.id);setSchedDay(0);setSelectedSlot(-1);}}>Agendar visita</button>}
-                  <button className="btn-prim" onClick={()=>{if(user)assumirLead(lead.id,user.id,showToast);setModalId(null);}}>Assumir lead</button>
+                  {lead.responsavelId && lead.responsavelId === user?.id ? (
+                    <span style={{display:'inline-flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:'var(--rsm)',background:'var(--green-bg)',color:'var(--green)',fontWeight:600,fontSize:'var(--fs1)'}}>
+                      <i className="ph-bold ph-check-circle"/> Você é responsável
+                    </span>
+                  ) : (
+                    <button className="btn-prim" onClick={()=>{if(user)assumirLead(lead.id,user.id,showToast);}}>
+                      {lead.responsavelId ? `Reassumir de ${lead.responsavel ?? 'outro consultor'}` : 'Assumir lead'}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

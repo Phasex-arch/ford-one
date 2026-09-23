@@ -108,6 +108,11 @@ export interface Lead {
    * seção 0). Lead já convertido some das opções de "Lead de origem" na
    * Nova Simulação. */
   convertido: boolean;
+  /** Quem assumiu o lead (botão "Assumir lead") — null enquanto ninguém
+   * assumiu. responsavelId é a fonte real; responsavel é só o nome pra
+   * exibição (resolvido no servidor). */
+  responsavel: string | null;
+  responsavelId: string | null;
 }
 
 export interface OrdemServico {
