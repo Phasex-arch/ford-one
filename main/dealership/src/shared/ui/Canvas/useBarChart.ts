@@ -14,6 +14,10 @@
  *   próprio número já desenhado acima da barra troca pra contagem bruta
  *   (ex.: "25%" vira "1") enquanto o mouse está em cima — o % sozinho não
  *   diz se foi 1 de 1 ou 10 de 10.
+ * - Rótulos (valor acima da barra e label do eixo X) somem sozinhos quando
+ *   não cabem sem sobrepor o anterior — em telas estreitas com muitas
+ *   categorias (ex.: 12 meses no período Ano), sem isso o texto vira uma
+ *   pilha ilegível em vez de simplesmente mostrar menos rótulos.
  *
  * @param canvasId   ID do elemento <canvas> no DOM
  * @param cfg        Configuração: labels, data, color, unit, counts (opcional)
@@ -42,7 +46,12 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
     const ctx = el.getContext('2d'); if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const P = { t:18, r:18, b:32, l:44 };
+    // Telas estreitas (celular) ganham margens e fonte menores — é espaço
+    // real a mais pro plot em si, o que é o que sobra pra mais rótulos
+    // conseguirem caber sem colidir (ver draw() abaixo).
+    const narrow = W < 400;
+    const P = narrow ? { t:16, r:8, b:28, l:34 } : { t:18, r:18, b:32, l:44 };
+    const fs = narrow ? 8.5 : 10;
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
     if (cfg.data.length === 0 || cfg.labels.length === 0) {
       ctx.clearRect(0, 0, W, H);
@@ -61,9 +70,16 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
       for (let i = 0; i <= 4; i++) {
         const y = P.t + i / 4 * ph;
         ctx.beginPath(); ctx.moveTo(P.l, y); ctx.lineTo(W - P.r, y); ctx.stroke();
-        ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'right';
-        ctx.fillText(Math.round(mx - i / 4 * mx) + (cfg.unit || ''), P.l - 6, y + 3.5);
+        ctx.fillStyle = ctxt(); ctx.font = `${fs}px Inter,sans-serif`; ctx.textAlign = 'right';
+        ctx.fillText(Math.round(mx - i / 4 * mx) + (cfg.unit || ''), P.l - 5, y + 3.5);
       }
+      // Só desenha um rótulo se ele não colidir com o último já desenhado
+      // NA MESMA linha (valor ou eixo X são rastreados separado) — em vez
+      // de um breakpoint fixo, se adapta a qualquer largura de tela e
+      // qualquer quantidade de categorias sozinho.
+      const MIN_GAP = narrow ? 2 : 4;
+      let lastValRight = -Infinity;
+      let lastAxisRight = -Infinity;
       cfg.data.forEach((v, i) => {
         const x = P.l + i * (pw / cfg.data.length) + gap;
         const bh = (v / mx) * ph; const y = P.t + ph - bh; const r = 3;
@@ -79,11 +95,28 @@ export function useBarChart(canvasId: string, cfg: BarCfg | null, deps: unknown[
         ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.fill();
         if (hov) { ctx.strokeStyle = cfg.color; ctx.lineWidth = 2; ctx.stroke(); }
         ctx.fillStyle = ctxt();
-        ctx.font = `${hov ? 'bold' : 'normal'} 10px Inter,sans-serif`;
         ctx.textAlign = 'center';
+        const cx = x + bw / 2;
+
+        ctx.font = `${hov ? 'bold' : 'normal'} ${fs}px Inter,sans-serif`;
         const inlineCount = hov ? cfg.counts?.[i] : undefined;
-        ctx.fillText(inlineCount !== undefined ? String(inlineCount) : v + (cfg.unit || ''), x + bw / 2, y - 5);
-        ctx.fillText(cfg.labels[i], x + bw / 2, H - P.b + 19);
+        const valText = inlineCount !== undefined ? String(inlineCount) : v + (cfg.unit || '');
+        const valW = ctx.measureText(valText).width;
+        // v===0 não desenha barra nenhuma (altura zero) — o rótulo ficaria
+        // flutuando sem nada embaixo, só poluindo a base do gráfico. Some
+        // sozinho, exceto quando o mouse está bem em cima daquela barra.
+        if ((v !== 0 || hov) && (hov || cx - valW / 2 > lastValRight + MIN_GAP)) {
+          ctx.fillText(valText, cx, y - 5);
+          lastValRight = cx + valW / 2;
+        }
+
+        ctx.font = `${fs}px Inter,sans-serif`;
+        const axisText = cfg.labels[i];
+        const axisW = ctx.measureText(axisText).width;
+        if (cx - axisW / 2 > lastAxisRight + MIN_GAP) {
+          ctx.fillText(axisText, cx, H - P.b + 19);
+          lastAxisRight = cx + axisW / 2;
+        }
       });
     };
     draw(-1);

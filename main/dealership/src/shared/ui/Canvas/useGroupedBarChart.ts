@@ -11,6 +11,10 @@
  * - Destaque (hover) na barra sob o cursor, com valor em negrito acima dela
  * - Grid horizontal com valores no eixo Y, labels no eixo X
  * - Lê variáveis CSS do tema ativo para adaptar ao tema claro/escuro
+ * - Valor acima da barra e label do eixo X somem sozinhos quando não cabem
+ *   sem sobrepor o rótulo anterior — com 12 categorias × 2 barras (ano
+ *   atual x anterior) numa tela de celular, sem isso o texto vira uma
+ *   pilha ilegível em vez de simplesmente mostrar menos rótulos.
  *
  * @param canvasId   ID do elemento <canvas> no DOM
  * @param cfg        Configuração: labels, seriesA, seriesB, unit
@@ -36,7 +40,12 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
     const ctx = el.getContext('2d'); if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const P = { t:18, r:18, b:32, l:44 };
+    // Telas estreitas (celular) ganham margens e fonte menores — é espaço
+    // real a mais pro plot, o que é o que sobra pra mais rótulos
+    // conseguirem caber sem colidir (ver drawBar/draw abaixo).
+    const narrow = W < 400;
+    const P = narrow ? { t:16, r:8, b:28, l:34 } : { t:18, r:18, b:32, l:44 };
+    const fs = narrow ? 8 : 9.5;
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
     const n = cfg.labels.length;
     if (n === 0) { ctx.clearRect(0, 0, W, H); return; }
@@ -56,6 +65,12 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
       return serie === 'A' ? catX : catX + barW + barGap;
     };
 
+    const MIN_GAP = narrow ? 1.5 : 3;
+    // Mutável, compartilhado entre as chamadas de drawBar (A0,B0,A1,B1…) —
+    // é o que faz o valor da barra B não sobrepor o da A vizinha, e ambos
+    // não sobreporem o da próxima categoria.
+    const valTracker = { lastRight: -Infinity };
+
     const drawBar = (x: number, v: number, color: string, hov: boolean) => {
       const bh = (v / mx) * ph; const y = P.t + ph - bh; const r = 3;
       const g = ctx.createLinearGradient(0, y, 0, y + bh);
@@ -69,9 +84,18 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
       ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.fill();
       if (hov) { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke(); }
       ctx.fillStyle = ctxt();
-      ctx.font = `${hov ? 'bold' : 'normal'} 9.5px Inter,sans-serif`;
+      ctx.font = `${hov ? 'bold' : 'normal'} ${fs}px Inter,sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(String(v) + (cfg.unit || ''), x + barW / 2, y - 5);
+      const cx = x + barW / 2;
+      const text = String(v) + (cfg.unit || '');
+      const w = ctx.measureText(text).width;
+      // v===0 não tem barra nenhuma embaixo (altura zero) — mostrar o
+      // rótulo só criaria poeira de texto na base do gráfico, sem nada pra
+      // apontar. Some sozinho, exceto quando o mouse está bem em cima.
+      if ((v !== 0 || hov) && (hov || cx - w / 2 > valTracker.lastRight + MIN_GAP)) {
+        ctx.fillText(text, cx, y - 5);
+        valTracker.lastRight = cx + w / 2;
+      }
     };
 
     // hi = {i, serie} da barra sob o cursor, ou null.
@@ -81,14 +105,22 @@ export function useGroupedBarChart(canvasId: string, cfg: GroupedBarCfg | null, 
       for (let g = 0; g <= 4; g++) {
         const y = P.t + g / 4 * ph;
         ctx.beginPath(); ctx.moveTo(P.l, y); ctx.lineTo(W - P.r, y); ctx.stroke();
-        ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'right';
-        ctx.fillText(Math.round(mx - g / 4 * mx) + (cfg.unit || ''), P.l - 6, y + 3.5);
+        ctx.fillStyle = ctxt(); ctx.font = `${fs}px Inter,sans-serif`; ctx.textAlign = 'right';
+        ctx.fillText(Math.round(mx - g / 4 * mx) + (cfg.unit || ''), P.l - 5, y + 3.5);
       }
+      valTracker.lastRight = -Infinity;
+      let lastAxisRight = -Infinity;
       for (let i = 0; i < n; i++) {
         drawBar(barX(i, 'A'), cfg.seriesA.data[i] ?? 0, cfg.seriesA.color, hi?.i === i && hi.serie === 'A');
         drawBar(barX(i, 'B'), cfg.seriesB.data[i] ?? 0, cfg.seriesB.color, hi?.i === i && hi.serie === 'B');
-        ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(cfg.labels[i], P.l + i * catW + catW / 2, H - P.b + 19);
+        ctx.fillStyle = ctxt(); ctx.font = `${fs}px Inter,sans-serif`; ctx.textAlign = 'center';
+        const cx = P.l + i * catW + catW / 2;
+        const axisText = cfg.labels[i];
+        const axisW = ctx.measureText(axisText).width;
+        if (cx - axisW / 2 > lastAxisRight + MIN_GAP) {
+          ctx.fillText(axisText, cx, H - P.b + 19);
+          lastAxisRight = cx + axisW / 2;
+        }
       }
     };
     draw(null);
