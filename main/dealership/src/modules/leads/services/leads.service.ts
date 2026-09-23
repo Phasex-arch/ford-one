@@ -29,6 +29,8 @@ interface LeadApi {
   email?: string | null;
   insight?: string | null;
   convertido?: boolean;
+  responsavelId?: string | null;
+  responsavel?: { nome: string } | null;
 }
 
 const toLead = (item: LeadApi): Lead => ({
@@ -43,6 +45,8 @@ const toLead = (item: LeadApi): Lead => ({
   email: item.email ?? null,
   ins: item.insight ?? 'Sem insight adicional.',
   convertido: item.convertido ?? false,
+  responsavel: item.responsavel?.nome ?? null,
+  responsavelId: item.responsavelId ?? null,
 });
 
 export interface FetchLeadsParams {
