@@ -789,6 +789,11 @@ canvas{width:100%!important;display:block}
   .main.expanded{margin-left:0!important}
   .kpi-grid{gap:8px}
   .dash-row{grid-template-columns:1fr}
+  // Menos padding nos cards de gráfico = mais largura real pro canvas —
+  // é o que sobra pros rótulos de valor não precisarem sumir tanto no
+  // celular (ver useBarChart/useGroupedBarChart: eles só desenham o que
+  // cabe sem sobrepor, então mais largura = mais número visível de cara).
+  .chart-card{padding:14px 8px}
   .leads-grid{grid-template-columns:minmax(0,1fr)}
   .pipeline-bar{grid-template-columns:1fr 1fr}
   .agenda-layout{grid-template-columns:1fr}

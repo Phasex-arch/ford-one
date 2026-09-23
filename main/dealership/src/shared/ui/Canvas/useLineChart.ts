@@ -9,7 +9,8 @@
  * - Linhas tracejadas (dashed) para série de meta/referência
  * - Pontos interativos nas séries contínuas
  * - Grid horizontal com valores no eixo Y
- * - Labels no eixo X
+ * - Labels no eixo X — somem sozinhos quando não cabem sem sobrepor o
+ *   anterior (ex.: 12 meses numa tela de celular)
  * - Lê variáveis CSS do tema ativo (--c-mid, --c-border, --c-card)
  *   para adaptar cores ao tema claro/escuro automaticamente
  * - Mouse events: tooltip ao passar sobre os pontos
@@ -39,7 +40,12 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
     const ctx = el.getContext('2d'); if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const P = { t:18, r:18, b:32, l:44 };
+    // Telas estreitas (celular) ganham margens e fonte menores — é espaço
+    // real a mais pro plot, o que é o que sobra pros rótulos do eixo X
+    // conseguirem caber sem colidir (ver loop abaixo).
+    const narrow = W < 400;
+    const P = narrow ? { t:16, r:8, b:28, l:34 } : { t:18, r:18, b:32, l:44 };
+    const fs = narrow ? 8.5 : 10;
     const pw = W - P.l - P.r; const ph = H - P.t - P.b;
     const all = cfg.sets.flatMap(s => s.data);
     if (cfg.labels.length === 0 || all.length === 0) {
@@ -59,11 +65,22 @@ export function useLineChart(canvasId: string, cfg: LineCfg | null, deps: unknow
     for (let i = 0; i <= 4; i++) {
       const y = P.t + i / 4 * ph;
       ctx.beginPath(); ctx.moveTo(P.l, y); ctx.lineTo(W - P.r, y); ctx.stroke();
-      ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'right';
-      ctx.fillText(Math.round(mx - i / 4 * (mx - mn)) + (cfg.unit || ''), P.l - 6, y + 3.5);
+      ctx.fillStyle = ctxt(); ctx.font = `${fs}px Inter,sans-serif`; ctx.textAlign = 'right';
+      ctx.fillText(Math.round(mx - i / 4 * (mx - mn)) + (cfg.unit || ''), P.l - 5, y + 3.5);
     }
-    ctx.fillStyle = ctxt(); ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
-    cfg.labels.forEach((l, i) => ctx.fillText(l, tx(i), H - P.b + 19));
+    ctx.fillStyle = ctxt(); ctx.font = `${fs}px Inter,sans-serif`; ctx.textAlign = 'center';
+    {
+      const MIN_GAP = narrow ? 2 : 4;
+      let lastRight = -Infinity;
+      cfg.labels.forEach((l, i) => {
+        const cx = tx(i);
+        const w = ctx.measureText(l).width;
+        if (cx - w / 2 > lastRight + MIN_GAP) {
+          ctx.fillText(l, cx, H - P.b + 19);
+          lastRight = cx + w / 2;
+        }
+      });
+    }
 
     cfg.sets.forEach(ds => {
       const pts = ds.data.map((v, i) => [tx(i), ty(v)] as [number, number]);
