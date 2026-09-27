@@ -1,0 +1,51 @@
+﻿{
+    "expo":  {
+                 "name":  "Ford One",
+                 "slug":  "ford-one-expo",
+                 "version":  "1.0.0",
+                 "scheme":  "fordone",
+                 "orientation":  "portrait",
+                 "icon":  "./assets/icon.png",
+                 "userInterfaceStyle":  "automatic",
+                 "ios":  {
+                             "supportsTablet":  true,
+                             "bundleIdentifier":  "com.fordone.app"
+                         },
+                 "android":  {
+                                 "package":  "com.fordone.app",
+                                 "versionCode":  1,
+                                 "adaptiveIcon":  {
+                                                      "backgroundColor":  "#00095B",
+                                                      "foregroundImage":  "./assets/android-icon-foreground.png",
+                                                      "backgroundImage":  "./assets/android-icon-background.png",
+                                                      "monochromeImage":  "./assets/android-icon-monochrome.png"
+                                                  },
+                                 "permissions":  [
+                                                     "android.permission.RECORD_AUDIO"
+                                                 ]
+                             },
+                 "web":  {
+                             "favicon":  "./assets/favicon.png",
+                             "output":  "single"
+                         },
+                 "plugins":  [
+                                 "expo-router",
+                                 [
+                                     "expo-image-picker",
+                                     {
+                                         "photosPermission":  "O Ford One usa suas fotos para analisar a Ã¡rea ou a luz do painel que vocÃª fotografou no DiagnÃ³stico."
+                                     }
+                                 ],
+                                 "expo-font",
+                                 "expo-splash-screen"
+                             ],
+                 "extra":  {
+                               "router":  {
+
+                                          },
+                               "eas":  {
+                                           "projectId":  "03820be6-9765-4769-9b63-42b61831a5f2"
+                                       }
+                           }
+             }
+}
