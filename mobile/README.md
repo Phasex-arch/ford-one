@@ -14,11 +14,11 @@ estado final; o histórico de decisões de cada rodada de desenvolvimento
 fica preservado mais abaixo, como changelog.
 
 ## Participantes
-Gustavo Ikeda - 554718
-Henrique Azevedo - 556707
-Isadora Meneghetti - 556326
-Khadija Lima - 558971
-Ricardo Fernandes - 554597
+Gustavo Ikeda - 554718  
+Henrique Azevedo - 556707  
+Isadora Meneghetti - 556326  
+Khadija Lima - 558971  
+Ricardo Fernandes - 554597  
 
 ## Funcionalidades por tela
 
